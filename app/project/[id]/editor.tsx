@@ -51,13 +51,9 @@ function InsertSeparator({ onInsert, label }: InsertSeparatorProps) {
       onPress={onInsert}
       accessibilityLabel={label}
       accessibilityRole="button"
-      hitSlop={{ top: 4, bottom: 4, left: 16, right: 16 }}
+      hitSlop={{ top: 6, bottom: 6, left: 16, right: 16 }}
     >
-      <View style={styles.insertSeparatorLine} />
-      <View style={styles.insertSeparatorIcon}>
-        <Feather name="plus" size={10} color="#D97398" />
-      </View>
-      <View style={styles.insertSeparatorLine} />
+      <Feather name="plus" size={14} color="#d1d5db" />
     </TouchableOpacity>
   )
 }
@@ -382,25 +378,8 @@ const styles = StyleSheet.create({
 
   // Insert separator (between round rows)
   insertSeparator: {
-    flexDirection: 'row',
     alignItems: 'center',
-    marginVertical: 2,
-    paddingVertical: 4,
-  },
-  insertSeparatorLine: {
-    flex: 1,
-    height: 1,
-    backgroundColor: '#e5e7eb',
-  },
-  insertSeparatorIcon: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    borderWidth: 1,
-    borderColor: '#D97398',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginHorizontal: 6,
+    paddingVertical: 2,
   },
 
   // Round row
