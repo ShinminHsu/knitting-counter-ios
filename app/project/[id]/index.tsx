@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -12,6 +12,8 @@ import { useProjectStore } from '../../../src/stores'
 import { logScreenView } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { Chart } from '../../../src/types'
+import EditProjectModal from '../../../src/components/EditProjectModal'
+import AddChartModal from '../../../src/components/AddChartModal'
 
 // ─── Craft Type Badge ─────────────────────────────────────────────────────────
 
@@ -100,6 +102,9 @@ export default function ProjectDetailScreen() {
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const addChart = useProjectStore((s) => s.addChart)
 
+  const [showEditProject, setShowEditProject] = useState(false)
+  const [showAddChart, setShowAddChart] = useState(false)
+
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
     logScreenView(SCREEN_NAMES.PROJECT_DETAIL)
@@ -135,10 +140,9 @@ export default function ProjectDetailScreen() {
             <CraftTypeBadge craftType={project.craftType} />
           </View>
 
-          {/* Edit (pencil) button — Req 1.5: visible button, NOT long-press */}
           <TouchableOpacity
             style={styles.editButton}
-            onPress={() => router.push(`/project/${project.id}/editor`)}
+            onPress={() => setShowEditProject(true)}
             accessibilityLabel="編輯專案"
           >
             {/* Pencil icon using Unicode as placeholder until an icon library is wired up */}
@@ -152,7 +156,7 @@ export default function ProjectDetailScreen() {
             <Text style={styles.sectionTitle}>織圖</Text>
             <TouchableOpacity
               style={styles.addChartButton}
-              onPress={() => addChart(project.id, `織圖 ${project.charts.length + 1}`)}
+              onPress={() => setShowAddChart(true)}
               accessibilityLabel="新增織圖"
             >
               <Text style={styles.addChartButtonText}>+ 新增</Text>
@@ -176,11 +180,27 @@ export default function ProjectDetailScreen() {
           )}
         </View>
 
-        {/* ── TODO: PhotoGallery section (task 6.1 — Req 6.1) ─────────────── */}
+        {/* ── TODO: PhotoGallery section ───────────────────────────────────── */}
 
-        {/* ── TODO: AdBanner at the bottom (task 11.3 — Req 11.3) ─────────── */}
+        {/* ── TODO: AdBanner at the bottom ─────────────────────────────────── */}
 
       </ScrollView>
+
+      <EditProjectModal
+        visible={showEditProject}
+        project={project}
+        onClose={() => setShowEditProject(false)}
+      />
+
+      <AddChartModal
+        visible={showAddChart}
+        defaultName={`織圖 ${project.charts.length + 1}`}
+        onConfirm={(name, notes) => {
+          addChart(project.id, name, notes || undefined)
+          setShowAddChart(false)
+        }}
+        onClose={() => setShowAddChart(false)}
+      />
     </SafeAreaView>
   )
 }
