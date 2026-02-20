@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
+  Alert,
   StyleSheet,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -14,6 +15,7 @@ import { SCREEN_NAMES } from '../../../src/constants'
 import { Chart } from '../../../src/types'
 import EditProjectModal from '../../../src/components/EditProjectModal'
 import AddChartModal from '../../../src/components/AddChartModal'
+import { formatDate } from '../../../src/utils/helpers'
 
 // ─── Craft Type Badge ─────────────────────────────────────────────────────────
 
@@ -44,9 +46,10 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
 interface ChartCardProps {
   chart: Chart
   projectId: string
+  onDelete: (chart: Chart) => void
 }
 
-function ChartCard({ chart, projectId }: ChartCardProps) {
+function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
   const router = useRouter()
   const totalRounds = chart.rounds.length
   const progress =
@@ -56,13 +59,35 @@ function ChartCard({ chart, projectId }: ChartCardProps) {
 
   return (
     <View style={styles.chartCard}>
-      {/* Chart info */}
-      <Text style={styles.chartName}>{chart.name}</Text>
-      {chart.description ? (
-        <Text style={styles.chartDescription}>{chart.description}</Text>
+      {/* Chart header: name + completed badge + delete */}
+      <View style={styles.chartCardHeader}>
+        <Text style={styles.chartName} numberOfLines={1}>{chart.name}</Text>
+        <View style={styles.chartCardHeaderRight}>
+          {chart.isCompleted && (
+            <View style={styles.completedBadge}>
+              <Text style={styles.completedBadgeText}>完成</Text>
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={() => onDelete(chart)}
+            style={styles.chartDeleteButton}
+            accessibilityLabel={`刪除織圖：${chart.name}`}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Text style={styles.chartDeleteButtonText}>✕</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      {/* Notes */}
+      {chart.notes ? (
+        <Text style={styles.chartNotes} numberOfLines={2}>{chart.notes}</Text>
       ) : null}
+
+      {/* Progress */}
       <Text style={styles.chartProgress}>
-        進度：第 {chart.currentRound} / {totalRounds} 段（{progress}%）
+        進度：第 {chart.currentRound} / {totalRounds} 段
+        {totalRounds > 0 ? `（${progress}%）` : ''}
       </Text>
 
       {/* Navigation buttons */}
@@ -101,9 +126,25 @@ export default function ProjectDetailScreen() {
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const addChart = useProjectStore((s) => s.addChart)
+  const deleteChart = useProjectStore((s) => s.deleteChart)
 
   const [showEditProject, setShowEditProject] = useState(false)
   const [showAddChart, setShowAddChart] = useState(false)
+
+  const handleDeleteChart = (chart: Chart) => {
+    Alert.alert(
+      '刪除織圖',
+      `確定要刪除「${chart.name}」嗎？此操作無法復原。`,
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '刪除',
+          style: 'destructive',
+          onPress: () => deleteChart(project!.id, chart.id),
+        },
+      ]
+    )
+  }
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -150,23 +191,25 @@ export default function ProjectDetailScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* ── Project meta: source + notes ─────────────────────────────────── */}
-        {(project.source || project.notes) && (
-          <View style={styles.metaSection}>
-            {project.source ? (
-              <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>來源</Text>
-                <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
-              </View>
-            ) : null}
-            {project.notes ? (
-              <View style={styles.metaRow}>
-                <Text style={styles.metaLabel}>備註</Text>
-                <Text style={styles.metaValue}>{project.notes}</Text>
-              </View>
-            ) : null}
+        {/* ── Project meta: date + source + notes ──────────────────────────── */}
+        <View style={styles.metaSection}>
+          <View style={styles.metaRow}>
+            <Text style={styles.metaLabel}>建立</Text>
+            <Text style={styles.metaValue}>{formatDate(project.createdAt)}</Text>
           </View>
-        )}
+          {project.source ? (
+            <View style={styles.metaRow}>
+              <Text style={styles.metaLabel}>來源</Text>
+              <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
+            </View>
+          ) : null}
+          {project.notes ? (
+            <View style={styles.metaRow}>
+              <Text style={styles.metaLabel}>備註</Text>
+              <Text style={styles.metaValue}>{project.notes}</Text>
+            </View>
+          ) : null}
+        </View>
 
         {/* ── Charts section ────────────────────────────────────────────────── */}
         <View style={styles.section}>
@@ -192,7 +235,12 @@ export default function ProjectDetailScreen() {
           ) : (
             <View style={styles.chartList}>
               {project.charts.map((chart: Chart) => (
-                <ChartCard key={chart.id} chart={chart} projectId={project.id} />
+                <ChartCard
+                  key={chart.id}
+                  chart={chart}
+                  projectId={project.id}
+                  onDelete={handleDeleteChart}
+                />
               ))}
             </View>
           )}
@@ -354,14 +402,50 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     gap: 8,
   },
+  chartCardHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  chartCardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
   chartName: {
+    flex: 1,
     fontSize: 16,
     fontWeight: '700',
     color: '#2D2D2D',
   },
-  chartDescription: {
+  completedBadge: {
+    backgroundColor: '#dcfce7',
+    borderRadius: 4,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  completedBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#15803d',
+  },
+  chartDeleteButton: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#fee2e2',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  chartDeleteButtonText: {
+    fontSize: 12,
+    color: '#ef4444',
+    fontWeight: '700',
+  },
+  chartNotes: {
     fontSize: 13,
     color: '#6b7280',
+    lineHeight: 18,
   },
   chartProgress: {
     fontSize: 14,
