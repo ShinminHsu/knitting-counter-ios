@@ -9,6 +9,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native'
+import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useProjectStore } from '../../../src/stores'
 import { useChartStore } from '../../../src/stores/useChartStore'
@@ -131,7 +132,7 @@ function RoundRow({
           accessibilityRole="button"
           hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
         >
-          <Text style={styles.deleteButtonText}>✕</Text>
+          <MaterialCommunityIcons name="delete-outline" size={16} color="#ef4444" />
         </TouchableOpacity>
       </View>
     </View>
@@ -243,7 +244,7 @@ export default function PatternEditorScreen() {
             onPress={() => setShowEditChart(true)}
             accessibilityLabel="編輯織圖名稱與備註"
           >
-            <Text style={styles.chartEditButtonText}>✏️</Text>
+            <Feather name="edit" size={16} color="#6b7280" />
           </TouchableOpacity>
         </View>
         {activeChart.notes ? (
@@ -355,9 +356,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     marginLeft: 8,
   },
-  chartEditButtonText: {
-    fontSize: 16,
-  },
 
   // Rounds list
   listContent: {
@@ -459,11 +457,6 @@ const styles = StyleSheet.create({
   deleteButton: {
     backgroundColor: '#fff0f3',
     marginTop: 2,
-  },
-  deleteButtonText: {
-    fontSize: 13,
-    color: '#ef4444',
-    fontWeight: '700',
   },
 
   // Empty state

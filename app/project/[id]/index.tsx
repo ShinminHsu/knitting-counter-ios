@@ -8,6 +8,7 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native'
+import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useProjectStore } from '../../../src/stores'
 import { logScreenView } from '../../../src/services'
@@ -74,7 +75,7 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
             accessibilityLabel={`刪除織圖：${chart.name}`}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Text style={styles.chartDeleteButtonText}>✕</Text>
+            <MaterialCommunityIcons name="delete-outline" size={18} color="#ef4444" />
           </TouchableOpacity>
         </View>
       </View>
@@ -186,8 +187,7 @@ export default function ProjectDetailScreen() {
             onPress={() => setShowEditProject(true)}
             accessibilityLabel="編輯專案"
           >
-            {/* Pencil icon using Unicode as placeholder until an icon library is wired up */}
-            <Text style={styles.editButtonIcon}>✏️</Text>
+            <Feather name="edit" size={18} color="#6b7280" />
           </TouchableOpacity>
         </View>
 
@@ -324,9 +324,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
-  editButtonIcon: {
-    fontSize: 18,
-  },
 
   // Project meta
   metaSection: {
@@ -436,11 +433,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#fee2e2',
     justifyContent: 'center',
     alignItems: 'center',
-  },
-  chartDeleteButtonText: {
-    fontSize: 12,
-    color: '#ef4444',
-    fontWeight: '700',
   },
   chartNotes: {
     fontSize: 13,
