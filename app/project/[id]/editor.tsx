@@ -37,6 +37,31 @@ function buildItemSummary(item: PatternItem): string {
   return ''
 }
 
+// ─── Insert Between Separator ────────────────────────────────────────────────
+
+interface InsertSeparatorProps {
+  onInsert: () => void
+  label: string
+}
+
+function InsertSeparator({ onInsert, label }: InsertSeparatorProps) {
+  return (
+    <TouchableOpacity
+      style={styles.insertSeparator}
+      onPress={onInsert}
+      accessibilityLabel={label}
+      accessibilityRole="button"
+      hitSlop={{ top: 4, bottom: 4, left: 16, right: 16 }}
+    >
+      <View style={styles.insertSeparatorLine} />
+      <View style={styles.insertSeparatorIcon}>
+        <Feather name="plus" size={10} color="#D97398" />
+      </View>
+      <View style={styles.insertSeparatorLine} />
+    </TouchableOpacity>
+  )
+}
+
 // ─── Round Row ────────────────────────────────────────────────────────────────
 
 interface RoundRowProps {
@@ -179,9 +204,9 @@ export default function PatternEditorScreen() {
 
   const rounds = activeChart.rounds
 
-  function handleAddRound() {
+  function handleAddRound(insertAfterIndex?: number) {
     if (!activeChart) return
-    const newRound = addRound(project!.id, activeChart.id)
+    const newRound = addRound(project!.id, activeChart.id, insertAfterIndex)
     if (!newRound) {
       Alert.alert('錯誤', '新增段落失敗，請再試一次。')
     }
@@ -264,7 +289,15 @@ export default function PatternEditorScreen() {
               onDelete={() => handleDeleteRound(item.id, index)}
             />
           )}
-          ItemSeparatorComponent={() => <View style={styles.separator} />}
+          ItemSeparatorComponent={({ leadingItem }: { leadingItem: Round }) => {
+            const leadingIndex = rounds.indexOf(leadingItem)
+            return (
+              <InsertSeparator
+                onInsert={() => handleAddRound(leadingIndex)}
+                label={`在第 ${leadingIndex + 1} 段後插入新段落`}
+              />
+            )
+          }}
         />
       )}
 
@@ -272,7 +305,7 @@ export default function PatternEditorScreen() {
       <View style={styles.footer}>
         <TouchableOpacity
           style={styles.addRoundButton}
-          onPress={handleAddRound}
+          onPress={() => handleAddRound()}
           accessibilityLabel="新增段落"
           accessibilityRole="button"
         >
@@ -346,10 +379,28 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 16,
   },
-  separator: {
-    height: 1,
-    backgroundColor: '#f3f4f6',
+
+  // Insert separator (between round rows)
+  insertSeparator: {
+    flexDirection: 'row',
+    alignItems: 'center',
     marginVertical: 2,
+    paddingVertical: 4,
+  },
+  insertSeparatorLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: '#e5e7eb',
+  },
+  insertSeparatorIcon: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    borderWidth: 1,
+    borderColor: '#D97398',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginHorizontal: 6,
   },
 
   // Round row
