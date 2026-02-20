@@ -5,7 +5,6 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  FlatList,
   StyleSheet,
 } from 'react-native'
 import { useLocalSearchParams, useRouter } from 'expo-router'
@@ -35,35 +34,6 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
         {isCrochet ? '鉤針' : '棒針'}
       </Text>
     </View>
-  )
-}
-
-// ─── Chart Tab Item ───────────────────────────────────────────────────────────
-
-interface ChartTabProps {
-  chart: Chart
-  isActive: boolean
-  onPress: () => void
-}
-
-function ChartTab({ chart, isActive, onPress }: ChartTabProps) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      style={[styles.chartTab, isActive && styles.chartTabActive]}
-      accessibilityLabel={`切換至織圖：${chart.name}`}
-      accessibilityState={{ selected: isActive }}
-    >
-      <Text
-        style={[styles.chartTabText, isActive && styles.chartTabTextActive]}
-        numberOfLines={1}
-      >
-        {chart.name}
-      </Text>
-      {chart.isCompleted && (
-        <Text style={styles.chartCompletedBadge}>完成</Text>
-      )}
-    </TouchableOpacity>
   )
 }
 
@@ -128,7 +98,6 @@ export default function ProjectDetailScreen() {
   const router = useRouter()
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
-  const setCurrentChart = useProjectStore((s) => s.setCurrentChart)
   const addChart = useProjectStore((s) => s.addChart)
 
   // Analytics: log screen view on mount (Req 10.2)
@@ -152,9 +121,6 @@ export default function ProjectDetailScreen() {
       </SafeAreaView>
     )
   }
-
-  const activeChartId = project.currentChartId
-  const activeChart = project.charts.find((c) => c.id === activeChartId) ?? project.charts[0]
 
   return (
     <SafeAreaView style={styles.container}>
@@ -186,10 +152,7 @@ export default function ProjectDetailScreen() {
             <Text style={styles.sectionTitle}>織圖</Text>
             <TouchableOpacity
               style={styles.addChartButton}
-              onPress={() => {
-                const chart = addChart(project.id, `織圖 ${project.charts.length + 1}`)
-                if (chart) setCurrentChart(project.id, chart.id)
-              }}
+              onPress={() => addChart(project.id, `織圖 ${project.charts.length + 1}`)}
               accessibilityLabel="新增織圖"
             >
               <Text style={styles.addChartButtonText}>+ 新增</Text>
@@ -205,28 +168,11 @@ export default function ProjectDetailScreen() {
               </Text>
             </View>
           ) : (
-            <>
-              {/* Horizontal scroll chart tabs — Req 2.1 */}
-              <FlatList
-                data={project.charts}
-                keyExtractor={(item: Chart) => item.id}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chartTabList}
-                renderItem={({ item }: { item: Chart }) => (
-                  <ChartTab
-                    chart={item}
-                    isActive={item.id === (activeChart?.id ?? null)}
-                    onPress={() => setCurrentChart(project.id, item.id)}
-                  />
-                )}
-              />
-
-              {/* Active chart detail card */}
-              {activeChart ? (
-                <ChartCard chart={activeChart} projectId={project.id} />
-              ) : null}
-            </>
+            <View style={styles.chartList}>
+              {project.charts.map((chart: Chart) => (
+                <ChartCard key={chart.id} chart={chart} projectId={project.id} />
+              ))}
+            </View>
           )}
         </View>
 
@@ -324,42 +270,9 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // Chart tabs
-  chartTabList: {
-    gap: 8,
-    paddingBottom: 10,
-  },
-  chartTab: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    borderColor: '#d1d5db',
-    backgroundColor: '#fff',
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    maxWidth: 160,
-  },
-  chartTabActive: {
-    borderColor: '#D97398',
-    backgroundColor: '#ede9fe',
-  },
-  chartTabText: {
-    fontSize: 14,
-    color: '#6b7280',
-  },
-  chartTabTextActive: {
-    color: '#C4527F',
-    fontWeight: '600',
-  },
-  chartCompletedBadge: {
-    fontSize: 10,
-    color: '#15803d',
-    backgroundColor: '#dcfce7',
-    borderRadius: 4,
-    paddingHorizontal: 4,
-    paddingVertical: 1,
+  // Chart list
+  chartList: {
+    gap: 12,
   },
 
   // Chart card

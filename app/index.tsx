@@ -53,10 +53,10 @@ function SwipeableProjectCard({ project, onPress, onDelete }: SwipeableProjectCa
   const panResponder = useRef(
     PanResponder.create({
       onMoveShouldSetPanResponder: (_evt, gestureState) => {
-        // Only activate for horizontal swipes where horizontal movement dominates
+        // Only activate for intentional horizontal swipes (>= 12px, dominates vertical)
         return (
-          Math.abs(gestureState.dx) > 5 &&
-          Math.abs(gestureState.dx) > Math.abs(gestureState.dy)
+          Math.abs(gestureState.dx) >= 12 &&
+          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.5
         )
       },
       onPanResponderMove: (_evt, gestureState) => {
