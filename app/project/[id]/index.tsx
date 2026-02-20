@@ -75,7 +75,7 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
             accessibilityLabel={`刪除織圖：${chart.name}`}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <MaterialCommunityIcons name="delete-outline" size={18} color="#ef4444" />
+            <MaterialCommunityIcons name="delete-outline" size={18} color="#6b7280" />
           </TouchableOpacity>
         </View>
       </View>
@@ -430,7 +430,6 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#fee2e2',
     justifyContent: 'center',
     alignItems: 'center',
   },

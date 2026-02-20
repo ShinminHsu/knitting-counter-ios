@@ -132,7 +132,7 @@ function RoundRow({
           accessibilityRole="button"
           hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
         >
-          <MaterialCommunityIcons name="delete-outline" size={16} color="#ef4444" />
+          <MaterialCommunityIcons name="delete-outline" size={16} color="#6b7280" />
         </TouchableOpacity>
       </View>
     </View>
@@ -455,7 +455,6 @@ const styles = StyleSheet.create({
     color: '#d1d5db',
   },
   deleteButton: {
-    backgroundColor: '#fff0f3',
     marginTop: 2,
   },
 
