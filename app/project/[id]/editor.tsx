@@ -69,25 +69,18 @@ function RoundRow({
 
   return (
     <View style={styles.roundRow} accessibilityLabel={`第 ${index + 1} 段`}>
-      {/* Left: badge + content */}
-      <View style={styles.roundBadge}>
-        <Text style={styles.roundBadgeText}>{index + 1}</Text>
-      </View>
+      {/* Left: round label + content */}
+      <Text style={styles.roundBadgeText}>R{index + 1}</Text>
 
       <View style={styles.roundInfo}>
         <View style={styles.roundTitleRow}>
-          <Text style={styles.roundTitle}>第 {index + 1} 段</Text>
-          {hasItems && (
-            <Text style={styles.roundStitchCount}>共 {totalStitches} 針</Text>
-          )}
+          <Text style={styles.roundStitchCount}>{hasItems ? `${totalStitches} 針` : '尚無針法'}</Text>
         </View>
 
-        {hasItems ? (
+        {hasItems && (
           <Text style={styles.roundSubtitle} numberOfLines={3}>
             {itemSummaries.join('、')}
           </Text>
-        ) : (
-          <Text style={styles.roundSubtitleEmpty}>尚無針法</Text>
         )}
 
         {round.notes ? (
@@ -100,39 +93,32 @@ function RoundRow({
       {/* Right: reorder + delete controls */}
       <View style={styles.roundControls}>
         <TouchableOpacity
-          style={[styles.controlButton, isFirst && styles.controlButtonDisabled]}
           onPress={onMoveUp}
           disabled={isFirst}
           accessibilityLabel="上移段落"
           accessibilityRole="button"
-          hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
-          <Text style={[styles.controlButtonText, isFirst && styles.controlButtonTextDisabled]}>
-            ↑
-          </Text>
+          <Feather name="chevron-up" size={20} color={isFirst ? '#d1d5db' : '#6b7280'} />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.controlButton, isLast && styles.controlButtonDisabled]}
           onPress={onMoveDown}
           disabled={isLast}
           accessibilityLabel="下移段落"
           accessibilityRole="button"
-          hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
-          <Text style={[styles.controlButtonText, isLast && styles.controlButtonTextDisabled]}>
-            ↓
-          </Text>
+          <Feather name="chevron-down" size={20} color={isLast ? '#d1d5db' : '#6b7280'} />
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={[styles.controlButton, styles.deleteButton]}
           onPress={onDelete}
           accessibilityLabel="刪除段落"
           accessibilityRole="button"
-          hitSlop={{ top: 4, bottom: 4, left: 4, right: 4 }}
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
-          <MaterialCommunityIcons name="delete-outline" size={16} color="#6b7280" />
+          <MaterialCommunityIcons name="delete-outline" size={18} color="#6b7280" />
         </TouchableOpacity>
       </View>
     </View>
@@ -379,20 +365,13 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  roundBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: '#ede9fe',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
-    marginTop: 1,
-  },
   roundBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#C4527F',
+    color: '#D97398',
+    flexShrink: 0,
+    marginTop: 1,
+    minWidth: 28,
   },
   roundInfo: {
     flex: 1,
@@ -403,24 +382,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  roundTitle: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#2D2D2D',
-  },
   roundStitchCount: {
-    fontSize: 12,
-    color: '#D97398',
+    fontSize: 13,
+    color: '#6b7280',
     fontWeight: '500',
   },
   roundSubtitle: {
     fontSize: 13,
     color: '#6b7280',
     lineHeight: 18,
-  },
-  roundSubtitleEmpty: {
-    fontSize: 13,
-    color: '#d1d5db',
   },
   roundNotes: {
     fontSize: 12,
@@ -432,30 +402,9 @@ const styles = StyleSheet.create({
   roundControls: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 4,
+    gap: 6,
     flexShrink: 0,
-  },
-  controlButton: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  controlButtonDisabled: {
-    backgroundColor: '#f9fafb',
-  },
-  controlButtonText: {
-    fontSize: 15,
-    color: '#6b7280',
-    fontWeight: '600',
-  },
-  controlButtonTextDisabled: {
-    color: '#d1d5db',
-  },
-  deleteButton: {
-    marginTop: 2,
+    paddingTop: 2,
   },
 
   // Empty state
