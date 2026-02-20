@@ -26,6 +26,7 @@ export default function RootLayout() {
         <Stack.Screen name="project/[id]/editor" options={{ title: '織圖編輯器' }} />
         <Stack.Screen name="project/[id]/tracking" options={{ title: '進度追蹤' }} />
         <Stack.Screen name="project/[id]/import-export" options={{ title: '匯入匯出' }} />
+        <Stack.Screen name="project/[id]/round" options={{ title: '段落編輯' }} />
         <Stack.Screen name="pattern-elements" options={{ title: '針法庫' }} />
       </Stack>
     </>
