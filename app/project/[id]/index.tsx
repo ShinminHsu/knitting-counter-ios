@@ -150,6 +150,24 @@ export default function ProjectDetailScreen() {
           </TouchableOpacity>
         </View>
 
+        {/* ── Project meta: source + notes ─────────────────────────────────── */}
+        {(project.source || project.notes) && (
+          <View style={styles.metaSection}>
+            {project.source ? (
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>來源</Text>
+                <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
+              </View>
+            ) : null}
+            {project.notes ? (
+              <View style={styles.metaRow}>
+                <Text style={styles.metaLabel}>備註</Text>
+                <Text style={styles.metaValue}>{project.notes}</Text>
+              </View>
+            ) : null}
+          </View>
+        )}
+
         {/* ── Charts section ────────────────────────────────────────────────── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
@@ -260,6 +278,38 @@ const styles = StyleSheet.create({
   },
   editButtonIcon: {
     fontSize: 18,
+  },
+
+  // Project meta
+  metaSection: {
+    marginHorizontal: 16,
+    marginTop: 4,
+    marginBottom: 4,
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  metaRow: {
+    flexDirection: 'row',
+    gap: 10,
+    alignItems: 'flex-start',
+  },
+  metaLabel: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#9ca3af',
+    width: 36,
+    paddingTop: 1,
+  },
+  metaValue: {
+    flex: 1,
+    fontSize: 14,
+    color: '#374151',
+    lineHeight: 20,
   },
 
   // Section

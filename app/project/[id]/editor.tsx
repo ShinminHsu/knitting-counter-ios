@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import { useChartStore } from '../../../src/stores/useChartStore'
 import { logScreenView } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { Round } from '../../../src/types'
+import EditChartModal from '../../../src/components/EditChartModal'
 
 // ─── Round Row ────────────────────────────────────────────────────────────────
 
@@ -55,6 +56,8 @@ export default function PatternEditorScreen() {
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const addRound = useChartStore((s) => s.addRound)
+
+  const [showEditChart, setShowEditChart] = useState(false)
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -112,17 +115,24 @@ export default function PatternEditorScreen() {
 
       {/* ── Chart info bar ──────────────────────────────────────────────────── */}
       <View style={styles.chartInfoBar}>
-        <Text style={styles.chartName} numberOfLines={1}>
-          {activeChart.name}
-        </Text>
-        {activeChart.description ? (
-          <Text style={styles.chartDescription} numberOfLines={1}>
-            {activeChart.description}
-          </Text>
+        <View style={styles.chartInfoRow}>
+          <View style={styles.chartInfoText}>
+            <Text style={styles.chartName} numberOfLines={1}>
+              {activeChart.name}
+            </Text>
+            <Text style={styles.chartRoundCount}>共 {rounds.length} 段</Text>
+          </View>
+          <TouchableOpacity
+            style={styles.chartEditButton}
+            onPress={() => setShowEditChart(true)}
+            accessibilityLabel="編輯織圖名稱與備註"
+          >
+            <Text style={styles.chartEditButtonText}>✏️</Text>
+          </TouchableOpacity>
+        </View>
+        {activeChart.notes ? (
+          <Text style={styles.chartNotes}>{activeChart.notes}</Text>
         ) : null}
-        <Text style={styles.chartRoundCount}>
-          共 {rounds.length} 段
-        </Text>
       </View>
 
       {/* ── Rounds list ─────────────────────────────────────────────────────── */}
@@ -158,6 +168,13 @@ export default function PatternEditorScreen() {
           <Text style={styles.addRoundButtonText}>+ 新增段落</Text>
         </TouchableOpacity>
       </View>
+
+      <EditChartModal
+        visible={showEditChart}
+        projectId={project.id}
+        chart={activeChart}
+        onClose={() => setShowEditChart(false)}
+      />
     </SafeAreaView>
   )
 }
@@ -183,6 +200,15 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: '#e5e7eb',
+    gap: 6,
+  },
+  chartInfoRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  chartInfoText: {
+    flex: 1,
     gap: 2,
   },
   chartName: {
@@ -190,14 +216,23 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: '#2D2D2D',
   },
-  chartDescription: {
-    fontSize: 13,
-    color: '#6b7280',
-  },
   chartRoundCount: {
     fontSize: 12,
     color: '#9ca3af',
-    marginTop: 2,
+  },
+  chartNotes: {
+    fontSize: 13,
+    color: '#6b7280',
+    lineHeight: 18,
+  },
+  chartEditButton: {
+    padding: 8,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',
+    marginLeft: 8,
+  },
+  chartEditButtonText: {
+    fontSize: 16,
   },
 
   // Rounds list
