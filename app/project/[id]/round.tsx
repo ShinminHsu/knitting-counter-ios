@@ -5,6 +5,7 @@ import {
   SafeAreaView,
   StyleSheet,
   Text,
+  TextInput,
   TouchableOpacity,
   View,
 } from 'react-native'
@@ -65,7 +66,18 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
             >
               <Feather name="minus" size={20} color="#6b7280" />
             </TouchableOpacity>
-            <Text style={styles.countValue}>{count}</Text>
+            <TextInput
+              style={styles.countInput}
+              value={String(count)}
+              onChangeText={(text) => {
+                const n = parseInt(text, 10)
+                if (!isNaN(n) && n >= 1) setCount(n)
+                else if (text === '') setCount(1)
+              }}
+              keyboardType="number-pad"
+              selectTextOnFocus
+              accessibilityLabel="數量"
+            />
             <TouchableOpacity
               style={styles.countButton}
               onPress={() => setCount((c) => c + 1)}
@@ -562,17 +574,20 @@ const styles = StyleSheet.create({
   countButton: {
     width: 44,
     height: 44,
-    borderRadius: 22,
-    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  countValue: {
-    fontSize: 28,
+  countInput: {
+    fontSize: 24,
     fontWeight: '700',
     color: '#D97398',
-    minWidth: 48,
+    minWidth: 72,
     textAlign: 'center',
+    borderWidth: 1.5,
+    borderColor: '#D97398',
+    borderRadius: 10,
+    paddingVertical: 6,
+    paddingHorizontal: 8,
   },
   countEditorActions: {
     flexDirection: 'row',
