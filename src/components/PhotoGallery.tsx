@@ -76,12 +76,6 @@ export default function PhotoGallery({
             </View>
           )}
 
-          {/* Reference type badge */}
-          {photo.type === 'reference' && (
-            <View style={styles.typeBadge}>
-              <Text style={styles.typeBadgeText}>參考</Text>
-            </View>
-          )}
         </TouchableOpacity>
       ))}
 
@@ -129,20 +123,6 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 10,
     fontWeight: '700',
-  },
-  typeBadge: {
-    position: 'absolute',
-    bottom: 4,
-    left: 4,
-    backgroundColor: 'rgba(99, 102, 241, 0.85)',
-    borderRadius: 4,
-    paddingHorizontal: 4,
-    paddingVertical: 2,
-  },
-  typeBadgeText: {
-    color: '#fff',
-    fontSize: 9,
-    fontWeight: '600',
   },
   addButton: {
     width: THUMBNAIL_SIZE,
