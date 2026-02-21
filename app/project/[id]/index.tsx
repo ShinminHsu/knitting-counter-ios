@@ -244,13 +244,22 @@ export default function ProjectDetailScreen() {
             <CraftTypeBadge craftType={project.craftType} />
           </View>
 
-          <TouchableOpacity
-            style={styles.editButton}
-            onPress={() => setShowEditProject(true)}
-            accessibilityLabel="編輯專案"
-          >
-            <Feather name="edit" size={18} color="#6b7280" />
-          </TouchableOpacity>
+          <View style={styles.headerActions}>
+            <TouchableOpacity
+              style={styles.headerIconButton}
+              onPress={() => router.push(`/project/${project.id}/import-export`)}
+              accessibilityLabel="匯入/匯出"
+            >
+              <Feather name="share" size={18} color="#6b7280" />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.headerIconButton}
+              onPress={() => setShowEditProject(true)}
+              accessibilityLabel="編輯專案"
+            >
+              <Feather name="edit" size={18} color="#6b7280" />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* ── Project meta: date + source + notes ──────────────────────────── */}
@@ -401,8 +410,13 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '600',
   },
-  editButton: {
-    marginLeft: 12,
+  headerActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginLeft: 8,
+  },
+  headerIconButton: {
     padding: 8,
     justifyContent: 'center',
     alignItems: 'center',
