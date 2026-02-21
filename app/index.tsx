@@ -9,7 +9,6 @@ import {
   StyleSheet,
   Animated,
   PanResponder,
-  Alert,
   Dimensions,
 } from 'react-native'
 import { useRouter } from 'expo-router'
@@ -20,6 +19,7 @@ import { Project } from '../src/types'
 import { calculateProgressPercentage } from '../src/utils/progressUtils'
 import AdBanner from '../src/components/AdBanner'
 import CreateProjectModal from '../src/components/CreateProjectModal'
+import { showConfirmDialog } from '../src/components/ConfirmDialog'
 
 const SCREEN_WIDTH = Dimensions.get('window').width
 const DELETE_THRESHOLD = -80
@@ -195,21 +195,13 @@ export default function ProjectListScreen() {
   }, [])
 
   const handleDelete = (projectId: string, projectName: string) => {
-    Alert.alert(
-      '刪除專案',
-      `確定要刪除「${projectName}」嗎？此操作無法復原。`,
-      [
-        {
-          text: '取消',
-          style: 'cancel',
-        },
-        {
-          text: '刪除',
-          style: 'destructive',
-          onPress: () => deleteProject(projectId),
-        },
-      ]
-    )
+    showConfirmDialog({
+      title: '刪除專案',
+      message: `確定要刪除「${projectName}」嗎？此操作無法復原。`,
+      confirmLabel: '刪除',
+      destructive: true,
+      onConfirm: () => deleteProject(projectId),
+    })
   }
 
   return (
