@@ -273,6 +273,20 @@ export default function ProjectDetailScreen() {
           ) : null}
         </View>
 
+        {/* ── Photos section ────────────────────────────────────────────────── */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>相片</Text>
+          </View>
+          <PhotoGallery
+            photos={project.photos}
+            onAdd={handleAddPhoto}
+            onDelete={handleDeletePhoto}
+            onSetCover={handleSetCover}
+            onPhotoPress={(photo) => setViewingPhoto(photo)}
+          />
+        </View>
+
         {/* ── Charts section ────────────────────────────────────────────────── */}
         <View style={styles.section}>
           {/* Section header */}
@@ -309,20 +323,6 @@ export default function ProjectDetailScreen() {
               ))}
             </View>
           )}
-        </View>
-
-        {/* ── Photos section ────────────────────────────────────────────────── */}
-        <View style={styles.section}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>相片</Text>
-          </View>
-          <PhotoGallery
-            photos={project.photos}
-            onAdd={handleAddPhoto}
-            onDelete={handleDeletePhoto}
-            onSetCover={handleSetCover}
-            onPhotoPress={(photo) => setViewingPhoto(photo)}
-          />
         </View>
 
         {/* ── TODO: AdBanner at the bottom ─────────────────────────────────── */}
