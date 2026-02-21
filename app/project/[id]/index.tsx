@@ -42,58 +42,15 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
   )
 }
 
-// ─── Chart Tab ────────────────────────────────────────────────────────────────
+// ─── Chart Card ───────────────────────────────────────────────────────────────
 
-interface ChartTabProps {
+interface ChartCardProps {
   chart: Chart
-  isSelected: boolean
-  onSelect: () => void
+  projectId: string
   onDelete: () => void
 }
 
-function ChartTab({ chart, isSelected, onSelect, onDelete }: ChartTabProps) {
-  return (
-    <TouchableOpacity
-      style={[styles.chartTab, isSelected && styles.chartTabSelected]}
-      onPress={onSelect}
-      accessibilityLabel={`選擇織圖：${chart.name}`}
-      accessibilityState={{ selected: isSelected }}
-    >
-      <Text
-        style={[styles.chartTabText, isSelected && styles.chartTabTextSelected]}
-        numberOfLines={1}
-      >
-        {chart.name}
-      </Text>
-
-      {chart.isCompleted && (
-        <View style={styles.chartTabCompletedDot} />
-      )}
-
-      <TouchableOpacity
-        style={styles.chartTabDeleteButton}
-        onPress={onDelete}
-        accessibilityLabel={`刪除織圖：${chart.name}`}
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-      >
-        <MaterialCommunityIcons
-          name="close"
-          size={12}
-          color={isSelected ? '#D97398' : '#9ca3af'}
-        />
-      </TouchableOpacity>
-    </TouchableOpacity>
-  )
-}
-
-// ─── Selected Chart Detail ─────────────────────────────────────────────────────
-
-interface SelectedChartDetailProps {
-  chart: Chart
-  projectId: string
-}
-
-function SelectedChartDetail({ chart, projectId }: SelectedChartDetailProps) {
+function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
   const router = useRouter()
   const totalRounds = chart.rounds.length
   const progress =
@@ -102,28 +59,37 @@ function SelectedChartDetail({ chart, projectId }: SelectedChartDetailProps) {
       : 0
 
   return (
-    <View style={styles.selectedChartDetail}>
-      {/* Chart header */}
-      <View style={styles.selectedChartHeader}>
-        <Text style={styles.selectedChartName} numberOfLines={1}>
+    <View style={styles.chartCard}>
+      {/* Chart name row */}
+      <View style={styles.chartCardHeader}>
+        <Text style={styles.chartCardName} numberOfLines={1}>
           {chart.name}
         </Text>
-        {chart.isCompleted && (
-          <View style={styles.completedBadge}>
-            <Text style={styles.completedBadgeText}>完成</Text>
-          </View>
-        )}
+        <View style={styles.chartCardHeaderRight}>
+          {chart.isCompleted && (
+            <View style={styles.completedBadge}>
+              <Text style={styles.completedBadgeText}>完成</Text>
+            </View>
+          )}
+          <TouchableOpacity
+            onPress={onDelete}
+            accessibilityLabel={`刪除織圖：${chart.name}`}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Feather name="trash-2" size={15} color="#d1d5db" />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Notes */}
       {chart.notes ? (
-        <Text style={styles.selectedChartNotes} numberOfLines={2}>
+        <Text style={styles.chartCardNotes} numberOfLines={2}>
           {chart.notes}
         </Text>
       ) : null}
 
       {/* Progress */}
-      <Text style={styles.selectedChartProgress}>
+      <Text style={styles.chartCardProgress}>
         進度：第 {chart.currentRound} / {totalRounds} 段
         {totalRounds > 0 ? `（${progress}%）` : ''}
       </Text>
@@ -169,19 +135,6 @@ export default function ProjectDetailScreen() {
   const [showEditProject, setShowEditProject] = useState(false)
   const [showAddChart, setShowAddChart] = useState(false)
 
-  // selectedChartId: initialise from project.currentChartId or first chart
-  const [selectedChartId, setSelectedChartId] = useState<string | null>(
-    project?.currentChartId ?? project?.charts[0]?.id ?? null
-  )
-
-  // When charts change (e.g. new chart added), keep selection valid
-  useEffect(() => {
-    if (!project) return
-    const ids = project.charts.map((c) => c.id)
-    if (!selectedChartId || !ids.includes(selectedChartId)) {
-      setSelectedChartId(ids[0] ?? null)
-    }
-  }, [project?.charts])
 
   const handleDeleteChart = (chart: Chart) => {
     showConfirmDialog({
@@ -216,8 +169,6 @@ export default function ProjectDetailScreen() {
       </SafeAreaView>
     )
   }
-
-  const selectedChart = project.charts.find((c) => c.id === selectedChartId) ?? null
 
   return (
     <SafeAreaView style={styles.container}>
@@ -285,33 +236,17 @@ export default function ProjectDetailScreen() {
               </Text>
             </View>
           ) : (
-            <>
-              {/* ── Horizontal chart tab scroll (Req 2.1) ─────────────────── */}
-              <ScrollView
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                contentContainerStyle={styles.chartTabList}
-                style={styles.chartTabScroll}
-              >
-                {project.charts.map((chart: Chart) => (
-                  <ChartTab
-                    key={chart.id}
-                    chart={chart}
-                    isSelected={chart.id === selectedChartId}
-                    onSelect={() => setSelectedChartId(chart.id)}
-                    onDelete={() => handleDeleteChart(chart)}
-                  />
-                ))}
-              </ScrollView>
-
-              {/* ── Selected chart detail + actions (Req 2.3) ─────────────── */}
-              {selectedChart ? (
-                <SelectedChartDetail
-                  chart={selectedChart}
+            /* ── Vertical chart card list (Req 2.1) ──────────────────────── */
+            <View style={styles.chartList}>
+              {project.charts.map((chart: Chart) => (
+                <ChartCard
+                  key={chart.id}
+                  chart={chart}
                   projectId={project.id}
+                  onDelete={() => handleDeleteChart(chart)}
                 />
-              ) : null}
-            </>
+              ))}
+            </View>
           )}
         </View>
 
@@ -331,10 +266,7 @@ export default function ProjectDetailScreen() {
         visible={showAddChart}
         defaultName={`織圖 ${project.charts.length + 1}`}
         onConfirm={(name, notes) => {
-          const newChart = addChart(project.id, name, notes || undefined)
-          if (newChart) {
-            setSelectedChartId(newChart.id)
-          }
+          addChart(project.id, name, notes || undefined)
           setShowAddChart(false)
         }}
         onClose={() => setShowAddChart(false)}
@@ -455,61 +387,11 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 
-  // Chart tab scroll
-  chartTabScroll: {
-    marginBottom: 12,
+  // Chart card list (vertical)
+  chartList: {
+    gap: 10,
   },
-  chartTabList: {
-    gap: 8,
-    paddingRight: 4,
-  },
-
-  // Chart tab pill
-  chartTab: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-    borderWidth: 1.5,
-    borderColor: '#e5e7eb',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    backgroundColor: '#fff',
-    maxWidth: 180,
-  },
-  chartTabSelected: {
-    borderColor: '#D97398',
-    backgroundColor: '#fdf2f6',
-  },
-  chartTabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-    flexShrink: 1,
-  },
-  chartTabTextSelected: {
-    color: '#D97398',
-    fontWeight: '700',
-  },
-  chartTabCompletedDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: '#22c55e',
-    flexShrink: 0,
-  },
-  chartTabDeleteButton: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: '#f3f4f6',
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexShrink: 0,
-  },
-
-  // Selected chart detail card
-  selectedChartDetail: {
+  chartCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
     padding: 16,
@@ -517,12 +399,17 @@ const styles = StyleSheet.create({
     borderColor: '#e5e7eb',
     gap: 8,
   },
-  selectedChartHeader: {
+  chartCardHeader: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
   },
-  selectedChartName: {
+  chartCardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  chartCardName: {
     flex: 1,
     fontSize: 16,
     fontWeight: '700',
@@ -539,12 +426,12 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#15803d',
   },
-  selectedChartNotes: {
+  chartCardNotes: {
     fontSize: 13,
     color: '#6b7280',
     lineHeight: 18,
   },
-  selectedChartProgress: {
+  chartCardProgress: {
     fontSize: 14,
     color: '#374151',
   },
