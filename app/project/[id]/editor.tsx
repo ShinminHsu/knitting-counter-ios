@@ -68,6 +68,7 @@ interface RoundRowProps {
   onMoveUp: () => void
   onMoveDown: () => void
   onDelete: () => void
+  onPress: () => void
 }
 
 function RoundRow({
@@ -78,6 +79,7 @@ function RoundRow({
   onMoveUp,
   onMoveDown,
   onDelete,
+  onPress,
 }: RoundRowProps) {
   const totalStitches = calcRoundTotalStitches(round.patternItems)
   const hasItems = round.patternItems.length > 0
@@ -89,7 +91,13 @@ function RoundRow({
     .filter(Boolean)
 
   return (
-    <View style={styles.roundRow} accessibilityLabel={`第 ${index + 1} 段`}>
+    <TouchableOpacity
+      style={styles.roundRow}
+      onPress={onPress}
+      activeOpacity={0.75}
+      accessibilityLabel={`第 ${index + 1} 段，點擊編輯針法`}
+      accessibilityRole="button"
+    >
       {/* Left: round label + content */}
       <Text style={styles.roundBadgeText}>R{index + 1}</Text>
 
@@ -142,7 +150,7 @@ function RoundRow({
           <MaterialCommunityIcons name="delete-outline" size={18} color="#6b7280" />
         </TouchableOpacity>
       </View>
-    </View>
+    </TouchableOpacity>
   )
 }
 
@@ -283,6 +291,12 @@ export default function PatternEditorScreen() {
               onMoveUp={() => handleMoveRoundUp(item.id)}
               onMoveDown={() => handleMoveRoundDown(item.id)}
               onDelete={() => handleDeleteRound(item.id, index)}
+              onPress={() =>
+                router.push({
+                  pathname: '/project/[id]/round',
+                  params: { id: project!.id, chartId: activeChart!.id, roundId: item.id },
+                })
+              }
             />
           )}
           ItemSeparatorComponent={({ leadingItem }: { leadingItem: Round }) => {
