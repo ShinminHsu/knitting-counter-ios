@@ -12,7 +12,7 @@ import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useProjectStore } from '../../../src/stores'
 import { usePatternStore } from '../../../src/stores/usePatternStore'
-import { PatternItem, PatternItemType, StitchType } from '../../../src/types'
+import { CraftType, PatternItem, PatternItemType, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
 import {
   getStitchLabel,
@@ -20,52 +20,87 @@ import {
   isStitchGroup,
   calcRoundTotalStitches,
 } from '../../../src/utils/patternHelpers'
+import { StitchTypeInfo } from '../../../src/types'
 
-// ─── Count Editor Modal ───────────────────────────────────────────────────────
+// ─── Stitch Editor Modal ──────────────────────────────────────────────────────
 
-interface CountEditorProps {
-  value: number
-  onConfirm: (count: number) => void
+interface StitchEditorProps {
+  title: string
+  stitchType: StitchType
+  count: number
+  craftType: CraftType
+  onConfirm: (stitchType: StitchType, count: number) => void
   onCancel: () => void
 }
 
-function CountEditor({ value, onConfirm, onCancel }: CountEditorProps) {
-  const [count, setCount] = useState(value)
+function StitchEditor({ title, stitchType, count: initialCount, craftType, onConfirm, onCancel }: StitchEditorProps) {
+  const [currentType, setCurrentType] = useState(stitchType)
+  const [count, setCount] = useState(initialCount)
+  const [showChangePicker, setShowChangePicker] = useState(false)
 
   return (
-    <View style={styles.countEditorOverlay}>
-      <View style={styles.countEditorBox}>
-        <Text style={styles.countEditorTitle}>數量</Text>
-        <View style={styles.countEditorRow}>
+    <>
+      <View style={styles.countEditorOverlay}>
+        <View style={styles.countEditorBox}>
+          <Text style={styles.countEditorTitle}>{title}</Text>
+
+          {/* Stitch type row */}
           <TouchableOpacity
-            style={styles.countButton}
-            onPress={() => setCount((c) => Math.max(1, c - 1))}
-            accessibilityLabel="減少數量"
+            style={styles.stitchTypeRow}
+            onPress={() => setShowChangePicker(true)}
+            accessibilityLabel="更換針法類型"
           >
-            <Feather name="minus" size={20} color="#6b7280" />
+            <Text style={styles.stitchTypeLabel} numberOfLines={1}>
+              {currentType === StitchType.CUSTOM ? '自訂' : StitchTypeInfo[currentType]?.label ?? currentType}
+            </Text>
+            <Feather name="chevron-right" size={16} color="#9ca3af" />
           </TouchableOpacity>
-          <Text style={styles.countValue}>{count}</Text>
-          <TouchableOpacity
-            style={styles.countButton}
-            onPress={() => setCount((c) => c + 1)}
-            accessibilityLabel="增加數量"
-          >
-            <Feather name="plus" size={20} color="#6b7280" />
-          </TouchableOpacity>
-        </View>
-        <View style={styles.countEditorActions}>
-          <TouchableOpacity style={styles.countActionCancel} onPress={onCancel}>
-            <Text style={styles.countActionCancelText}>取消</Text>
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.countActionConfirm}
-            onPress={() => onConfirm(count)}
-          >
-            <Text style={styles.countActionConfirmText}>確定</Text>
-          </TouchableOpacity>
+
+          {/* Count row */}
+          <View style={styles.countEditorRow}>
+            <TouchableOpacity
+              style={styles.countButton}
+              onPress={() => setCount((c) => Math.max(1, c - 1))}
+              accessibilityLabel="減少數量"
+            >
+              <Feather name="minus" size={20} color="#6b7280" />
+            </TouchableOpacity>
+            <Text style={styles.countValue}>{count}</Text>
+            <TouchableOpacity
+              style={styles.countButton}
+              onPress={() => setCount((c) => c + 1)}
+              accessibilityLabel="增加數量"
+            >
+              <Feather name="plus" size={20} color="#6b7280" />
+            </TouchableOpacity>
+          </View>
+
+          {/* Actions */}
+          <View style={styles.countEditorActions}>
+            <TouchableOpacity style={styles.countActionCancel} onPress={onCancel}>
+              <Text style={styles.countActionCancelText}>取消</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.countActionConfirm}
+              onPress={() => onConfirm(currentType, count)}
+            >
+              <Text style={styles.countActionConfirmText}>確定</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
-    </View>
+
+      {/* Nested StitchPicker for changing type */}
+      <StitchPicker
+        visible={showChangePicker}
+        craftType={craftType}
+        onSelect={(type) => {
+          setCurrentType(type)
+          setShowChangePicker(false)
+        }}
+        onClose={() => setShowChangePicker(false)}
+      />
+    </>
   )
 }
 
@@ -73,11 +108,11 @@ function CountEditor({ value, onConfirm, onCancel }: CountEditorProps) {
 
 interface PatternItemRowProps {
   item: PatternItem
-  onEditCount: () => void
+  onEdit: () => void
   onDelete: () => void
 }
 
-function PatternItemRow({ item, onEditCount, onDelete }: PatternItemRowProps) {
+function PatternItemRow({ item, onEdit, onDelete }: PatternItemRowProps) {
   if (item.type === PatternItemType.STITCH && isStitchInfo(item.data)) {
     const stitch = item.data
     const label = getStitchLabel(stitch)
@@ -86,17 +121,17 @@ function PatternItemRow({ item, onEditCount, onDelete }: PatternItemRowProps) {
         <View style={styles.itemInfo}>
           <Text style={styles.itemLabel}>{label}</Text>
           <TouchableOpacity
-            onPress={onEditCount}
+            onPress={onEdit}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityLabel="編輯數量"
+            accessibilityLabel="編輯針法"
           >
             <Text style={styles.itemCount}>×{stitch.count}</Text>
           </TouchableOpacity>
         </View>
         <View style={styles.itemActions}>
           <TouchableOpacity
-            onPress={onEditCount}
-            accessibilityLabel="編輯針法數量"
+            onPress={onEdit}
+            accessibilityLabel="編輯針法"
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
@@ -108,7 +143,7 @@ function PatternItemRow({ item, onEditCount, onDelete }: PatternItemRowProps) {
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
-            <MaterialCommunityIcons name="delete-outline" size={18} color="#6b7280" />
+            <Feather name="trash-2" size={16} color="#6b7280" />
           </TouchableOpacity>
         </View>
       </View>
@@ -130,7 +165,7 @@ function PatternItemRow({ item, onEditCount, onDelete }: PatternItemRowProps) {
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
-            <MaterialCommunityIcons name="delete-outline" size={18} color="#6b7280" />
+            <Feather name="trash-2" size={16} color="#6b7280" />
           </TouchableOpacity>
         </View>
       </View>
@@ -158,6 +193,7 @@ export default function RoundEditScreen() {
 
   const [showStitchPicker, setShowStitchPicker] = useState(false)
   const [editingItem, setEditingItem] = useState<PatternItem | null>(null)
+  const [pendingAddType, setPendingAddType] = useState<StitchType | null>(null)
 
   // Project / chart / round guards
   if (!project) {
@@ -206,20 +242,26 @@ export default function RoundEditScreen() {
   const roundIndex = chart.rounds.findIndex((r) => r.id === roundId)
 
   function handleStitchSelected(stitchType: StitchType) {
-    // After stitch is selected from picker, add it with count = 1
-    // We show a count editor right after
-    addStitchToRound(project!.id, chart!.id, round!.id, stitchType, 1)
     setShowStitchPicker(false)
+    setPendingAddType(stitchType)
   }
 
-  function handleEditCount(item: PatternItem) {
+  function handleAddConfirm(stitchType: StitchType, count: number) {
+    addStitchToRound(project!.id, chart!.id, round!.id, stitchType, count)
+    setPendingAddType(null)
+  }
+
+  function handleEditStitch(item: PatternItem) {
     setEditingItem(item)
   }
 
-  function handleCountConfirm(newCount: number) {
+  function handleEditConfirm(newType: StitchType, newCount: number) {
     if (!editingItem) return
     if (editingItem.type === PatternItemType.STITCH && isStitchInfo(editingItem.data)) {
-      updateStitch(project!.id, chart!.id, round!.id, editingItem.id, { count: newCount })
+      updateStitch(project!.id, chart!.id, round!.id, editingItem.id, {
+        type: newType,
+        count: newCount,
+      })
     }
     setEditingItem(null)
   }
@@ -272,7 +314,7 @@ export default function RoundEditScreen() {
           renderItem={({ item }: { item: PatternItem }) => (
             <PatternItemRow
               item={item}
-              onEditCount={() => handleEditCount(item)}
+              onEdit={() => handleEditStitch(item)}
               onDelete={() => handleDeleteItem(item)}
             />
           )}
@@ -300,11 +342,26 @@ export default function RoundEditScreen() {
         onClose={() => setShowStitchPicker(false)}
       />
 
-      {/* Count editor overlay */}
+      {/* Add stitch editor */}
+      {pendingAddType !== null && (
+        <StitchEditor
+          title="新增針法"
+          stitchType={pendingAddType}
+          count={1}
+          craftType={project.craftType}
+          onConfirm={handleAddConfirm}
+          onCancel={() => setPendingAddType(null)}
+        />
+      )}
+
+      {/* Edit stitch editor */}
       {editingItem !== null && editingItem.type === PatternItemType.STITCH && isStitchInfo(editingItem.data) && (
-        <CountEditor
-          value={editingItem.data.count}
-          onConfirm={handleCountConfirm}
+        <StitchEditor
+          title="編輯針法"
+          stitchType={editingItem.data.type}
+          count={editingItem.data.count}
+          craftType={project.craftType}
+          onConfirm={handleEditConfirm}
           onCancel={() => setEditingItem(null)}
         />
       )}
@@ -478,6 +535,24 @@ const styles = StyleSheet.create({
     fontSize: 17,
     fontWeight: '600',
     color: '#1f2937',
+  },
+  stitchTypeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    width: '100%',
+    backgroundColor: '#f9fafb',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  stitchTypeLabel: {
+    flex: 1,
+    fontSize: 15,
+    color: '#1f2937',
+    fontWeight: '500',
   },
   countEditorRow: {
     flexDirection: 'row',

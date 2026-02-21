@@ -85,7 +85,7 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
             accessibilityLabel={`刪除織圖：${chart.name}`}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
-            <Feather name="trash-2" size={15} color="#d1d5db" />
+            <Feather name="trash-2" size={15} color="#6b7280" />
           </TouchableOpacity>
         </View>
       </View>
