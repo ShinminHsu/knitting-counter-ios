@@ -6,17 +6,26 @@ import {
   ScrollView,
   TouchableOpacity,
   StyleSheet,
+  Alert,
 } from 'react-native'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useProjectStore } from '../../../src/stores'
 import { logScreenView } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
-import { Chart } from '../../../src/types'
+import { Chart, ProjectPhoto } from '../../../src/types'
 import EditProjectModal from '../../../src/components/EditProjectModal'
 import AddChartModal from '../../../src/components/AddChartModal'
+import PhotoGallery from '../../../src/components/PhotoGallery'
+import PhotoViewer from '../../../src/components/PhotoViewer'
 import { showConfirmDialog } from '../../../src/components/ConfirmDialog'
 import { formatDate } from '../../../src/utils/helpers'
+import {
+  savePhoto,
+  deletePhoto as deletePhotoFile,
+  takePhoto,
+  pickPhotoFromLibrary,
+} from '../../../src/services/photoService'
 
 // ─── Craft Type Badge ─────────────────────────────────────────────────────────
 
@@ -131,10 +140,62 @@ export default function ProjectDetailScreen() {
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const addChart = useProjectStore((s) => s.addChart)
   const deleteChart = useProjectStore((s) => s.deleteChart)
+  const addPhoto = useProjectStore((s) => s.addPhoto)
+  const deletePhotoStore = useProjectStore((s) => s.deletePhoto)
+  const setCoverPhoto = useProjectStore((s) => s.setCoverPhoto)
 
   const [showEditProject, setShowEditProject] = useState(false)
   const [showAddChart, setShowAddChart] = useState(false)
+  const [viewingPhoto, setViewingPhoto] = useState<ProjectPhoto | null>(null)
 
+  // ── 照片處理 ────────────────────────────────────────────────────────────────
+
+  const handleAddPhoto = () => {
+    Alert.alert('新增照片', undefined, [
+      {
+        text: '使用相機',
+        onPress: async () => {
+          const uri = await takePhoto()
+          if (uri && project) {
+            const photo = await savePhoto(uri, project.id, 'progress')
+            addPhoto(project.id, photo)
+          }
+        },
+      },
+      {
+        text: '從相簿選擇',
+        onPress: async () => {
+          const uri = await pickPhotoFromLibrary()
+          if (uri && project) {
+            const photo = await savePhoto(uri, project.id, 'reference')
+            addPhoto(project.id, photo)
+          }
+        },
+      },
+      { text: '取消', style: 'cancel' },
+    ])
+  }
+
+  const handleDeletePhoto = (photo: ProjectPhoto) => {
+    showConfirmDialog({
+      title: '刪除照片',
+      message: '確定要刪除這張照片嗎？此操作無法復原。',
+      confirmLabel: '刪除',
+      destructive: true,
+      onConfirm: async () => {
+        await deletePhotoFile(photo)
+        deletePhotoStore(project!.id, photo.id)
+      },
+    })
+  }
+
+  const handleSetCover = (photo: ProjectPhoto) => {
+    if (project) {
+      setCoverPhoto(project.id, photo.id)
+    }
+  }
+
+  // ── 織圖處理 ────────────────────────────────────────────────────────────────
 
   const handleDeleteChart = (chart: Chart) => {
     showConfirmDialog({
@@ -250,7 +311,19 @@ export default function ProjectDetailScreen() {
           )}
         </View>
 
-        {/* ── TODO: PhotoGallery section ───────────────────────────────────── */}
+        {/* ── Photos section ────────────────────────────────────────────────── */}
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>相片</Text>
+          </View>
+          <PhotoGallery
+            photos={project.photos}
+            onAdd={handleAddPhoto}
+            onDelete={handleDeletePhoto}
+            onSetCover={handleSetCover}
+            onPhotoPress={(photo) => setViewingPhoto(photo)}
+          />
+        </View>
 
         {/* ── TODO: AdBanner at the bottom ─────────────────────────────────── */}
 
@@ -271,6 +344,14 @@ export default function ProjectDetailScreen() {
         }}
         onClose={() => setShowAddChart(false)}
       />
+
+      {viewingPhoto && (
+        <PhotoViewer
+          photo={viewingPhoto}
+          visible={true}
+          onClose={() => setViewingPhoto(null)}
+        />
+      )}
     </SafeAreaView>
   )
 }

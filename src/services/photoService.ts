@@ -126,7 +126,7 @@ export async function pickPhotoFromLibrary(): Promise<string | null> {
   }
 
   const result = await ImagePicker.launchImageLibraryAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: 'images',
     quality: 1,
   })
 
@@ -150,7 +150,7 @@ export async function takePhoto(): Promise<string | null> {
   }
 
   const result = await ImagePicker.launchCameraAsync({
-    mediaTypes: ImagePicker.MediaTypeOptions.Images,
+    mediaTypes: 'images',
     quality: 1,
   })
 
