@@ -115,9 +115,13 @@ function expandToBlocks(round: Round): StitchBlock[] {
           }
         }
 
+        const innerSummary = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join('、')
+        const groupLabel = innerSummary
+          ? `【${group.name}：${innerSummary}】 - 第 ${r + 1} 次`
+          : `【${group.name}】 - 第 ${r + 1} 次`
         blocks.push({
           key: `${item.id}-r${r}`,
-          label: `【${group.name}】- ${r + 1}`,
+          label: groupLabel,
           symbols,
           startPos: blockStart,
           endPos: blockStart + perRepeat,
@@ -135,14 +139,14 @@ function getRoundDescriptionText(round: Round): string {
     .map((item) => {
       if (item.type === PatternItemType.STITCH) {
         const stitch = item.data as StitchInfo
-        return `${getStitchLabel(stitch)} ${stitch.count}`
+        return `${getStitchLabel(stitch)} × ${stitch.count}`
       } else {
         const group = item.data as StitchGroup
         const inner = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join('、')
         return `【${group.name}：${inner}】× ${group.repeatCount}`
       }
     })
-    .join('，')
+    .join('、')
 }
 
 // ─── StitchBlockRow ───────────────────────────────────────────────────────────

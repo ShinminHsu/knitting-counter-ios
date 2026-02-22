@@ -34,10 +34,11 @@ function buildItemSummary(item: PatternItem): string {
   if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
     const group = item.data
     const stitchSummary = group.stitches
-      .map((s) => `${getStitchLabel(s)} × ${s.count}`)
+      .map((s) => `${getStitchLabel(s)} ${s.count}`)
       .join('、')
-    const groupPart = `【${group.name}】× ${group.repeatCount}次`
-    return stitchSummary ? `${groupPart}：${stitchSummary}` : groupPart
+    return stitchSummary
+      ? `【${group.name}：${stitchSummary}】 × ${group.repeatCount}`
+      : `【${group.name}】 × ${group.repeatCount}`
   }
   return ''
 }
