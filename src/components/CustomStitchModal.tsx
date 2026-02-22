@@ -10,7 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { CraftType } from '../types'
+import { CraftType, CustomStitchPattern } from '../types'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -19,6 +19,8 @@ interface CustomStitchModalProps {
   visible: boolean
   onClose: () => void
   defaultCraftType?: CraftType
+  /** Pass an existing stitch to open in edit mode */
+  editStitch?: CustomStitchPattern
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -27,8 +29,12 @@ export default function CustomStitchModal({
   visible,
   onClose,
   defaultCraftType = 'crochet',
+  editStitch,
 }: CustomStitchModalProps) {
   const addCustomStitch = useCustomStitchStore((s) => s.addCustomStitch)
+  const updateCustomStitch = useCustomStitchStore((s) => s.updateCustomStitch)
+
+  const isEditMode = editStitch !== undefined
 
   const [name, setName] = useState('')
   const [englishName, setEnglishName] = useState('')
@@ -39,13 +45,20 @@ export default function CustomStitchModal({
   // Reset form when modal opens
   useEffect(() => {
     if (visible) {
-      setName('')
-      setEnglishName('')
-      setAbbr('')
-      setCraftType(defaultCraftType)
+      if (editStitch) {
+        setName(editStitch.name)
+        setEnglishName(editStitch.englishName === editStitch.name ? '' : editStitch.englishName)
+        setAbbr(editStitch.abbr === editStitch.name ? '' : editStitch.abbr)
+        setCraftType(editStitch.craftType)
+      } else {
+        setName('')
+        setEnglishName('')
+        setAbbr('')
+        setCraftType(defaultCraftType)
+      }
       setNameError(false)
     }
-  }, [visible, defaultCraftType])
+  }, [visible, defaultCraftType, editStitch])
 
   function handleCancel() {
     onClose()
@@ -58,12 +71,20 @@ export default function CustomStitchModal({
       return
     }
 
-    addCustomStitch({
-      name: trimmedName,
-      abbr: abbr.trim() || trimmedName,
-      englishName: englishName.trim() || trimmedName,
-      craftType,
-    })
+    if (isEditMode && editStitch) {
+      updateCustomStitch(editStitch.id, {
+        name: trimmedName,
+        abbr: abbr.trim() || trimmedName,
+        englishName: englishName.trim() || trimmedName,
+      })
+    } else {
+      addCustomStitch({
+        name: trimmedName,
+        abbr: abbr.trim() || trimmedName,
+        englishName: englishName.trim() || trimmedName,
+        craftType,
+      })
+    }
 
     onClose()
   }
@@ -91,7 +112,7 @@ export default function CustomStitchModal({
           >
             <Text style={styles.headerBtnCancel}>取消</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>新增自訂針法</Text>
+          <Text style={styles.headerTitle}>{isEditMode ? '編輯自訂針法' : '新增自訂針法'}</Text>
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={handleConfirm}
@@ -161,7 +182,7 @@ export default function CustomStitchModal({
             />
           </View>
 
-          {/* 類型：鉤針／棒針 */}
+          {/* 類型：鉤針／棒針（編輯模式下不可更改）*/}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
               類型 <Text style={styles.required}>*</Text>
@@ -171,8 +192,10 @@ export default function CustomStitchModal({
                 style={[
                   styles.toggleButton,
                   craftType === 'crochet' && styles.toggleButtonActive,
+                  isEditMode && styles.toggleButtonDisabled,
                 ]}
-                onPress={() => setCraftType('crochet')}
+                onPress={() => !isEditMode && setCraftType('crochet')}
+                disabled={isEditMode}
                 accessibilityLabel="鉤針"
                 accessibilityState={{ selected: craftType === 'crochet' }}
               >
@@ -189,8 +212,10 @@ export default function CustomStitchModal({
                 style={[
                   styles.toggleButton,
                   craftType === 'knitting' && styles.toggleButtonActive,
+                  isEditMode && styles.toggleButtonDisabled,
                 ]}
-                onPress={() => setCraftType('knitting')}
+                onPress={() => !isEditMode && setCraftType('knitting')}
+                disabled={isEditMode}
                 accessibilityLabel="棒針"
                 accessibilityState={{ selected: craftType === 'knitting' }}
               >
@@ -211,10 +236,10 @@ export default function CustomStitchModal({
             style={[styles.confirmButton, !canConfirm && styles.confirmButtonDisabled]}
             onPress={handleConfirm}
             disabled={!canConfirm}
-            accessibilityLabel="新增自訂針法"
+            accessibilityLabel={isEditMode ? '儲存自訂針法' : '新增自訂針法'}
             accessibilityRole="button"
           >
-            <Text style={styles.confirmButtonText}>新增針法</Text>
+            <Text style={styles.confirmButtonText}>{isEditMode ? '儲存針法' : '新增針法'}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>
@@ -323,6 +348,9 @@ const styles = StyleSheet.create({
     borderColor: '#d1d5db',
     borderRadius: 10,
     paddingVertical: 10,
+  },
+  toggleButtonDisabled: {
+    opacity: 0.6,
   },
   toggleButtonActive: {
     backgroundColor: '#fce7f0',
