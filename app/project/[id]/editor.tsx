@@ -32,7 +32,12 @@ function buildItemSummary(item: PatternItem): string {
     return `${label} × ${item.data.count}`
   }
   if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
-    return `【${item.data.name}】× ${item.data.repeatCount}次`
+    const group = item.data
+    const stitchSummary = group.stitches
+      .map((s) => `${getStitchLabel(s)} × ${s.count}`)
+      .join('、')
+    const groupPart = `【${group.name}】× ${group.repeatCount}次`
+    return stitchSummary ? `${groupPart}：${stitchSummary}` : groupPart
   }
   return ''
 }
@@ -147,7 +152,7 @@ function RoundRow({
           accessibilityRole="button"
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
-          <MaterialCommunityIcons name="delete-outline" size={18} color="#6b7280" />
+          <Feather name="trash-2" size={16} color="#6b7280" />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>

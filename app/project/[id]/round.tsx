@@ -9,12 +9,14 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
-import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
+import { Feather } from '@expo/vector-icons'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useProjectStore } from '../../../src/stores'
 import { usePatternStore } from '../../../src/stores/usePatternStore'
-import { CraftType, PatternItem, PatternItemType, StitchType } from '../../../src/types'
+import { useTemplateStore } from '../../../src/stores/useTemplateStore'
+import { CraftType, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
+import GroupEditor, { GroupEditorResult } from '../../../src/components/GroupEditor'
 import {
   getStitchLabel,
   isStitchInfo,
@@ -164,13 +166,33 @@ function PatternItemRow({ item, onEdit, onDelete }: PatternItemRowProps) {
 
   if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
     const group = item.data
+    const stitchPreview = group.stitches
+      .map((s) => `${getStitchLabel(s)} × ${s.count}`)
+      .join('、')
     return (
       <View style={styles.itemRow}>
         <View style={styles.itemInfo}>
-          <Text style={styles.itemLabel}>【{group.name}】</Text>
-          <Text style={styles.itemCount}>×{group.repeatCount}次</Text>
+          <View style={styles.groupInfo}>
+            <View style={styles.groupTitleRow}>
+              <Text style={styles.itemLabel}>【{group.name}】</Text>
+              <Text style={styles.itemCount}>×{group.repeatCount}次</Text>
+            </View>
+            {stitchPreview ? (
+              <Text style={styles.groupPreview} numberOfLines={2}>
+                {stitchPreview}
+              </Text>
+            ) : null}
+          </View>
         </View>
         <View style={styles.itemActions}>
+          <TouchableOpacity
+            onPress={onEdit}
+            accessibilityLabel="編輯群組"
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Feather name="edit-2" size={16} color="#6b7280" />
+          </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
             accessibilityLabel="刪除群組"
@@ -202,9 +224,14 @@ export default function RoundEditScreen() {
   const updateStitch = usePatternStore((s) => s.updateStitch)
   const deleteStitch = usePatternStore((s) => s.deleteStitch)
   const deleteGroup = usePatternStore((s) => s.deleteGroup)
+  const addGroup = usePatternStore((s) => s.addGroup)
+  const updateGroup = usePatternStore((s) => s.updateGroup)
+  const addTemplate = useTemplateStore((s) => s.addTemplate)
 
   const [showStitchPicker, setShowStitchPicker] = useState(false)
+  const [showGroupEditor, setShowGroupEditor] = useState(false)
   const [editingItem, setEditingItem] = useState<PatternItem | null>(null)
+  const [editingGroup, setEditingGroup] = useState<PatternItem | null>(null)
   const [pendingAddType, setPendingAddType] = useState<StitchType | null>(null)
 
   // Project / chart / round guards
@@ -253,6 +280,10 @@ export default function RoundEditScreen() {
   const totalStitches = calcRoundTotalStitches(round.patternItems)
   const roundIndex = chart.rounds.findIndex((r) => r.id === roundId)
 
+  // Default group name: "群組 N" based on existing group count
+  const existingGroupCount = sortedItems.filter((item) => item.type === PatternItemType.GROUP).length
+  const defaultGroupName = `群組 ${existingGroupCount + 1}`
+
   function handleStitchSelected(stitchType: StitchType) {
     setShowStitchPicker(false)
     setPendingAddType(stitchType)
@@ -267,6 +298,11 @@ export default function RoundEditScreen() {
     setEditingItem(item)
   }
 
+  function handleEditGroup(item: PatternItem) {
+    setEditingGroup(item)
+    setShowGroupEditor(true)
+  }
+
   function handleEditConfirm(newType: StitchType, newCount: number) {
     if (!editingItem) return
     if (editingItem.type === PatternItemType.STITCH && isStitchInfo(editingItem.data)) {
@@ -279,18 +315,18 @@ export default function RoundEditScreen() {
   }
 
   function handleDeleteItem(item: PatternItem) {
-    const isGroup = item.type === PatternItemType.GROUP
+    const isGroupItem = item.type === PatternItemType.GROUP
 
     Alert.alert(
-      isGroup ? '刪除群組' : '刪除針法',
-      isGroup ? '確定要刪除此群組嗎？' : '確定要刪除此針法嗎？',
+      isGroupItem ? '刪除群組' : '刪除針法',
+      isGroupItem ? '確定要刪除此群組嗎？' : '確定要刪除此針法嗎？',
       [
         { text: '取消', style: 'cancel' },
         {
           text: '刪除',
           style: 'destructive',
           onPress: () => {
-            if (isGroup) {
+            if (isGroupItem) {
               deleteGroup(project!.id, chart!.id, round!.id, item.id)
             } else {
               deleteStitch(project!.id, chart!.id, round!.id, item.id)
@@ -300,6 +336,39 @@ export default function RoundEditScreen() {
       ]
     )
   }
+
+  function handleGroupConfirm(result: GroupEditorResult) {
+    if (editingGroup && isStitchGroup(editingGroup.data)) {
+      // Edit mode
+      updateGroup(project!.id, chart!.id, round!.id, editingGroup.id, {
+        name: result.name,
+        stitches: result.stitches,
+        repeatCount: result.repeatCount,
+      })
+    } else {
+      // Create mode
+      addGroup(project!.id, chart!.id, round!.id, result.name, result.stitches, result.repeatCount)
+      if (result.saveAsTemplate) {
+        addTemplate({
+          name: result.name,
+          stitches: result.stitches,
+          repeatCount: result.repeatCount,
+        })
+      }
+    }
+    setEditingGroup(null)
+    setShowGroupEditor(false)
+  }
+
+  function handleGroupEditorCancel() {
+    setEditingGroup(null)
+    setShowGroupEditor(false)
+  }
+
+  // Extract initial values for GroupEditor (edit mode)
+  const editingGroupData = editingGroup && isStitchGroup(editingGroup.data)
+    ? (editingGroup.data as StitchGroup)
+    : null
 
   return (
     <SafeAreaView style={styles.container}>
@@ -326,7 +395,13 @@ export default function RoundEditScreen() {
           renderItem={({ item }: { item: PatternItem }) => (
             <PatternItemRow
               item={item}
-              onEdit={() => handleEditStitch(item)}
+              onEdit={() => {
+                if (item.type === PatternItemType.GROUP) {
+                  handleEditGroup(item)
+                } else {
+                  handleEditStitch(item)
+                }
+              }}
               onDelete={() => handleDeleteItem(item)}
             />
           )}
@@ -334,16 +409,29 @@ export default function RoundEditScreen() {
         />
       )}
 
-      {/* Footer: Add stitch button */}
+      {/* Footer: Add stitch / Add group buttons */}
       <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => setShowStitchPicker(true)}
-          accessibilityLabel="新增針法"
-          accessibilityRole="button"
-        >
-          <Text style={styles.addButtonText}>+ 新增針法</Text>
-        </TouchableOpacity>
+        <View style={styles.footerButtons}>
+          <TouchableOpacity
+            style={[styles.addButton, styles.addButtonSecondary]}
+            onPress={() => {
+              setEditingGroup(null)
+              setShowGroupEditor(true)
+            }}
+            accessibilityLabel="新增群組"
+            accessibilityRole="button"
+          >
+            <Text style={styles.addButtonSecondaryText}>+ 新增群組</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.addButton, styles.addButtonPrimary]}
+            onPress={() => setShowStitchPicker(true)}
+            accessibilityLabel="新增針法"
+            accessibilityRole="button"
+          >
+            <Text style={styles.addButtonText}>+ 新增針法</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* StitchPicker modal */}
@@ -377,6 +465,18 @@ export default function RoundEditScreen() {
           onCancel={() => setEditingItem(null)}
         />
       )}
+
+      {/* Group editor modal (create & edit) */}
+      <GroupEditor
+        visible={showGroupEditor}
+        craftType={project.craftType}
+        defaultName={editingGroupData ? undefined : defaultGroupName}
+        initialName={editingGroupData?.name}
+        initialStitches={editingGroupData?.stitches}
+        initialRepeatCount={editingGroupData?.repeatCount}
+        onConfirm={handleGroupConfirm}
+        onCancel={handleGroupEditorCancel}
+      />
     </SafeAreaView>
   )
 }
@@ -423,7 +523,7 @@ const styles = StyleSheet.create({
   // Pattern item row
   itemRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     backgroundColor: '#fff',
     borderRadius: 10,
     paddingHorizontal: 14,
@@ -435,7 +535,7 @@ const styles = StyleSheet.create({
   itemInfo: {
     flex: 1,
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'flex-start',
     gap: 10,
   },
   itemLabel: {
@@ -456,6 +556,23 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 14,
     marginLeft: 12,
+    paddingTop: 2,
+  },
+
+  // Group stitch info
+  groupInfo: {
+    flex: 1,
+    gap: 4,
+  },
+  groupTitleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  groupPreview: {
+    fontSize: 12,
+    color: '#9ca3af',
+    lineHeight: 16,
   },
 
   // Empty state
@@ -487,14 +604,31 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: '#e5e7eb',
   },
+  footerButtons: {
+    flexDirection: 'row',
+    gap: 10,
+  },
   addButton: {
-    backgroundColor: '#D97398',
+    flex: 1,
     borderRadius: 12,
     paddingVertical: 14,
     alignItems: 'center',
   },
+  addButtonPrimary: {
+    backgroundColor: '#D97398',
+  },
+  addButtonSecondary: {
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#D97398',
+  },
   addButtonText: {
     color: '#fff',
+    fontSize: 16,
+    fontWeight: '700',
+  },
+  addButtonSecondaryText: {
+    color: '#D97398',
     fontSize: 16,
     fontWeight: '700',
   },
