@@ -61,6 +61,22 @@ interface ChartState {
     roundId: string,
     itemId: string
   ) => void
+
+  /** 針法項目上移一格（Req 3.5） */
+  movePatternItemUp: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
+
+  /** 針法項目下移一格（Req 3.5） */
+  movePatternItemDown: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
 }
 
 // ─── 內部 Helper：取得圖表 ──────────────────────────────────────────────────────
@@ -231,6 +247,34 @@ export const useChartStore = create<ChartState>()(() => ({
           }
         : r
     )
+    useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
+  },
+
+  movePatternItemUp: (projectId, chartId, roundId, itemId) => {
+    const chart = getChart(projectId, chartId)
+    if (!chart) return
+    const updatedRounds = chart.rounds.map((r) => {
+      if (r.id !== roundId) return r
+      const items = [...r.patternItems].sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((i) => i.id === itemId)
+      if (idx <= 0) return r
+      ;[items[idx - 1], items[idx]] = [items[idx], items[idx - 1]]
+      return { ...r, patternItems: items.map((item, i) => ({ ...item, order: i })) }
+    })
+    useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
+  },
+
+  movePatternItemDown: (projectId, chartId, roundId, itemId) => {
+    const chart = getChart(projectId, chartId)
+    if (!chart) return
+    const updatedRounds = chart.rounds.map((r) => {
+      if (r.id !== roundId) return r
+      const items = [...r.patternItems].sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((i) => i.id === itemId)
+      if (idx < 0 || idx >= items.length - 1) return r
+      ;[items[idx], items[idx + 1]] = [items[idx + 1], items[idx]]
+      return { ...r, patternItems: items.map((item, i) => ({ ...item, order: i })) }
+    })
     useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
   },
 }))

@@ -80,6 +80,23 @@ interface PatternState {
     roundId: string,
     itemId: string
   ) => void
+
+  // ── 排序操作（Req 3.5）──────────────────────────────────────────────────────
+  /** 針法/群組項目上移一格 */
+  movePatternItemUp: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
+
+  /** 針法/群組項目下移一格 */
+  movePatternItemDown: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -132,5 +149,13 @@ export const usePatternStore = create<PatternState>()(() => ({
 
   deleteGroup: (projectId, chartId, roundId, itemId) => {
     useChartStore.getState().deletePatternItem(projectId, chartId, roundId, itemId)
+  },
+
+  movePatternItemUp: (projectId, chartId, roundId, itemId) => {
+    useChartStore.getState().movePatternItemUp(projectId, chartId, roundId, itemId)
+  },
+
+  movePatternItemDown: (projectId, chartId, roundId, itemId) => {
+    useChartStore.getState().movePatternItemDown(projectId, chartId, roundId, itemId)
   },
 }))

@@ -122,11 +122,38 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
 
 interface PatternItemRowProps {
   item: PatternItem
+  isFirst: boolean
+  isLast: boolean
+  onMoveUp: () => void
+  onMoveDown: () => void
   onEdit: () => void
   onDelete: () => void
 }
 
-function PatternItemRow({ item, onEdit, onDelete }: PatternItemRowProps) {
+function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, onDelete }: PatternItemRowProps) {
+  const reorderControls = (
+    <View style={styles.reorderControls}>
+      <TouchableOpacity
+        onPress={onMoveUp}
+        disabled={isFirst}
+        accessibilityLabel="上移"
+        accessibilityRole="button"
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+      >
+        <Feather name="chevron-up" size={20} color={isFirst ? '#d1d5db' : '#6b7280'} />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={onMoveDown}
+        disabled={isLast}
+        accessibilityLabel="下移"
+        accessibilityRole="button"
+        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+      >
+        <Feather name="chevron-down" size={20} color={isLast ? '#d1d5db' : '#6b7280'} />
+      </TouchableOpacity>
+    </View>
+  )
+
   if (item.type === PatternItemType.STITCH && isStitchInfo(item.data)) {
     const stitch = item.data
     const label = getStitchLabel(stitch)
@@ -143,6 +170,7 @@ function PatternItemRow({ item, onEdit, onDelete }: PatternItemRowProps) {
           </TouchableOpacity>
         </View>
         <View style={styles.itemActions}>
+          {reorderControls}
           <TouchableOpacity
             onPress={onEdit}
             accessibilityLabel="編輯針法"
@@ -166,25 +194,19 @@ function PatternItemRow({ item, onEdit, onDelete }: PatternItemRowProps) {
 
   if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
     const group = item.data
-    const stitchPreview = group.stitches
-      .map((s) => `${getStitchLabel(s)} × ${s.count}`)
+    const stitchSummary = group.stitches
+      .map((s) => `${getStitchLabel(s)} ${s.count}`)
       .join('、')
+    const groupLabel = stitchSummary
+      ? `【${group.name}：${stitchSummary}】 × ${group.repeatCount}`
+      : `【${group.name}】 × ${group.repeatCount}`
     return (
       <View style={styles.itemRow}>
         <View style={styles.itemInfo}>
-          <View style={styles.groupInfo}>
-            <View style={styles.groupTitleRow}>
-              <Text style={styles.itemLabel}>【{group.name}】</Text>
-              <Text style={styles.itemCount}>×{group.repeatCount}次</Text>
-            </View>
-            {stitchPreview ? (
-              <Text style={styles.groupPreview} numberOfLines={2}>
-                {stitchPreview}
-              </Text>
-            ) : null}
-          </View>
+          <Text style={styles.itemLabel}>{groupLabel}</Text>
         </View>
         <View style={styles.itemActions}>
+          {reorderControls}
           <TouchableOpacity
             onPress={onEdit}
             accessibilityLabel="編輯群組"
@@ -226,6 +248,8 @@ export default function RoundEditScreen() {
   const deleteGroup = usePatternStore((s) => s.deleteGroup)
   const addGroup = usePatternStore((s) => s.addGroup)
   const updateGroup = usePatternStore((s) => s.updateGroup)
+  const movePatternItemUp = usePatternStore((s) => s.movePatternItemUp)
+  const movePatternItemDown = usePatternStore((s) => s.movePatternItemDown)
   const addTemplate = useTemplateStore((s) => s.addTemplate)
 
   const [showStitchPicker, setShowStitchPicker] = useState(false)
@@ -392,9 +416,13 @@ export default function RoundEditScreen() {
           data={sortedItems}
           keyExtractor={(item: PatternItem) => item.id}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item }: { item: PatternItem }) => (
+          renderItem={({ item, index }: { item: PatternItem; index: number }) => (
             <PatternItemRow
               item={item}
+              isFirst={index === 0}
+              isLast={index === sortedItems.length - 1}
+              onMoveUp={() => movePatternItemUp(project!.id, chart!.id, round!.id, item.id)}
+              onMoveDown={() => movePatternItemDown(project!.id, chart!.id, round!.id, item.id)}
               onEdit={() => {
                 if (item.type === PatternItemType.GROUP) {
                   handleEditGroup(item)
@@ -557,6 +585,11 @@ const styles = StyleSheet.create({
     gap: 14,
     marginLeft: 12,
     paddingTop: 2,
+  },
+  reorderControls: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 4,
   },
 
   // Group stitch info
