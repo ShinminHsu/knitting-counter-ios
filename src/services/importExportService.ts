@@ -156,3 +156,43 @@ export function prepareProjectForImport(exportData: ProjectExportData): Project 
   }
   return newProject
 }
+
+// ─── mergeProjectCharts ───────────────────────────────────────────────────────
+
+/**
+ * Merge charts from exported data into an existing project
+ * Used for ImportMode.MERGE_PATTERN
+ * New IDs are assigned to imported charts to avoid conflicts.
+ */
+export function mergeProjectCharts(existing: Project, exportData: ProjectExportData): Project {
+  const now = nowISO()
+  const importedCharts = exportData.project.charts.map((chart) => ({
+    ...chart,
+    id: generateId(),
+    createdAt: now,
+    updatedAt: now,
+  }))
+  return {
+    ...existing,
+    charts: [...existing.charts, ...importedCharts],
+    updatedAt: now,
+  }
+}
+
+// ─── prepareOverwriteProject ──────────────────────────────────────────────────
+
+/**
+ * Prepare an imported project to overwrite an existing one.
+ * Preserves the existing project's ID, photos, and sessions.
+ * Used for ImportMode.OVERWRITE_EXISTING
+ */
+export function prepareOverwriteProject(existing: Project, exportData: ProjectExportData): Project {
+  const now = nowISO()
+  return {
+    ...exportData.project,
+    id: existing.id,
+    photos: existing.photos,
+    sessions: existing.sessions,
+    updatedAt: now,
+  }
+}
