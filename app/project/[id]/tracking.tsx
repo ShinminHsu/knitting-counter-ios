@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import {
   View,
   Text,
@@ -10,9 +10,12 @@ import {
 } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useKeepAwake } from 'expo-keep-awake'
+import * as Haptics from 'expo-haptics'
+import { ImpactFeedbackStyle, NotificationFeedbackType } from 'expo-haptics'
 import { useProjectStore, useProgressStore } from '../../../src/stores'
 import { logScreenView, logTrackingStarted } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
+import CompletionModal from '../../../src/components/CompletionModal'
 import {
   PatternItemType,
   Round,
@@ -250,12 +253,17 @@ export default function ProgressTrackingScreen() {
   const { id, chartId } = useLocalSearchParams<{ id: string; chartId?: string }>()
   const router = useRouter()
 
+  const [showCompletion, setShowCompletion] = useState(false)
+
   useEffect(() => {
     logScreenView(SCREEN_NAMES.PROGRESS_TRACKING)
     logTrackingStarted()
   }, [])
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
+
+  const initialChartId = chartId ?? project?.currentChartId ?? project?.charts[0]?.id ?? ''
+  const [selectedChartId, setSelectedChartId] = useState(initialChartId)
 
   if (!project) {
     return (
@@ -270,9 +278,8 @@ export default function ProgressTrackingScreen() {
     )
   }
 
-  const resolvedChartId = chartId ?? project.currentChartId
   const activeChart =
-    project.charts.find((c) => c.id === resolvedChartId) ?? project.charts[0] ?? null
+    project.charts.find((c) => c.id === selectedChartId) ?? project.charts[0] ?? null
 
   if (!activeChart) {
     return (
@@ -313,18 +320,31 @@ export default function ProgressTrackingScreen() {
   // ── Action handlers ──────────────────────────────────────────────────────────
 
   function handleChartComplete() {
-    Alert.alert('🎉 完成！', '圖表已全部完成！')
+    setShowCompletion(true)
+  }
+
+  function handleCompletionClose() {
+    if (id) {
+      useProjectStore.getState().markInterstitialShown(id)
+    }
+    router.back()
   }
 
   function handleNextStitch() {
     if (!id) return
     const result = useProgressStore.getState().advanceStitch(id, activeChart.id)
+    if (result === 'round' || result === 'chart') {
+      Haptics.notificationAsync(NotificationFeedbackType.Success)
+    } else {
+      Haptics.impactAsync(ImpactFeedbackStyle.Light)
+    }
     if (result === 'chart') handleChartComplete()
   }
 
   function handlePreviousStitch() {
     if (!id) return
     useProgressStore.getState().goBackStitch(id, activeChart.id)
+    Haptics.impactAsync(ImpactFeedbackStyle.Light)
   }
 
   function handleResetRound() {
@@ -337,7 +357,10 @@ export default function ProgressTrackingScreen() {
         {
           text: '確定',
           style: 'destructive',
-          onPress: () => useProgressStore.getState().resetRound(id, activeChart.id),
+          onPress: () => {
+            useProgressStore.getState().resetRound(id, activeChart.id)
+            Haptics.impactAsync(ImpactFeedbackStyle.Medium)
+          },
         },
       ]
     )
@@ -346,6 +369,7 @@ export default function ProgressTrackingScreen() {
   function handleCompleteRound() {
     if (!id) return
     const result = useProgressStore.getState().completeRound(id, activeChart.id)
+    Haptics.notificationAsync(NotificationFeedbackType.Success)
     if (result === 'chart') handleChartComplete()
   }
 
@@ -364,6 +388,33 @@ export default function ProgressTrackingScreen() {
   return (
     <SafeAreaView style={styles.container}>
       <Stack.Screen options={{ title: activeChart.name }} />
+
+      {/* ── Chart switcher（only shown when project has multiple charts）──── */}
+      {project.charts.length > 1 && (
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          style={styles.chartSwitcher}
+          contentContainerStyle={styles.chartSwitcherContent}
+        >
+          {project.charts.map((chart) => {
+            const isActive = chart.id === selectedChartId
+            return (
+              <TouchableOpacity
+                key={chart.id}
+                style={[styles.chartTab, isActive && styles.chartTabActive]}
+                onPress={() => setSelectedChartId(chart.id)}
+                accessibilityRole="tab"
+                accessibilityState={{ selected: isActive }}
+              >
+                <Text style={[styles.chartTabText, isActive && styles.chartTabTextActive]}>
+                  {chart.name}
+                </Text>
+              </TouchableOpacity>
+            )
+          })}
+        </ScrollView>
+      )}
 
       {/* ── Pattern card（flex: 1，內部可垂直滾動）────────────────────────── */}
       <View style={styles.patternCard}>
@@ -462,6 +513,13 @@ export default function ProgressTrackingScreen() {
       </View>
 
       {/* No AdBanner on tracking screen (Req 11.4) */}
+
+      {/* Completion celebration modal (Req 4.5, 11.10–11.15) */}
+      <CompletionModal
+        visible={showCompletion}
+        onClose={handleCompletionClose}
+        interstitialShown={project.interstitialShown}
+      />
     </SafeAreaView>
   )
 }
@@ -478,6 +536,38 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     padding: 32,
+  },
+
+  // ── Chart switcher ────────────────────────────────────────────────────────────
+  chartSwitcher: {
+    flexGrow: 0,
+    flexShrink: 0,
+    marginTop: 8,
+  },
+  chartSwitcherContent: {
+    paddingHorizontal: 16,
+    gap: 8,
+  },
+  chartTab: {
+    backgroundColor: '#fff',
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+  },
+  chartTabActive: {
+    backgroundColor: '#D97398',
+    borderColor: '#D97398',
+  },
+  chartTabText: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  chartTabTextActive: {
+    color: '#fff',
+    fontWeight: '600',
   },
 
   // ── Pattern card ─────────────────────────────────────────────────────────────

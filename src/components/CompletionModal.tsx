@@ -7,11 +7,17 @@ import { loadInterstitialAd, showInterstitialAd } from '../services/adsService'
 interface CompletionModalProps {
   visible: boolean
   onClose: () => void
+  /** Pass true if interstitial ad has already been shown for this project (Req 11.15) */
+  interstitialShown?: boolean
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function CompletionModal({ visible, onClose }: CompletionModalProps) {
+export default function CompletionModal({
+  visible,
+  onClose,
+  interstitialShown = false,
+}: CompletionModalProps) {
   const scaleAnim = useRef(new Animated.Value(0)).current
   const opacityAnim = useRef(new Animated.Value(0)).current
 
@@ -39,14 +45,19 @@ export default function CompletionModal({ visible, onClose }: CompletionModalPro
     }
   }, [visible, scaleAnim, opacityAnim])
 
+  // After ≥2 seconds: show interstitial (only if not already shown), then call onClose (Req 11.10–11.15)
   useEffect(() => {
     if (!visible) return
     const timer = setTimeout(async () => {
-      const ad = await loadInterstitialAd()
-      showInterstitialAd(ad, onClose)
+      if (!interstitialShown) {
+        const ad = await loadInterstitialAd()
+        showInterstitialAd(ad, onClose)
+      } else {
+        onClose()
+      }
     }, 2000)
     return () => clearTimeout(timer)
-  }, [visible, onClose])
+  }, [visible, interstitialShown, onClose])
 
   return (
     <Modal
