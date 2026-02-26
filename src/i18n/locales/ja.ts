@@ -13,6 +13,11 @@ const ja = {
     required: '*',
     crochet: 'かぎ針編み',
     knitting: '棒針編み',
+    stitchListSep: '、',
+    groupSummary: '【{{name}}：{{stitches}}】 × {{count}}',
+    groupSummaryEmpty: '【{{name}}】 × {{count}}',
+    groupRepTitle: '【{{name}}：{{stitches}}】 - 第 {{n}} 回',
+    groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 回',
   },
 
   // ─── 編み目名 ────────────────────────────────────────────────────────────────
@@ -282,6 +287,7 @@ const ja = {
     roundStartLabel: '段番号の開始',
     roundStartFrom0: '0 から開始',
     roundStartFrom1: '1 から開始',
+    defaultName: 'チャート {{n}}',
   },
 
   editChart: {

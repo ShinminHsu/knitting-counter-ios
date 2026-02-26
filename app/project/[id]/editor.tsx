@@ -12,6 +12,7 @@ import {
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
 import { useChartStore } from '../../../src/stores/useChartStore'
 import { logScreenView } from '../../../src/services'
@@ -34,12 +35,13 @@ function buildItemSummary(item: PatternItem): string {
   }
   if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
     const group = item.data
+    const sep = i18n.t('common.stitchListSep')
     const stitchSummary = group.stitches
       .map((s) => `${getStitchLabel(s)} ${s.count}`)
-      .join('、')
+      .join(sep)
     return stitchSummary
-      ? `【${group.name}：${stitchSummary}】 × ${group.repeatCount}`
-      : `【${group.name}】 × ${group.repeatCount}`
+      ? i18n.t('common.groupSummary', { name: group.name, stitches: stitchSummary, count: group.repeatCount })
+      : i18n.t('common.groupSummaryEmpty', { name: group.name, count: group.repeatCount })
   }
   return ''
 }

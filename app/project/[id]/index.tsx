@@ -348,7 +348,7 @@ export default function ProjectDetailScreen() {
 
       <AddChartModal
         visible={showAddChart}
-        defaultName={`織圖 ${project.charts.length + 1}`}
+        defaultName={t('addChart.defaultName', { n: project.charts.length + 1 })}
         defaultRoundStart={project.roundStartNumber}
         onConfirm={(name, notes, roundStartNumber) => {
           addChart(project.id, name, notes || undefined, roundStartNumber)

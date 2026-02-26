@@ -13,6 +13,11 @@ const zhTW = {
     required: '*',
     crochet: '鉤針',
     knitting: '棒針',
+    stitchListSep: '、',
+    groupSummary: '【{{name}}：{{stitches}}】 × {{count}}',
+    groupSummaryEmpty: '【{{name}}】 × {{count}}',
+    groupRepTitle: '【{{name}}：{{stitches}}】 - 第 {{n}} 次',
+    groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 次',
   },
 
   // ─── 針法名稱 ────────────────────────────────────────────────────────────────
@@ -282,6 +287,7 @@ const zhTW = {
     roundStartLabel: '段落編號起始',
     roundStartFrom0: '從 0 開始',
     roundStartFrom1: '從 1 開始',
+    defaultName: '織圖 {{n}}',
   },
 
   editChart: {

@@ -13,6 +13,11 @@ const en = {
     required: '*',
     crochet: 'Crochet',
     knitting: 'Knitting',
+    stitchListSep: ', ',
+    groupSummary: '[{{name}}: {{stitches}}] × {{count}}',
+    groupSummaryEmpty: '[{{name}}] × {{count}}',
+    groupRepTitle: '[{{name}}: {{stitches}}] - Rep. {{n}}',
+    groupRepTitleEmpty: '[{{name}}] - Rep. {{n}}',
   },
 
   // ─── Stitch names ────────────────────────────────────────────────────────────
@@ -282,6 +287,7 @@ const en = {
     roundStartLabel: 'Round Numbering',
     roundStartFrom0: 'Start from 0',
     roundStartFrom1: 'Start from 1',
+    defaultName: 'Chart {{n}}',
   },
 
   editChart: {

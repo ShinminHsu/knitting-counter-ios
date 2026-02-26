@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import i18n from '../../../src/i18n'
 import { useKeepAwake } from 'expo-keep-awake'
 import * as Haptics from 'expo-haptics'
 import { ImpactFeedbackStyle, NotificationFeedbackType } from 'expo-haptics'
@@ -124,10 +125,11 @@ function expandToBlocks(round: Round): StitchBlock[] {
           }
         }
 
-        const innerSummary = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join('、')
+        const sep = i18n.t('common.stitchListSep')
+        const innerSummary = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
         const groupLabel = innerSummary
-          ? `【${group.name}：${innerSummary}】 - 第 ${r + 1} 次`
-          : `【${group.name}】 - 第 ${r + 1} 次`
+          ? i18n.t('common.groupRepTitle', { name: group.name, stitches: innerSummary, n: r + 1 })
+          : i18n.t('common.groupRepTitleEmpty', { name: group.name, n: r + 1 })
         blocks.push({
           key: `${item.id}-r${r}`,
           label: groupLabel,
@@ -151,11 +153,12 @@ function getRoundDescriptionText(round: Round): string {
         return `${getStitchLabel(stitch)} × ${stitch.count}`
       } else {
         const group = item.data as StitchGroup
-        const inner = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join('、')
-        return `【${group.name}：${inner}】× ${group.repeatCount}`
+        const sep = i18n.t('common.stitchListSep')
+        const inner = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
+        return i18n.t('common.groupSummary', { name: group.name, stitches: inner, count: group.repeatCount })
       }
     })
-    .join('、')
+    .join(i18n.t('common.stitchListSep'))
 }
 
 // ─── StitchBlockRow ───────────────────────────────────────────────────────────
