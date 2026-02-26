@@ -1,35 +1,104 @@
-import { ImageSourcePropType } from 'react-native'
+import { ComponentType } from 'react'
+import { SvgProps } from 'react-native-svg'
 import { StitchType } from '../types'
 
-/** Mapping from StitchType to its chart symbol PNG asset. */
-export const STITCH_ICON: Partial<Record<StitchType, ImageSourcePropType>> = {
-  // ─── Crochet ─────────────────────────────────────────────────────────────────
-  [StitchType.CHAIN]:         require('../../assets/crochet-chart-symbols/crochet-symbol-ch.png'),
-  [StitchType.SLIP_STITCH]:   require('../../assets/crochet-chart-symbols/crochet-symbol-sl-st.png'),
-  [StitchType.SINGLE]:        require('../../assets/crochet-chart-symbols/crochet-symbol-sc.png'),
-  [StitchType.HALF_DOUBLE]:   require('../../assets/crochet-chart-symbols/crochet-symbol-hdc.png'),
-  [StitchType.DOUBLE]:        require('../../assets/crochet-chart-symbols/crochet-symbol-dc.png'),
-  [StitchType.TREBLE]:        require('../../assets/crochet-chart-symbols/crochet-symbol-tr.png'),
-  [StitchType.SC2TOG]:        require('../../assets/crochet-chart-symbols/crochet-symbol-sc2tog.png'),
-  [StitchType.DC2TOG]:        require('../../assets/crochet-chart-symbols/crochet-symbol-dc2tog.png'),
-  [StitchType.DC3TOG]:        require('../../assets/crochet-chart-symbols/crochet-symbol-dc3tog.png'),
-  [StitchType.DC3_CLUSTER]:   require('../../assets/crochet-chart-symbols/crochet-symbol-3-dc.png'),
-  [StitchType.HDC3_CLUSTER]:  require('../../assets/crochet-chart-symbols/crochet-symbol-3-hdc.png'),
-  [StitchType.DC5_POPCORN]:   require('../../assets/crochet-chart-symbols/crochet-symbol-5-dc.png'),
-  [StitchType.DC5_SHELL]:     require('../../assets/crochet-chart-symbols/crochet-symbol-5-dc-shell.png'),
-  // ─── Knitting ────────────────────────────────────────────────────────────────
-  [StitchType.PURL]:          require('../../assets/knit-chart-symbols/knit-symbol-P-on-RS.png'),
-  [StitchType.YARN_OVER]:     require('../../assets/knit-chart-symbols/knit-symbol-Yarn-over.png'),
-  [StitchType.SLIP_WYIB]:     require('../../assets/knit-chart-symbols/knit-symbol-Sl-1-purlwise-wyb.png'),
-  [StitchType.SLIP_WYIF]:     require('../../assets/knit-chart-symbols/knit-symbol-Sl-1-purlwise-wyf.png'),
-  [StitchType.SSK]:           require('../../assets/knit-chart-symbols/knit-symbol-SSK-on-RS.png'),
-  [StitchType.SSP]:           require('../../assets/knit-chart-symbols/knit-symbol-SSP-on-RS.png'),
-  [StitchType.K2TOG]:         require('../../assets/knit-chart-symbols/knit-symbol-K2tog-on-RS.png'),
-  [StitchType.P2TOG]:         require('../../assets/knit-chart-symbols/knit-symbol-P2tog-on-RS.png'),
-  [StitchType.M1L]:           require('../../assets/knit-chart-symbols/knit-symbol-Left-slanting-make-1.png'),
-  [StitchType.M1LP]:          require('../../assets/knit-chart-symbols/knit-symbol-M1-purlwise.png'),
-  [StitchType.M1R]:           require('../../assets/knit-chart-symbols/knit-symbol-Right-slanting-make-1.png'),
-  [StitchType.M1RP]:          require('../../assets/knit-chart-symbols/knit-symbol-M1-purlwise.png'),
-  [StitchType.K_TBL]:         require('../../assets/knit-chart-symbols/knit-symbol-K1-tbl-on-RS.png'),
-  [StitchType.P_TBL]:         require('../../assets/knit-chart-symbols/knit-symbol-P1-tbl-on-RS.png'),
+// ─── Crochet SVGs ─────────────────────────────────────────────────────────────
+import SvgChain from '../../assets/crochet-chart-symbols/32px-Crochet_chain.svg'
+import SvgSlipStitch from '../../assets/crochet-chart-symbols/8px-Slst-crochet-symbols.svg'
+import SvgSingle from '../../assets/crochet-chart-symbols/32px-Crochet_single_crochet.svg'
+import SvgHalfDouble from '../../assets/crochet-chart-symbols/32px-Crochet_half_double_crochet.svg'
+import SvgDouble from '../../assets/crochet-chart-symbols/32px-Crochet_double_crochet.svg'
+import SvgTreble from '../../assets/crochet-chart-symbols/32px-Crochet_double_triple.svg'
+import SvgScInc from '../../assets/crochet-chart-symbols/32px-Crochet_single_crochet.svg'
+import SvgHdcInc from '../../assets/crochet-chart-symbols/16px-Hdc-crochet-symbols.svg'
+import SvgDcInc from '../../assets/crochet-chart-symbols/32px-Crochet_inc1dc.svg'
+import SvgSc2tog from '../../assets/crochet-chart-symbols/16px-Sc2tog-crochet-symbols.svg'
+import SvgHdc2tog from '../../assets/crochet-chart-symbols/32px-Hdc2tog-crochet-symbols.svg'
+import SvgHdc3tog from '../../assets/crochet-chart-symbols/32px-Hdg3tog-crochet-symbols.svg'
+import SvgDc2tog from '../../assets/crochet-chart-symbols/32px-Crochet_dc2tog.svg'
+import SvgDc3tog from '../../assets/crochet-chart-symbols/32px-Crochet_dc3tog.svg'
+import SvgDc3Cluster from '../../assets/crochet-chart-symbols/32px-Dc3sh-crochet-symbols.svg'
+import SvgHdc3Cluster from '../../assets/crochet-chart-symbols/32px-Hdc3sh-crochet-symbols.svg'
+import SvgDc5Popcorn from '../../assets/crochet-chart-symbols/32px-Crochet_popcorn.svg'
+import SvgDc5Shell from '../../assets/crochet-chart-symbols/32px-Dc4sh-crochet-symbols.svg'
+
+// ─── Knitting SVGs ────────────────────────────────────────────────────────────
+import SvgKnit from '../../assets/knit-chart-symbols/knit.svg'
+import SvgPurl from '../../assets/knit-chart-symbols/purl.svg'
+import SvgYarnOver from '../../assets/knit-chart-symbols/yarnover.svg'
+import SvgSlipWyib from '../../assets/knit-chart-symbols/slip.svg'
+import SvgSlipWyif from '../../assets/knit-chart-symbols/slipwyif.svg'
+import SvgSsk from '../../assets/knit-chart-symbols/decreaseleft.svg'
+import SvgSsp from '../../assets/knit-chart-symbols/decreaseleft_purl.svg'
+import SvgK2tog from '../../assets/knit-chart-symbols/decreaseright.svg'
+import SvgP2tog from '../../assets/knit-chart-symbols/decreaseright_purl.svg'
+import SvgSssk from '../../assets/knit-chart-symbols/decreaseleft.2w.svg'
+import SvgK3tog from '../../assets/knit-chart-symbols/decreaseright.2w.svg'
+import SvgCdd from '../../assets/knit-chart-symbols/decrease3to1centered.svg'
+import SvgM1l from '../../assets/knit-chart-symbols/slantleft.svg'
+import SvgM1r from '../../assets/knit-chart-symbols/slantright.svg'
+import SvgM1lp from '../../assets/knit-chart-symbols/twist_purl.svg'
+import SvgM1rp from '../../assets/knit-chart-symbols/twist_purl.svg'
+import SvgKtbl from '../../assets/knit-chart-symbols/twist.svg'
+import SvgPtbl from '../../assets/knit-chart-symbols/twist_purl.svg'
+import SvgCable11RC from '../../assets/knit-chart-symbols/crossright.svg'
+import SvgCable11LC from '../../assets/knit-chart-symbols/crossleft.svg'
+import SvgCable22RC from '../../assets/knit-chart-symbols/c2over2right.svg'
+import SvgCable22LC from '../../assets/knit-chart-symbols/c2over2left.svg'
+import SvgCable11RPC from '../../assets/knit-chart-symbols/crossright_purl.svg'
+import SvgCable11LPC from '../../assets/knit-chart-symbols/crossleft_purl.svg'
+import SvgCable22RPC from '../../assets/knit-chart-symbols/c2over2right-purl.svg'
+import SvgCable22LPC from '../../assets/knit-chart-symbols/c2over2left-purl.svg'
+import SvgBindOff from '../../assets/knit-chart-symbols/bindoff.svg'
+
+// ─── Lookup Map ───────────────────────────────────────────────────────────────
+
+export const STITCH_SVG_MAP: Partial<Record<StitchType, ComponentType<SvgProps>>> = {
+  // Crochet
+  [StitchType.CHAIN]:        SvgChain,
+  [StitchType.SLIP_STITCH]:  SvgSlipStitch,
+  [StitchType.SINGLE]:       SvgSingle,
+  [StitchType.HALF_DOUBLE]:  SvgHalfDouble,
+  [StitchType.DOUBLE]:       SvgDouble,
+  [StitchType.TREBLE]:       SvgTreble,
+  [StitchType.SC_INC]:       SvgScInc,
+  [StitchType.HDC_INC]:      SvgHdcInc,
+  [StitchType.DC_INC]:       SvgDcInc,
+  [StitchType.SC2TOG]:       SvgSc2tog,
+  [StitchType.HDC2TOG]:      SvgHdc2tog,
+  [StitchType.HDC3TOG]:      SvgHdc3tog,
+  [StitchType.DC2TOG]:       SvgDc2tog,
+  [StitchType.DC3TOG]:       SvgDc3tog,
+  [StitchType.DC3_CLUSTER]:  SvgDc3Cluster,
+  [StitchType.HDC3_CLUSTER]: SvgHdc3Cluster,
+  [StitchType.DC5_POPCORN]:  SvgDc5Popcorn,
+  [StitchType.DC5_SHELL]:    SvgDc5Shell,
+  // Knitting
+  [StitchType.KNIT]:          SvgKnit,
+  [StitchType.PURL]:          SvgPurl,
+  [StitchType.YARN_OVER]:     SvgYarnOver,
+  [StitchType.SLIP_WYIB]:     SvgSlipWyib,
+  [StitchType.SLIP_WYIF]:     SvgSlipWyif,
+  [StitchType.SSK]:           SvgSsk,
+  [StitchType.SSP]:           SvgSsp,
+  [StitchType.K2TOG]:         SvgK2tog,
+  [StitchType.P2TOG]:         SvgP2tog,
+  [StitchType.SSSK]:          SvgSssk,
+  [StitchType.K3TOG]:         SvgK3tog,
+  [StitchType.CDD]:           SvgCdd,
+  [StitchType.M1L]:           SvgM1l,
+  [StitchType.M1R]:           SvgM1r,
+  [StitchType.M1LP]:          SvgM1lp,
+  [StitchType.M1RP]:          SvgM1rp,
+  [StitchType.K_TBL]:         SvgKtbl,
+  [StitchType.P_TBL]:         SvgPtbl,
+  [StitchType.CABLE_1_1_RC]:  SvgCable11RC,
+  [StitchType.CABLE_1_1_LC]:  SvgCable11LC,
+  [StitchType.CABLE_2_2_RC]:  SvgCable22RC,
+  [StitchType.CABLE_2_2_LC]:  SvgCable22LC,
+  [StitchType.CABLE_1_1_RPC]: SvgCable11RPC,
+  [StitchType.CABLE_1_1_LPC]: SvgCable11LPC,
+  [StitchType.CABLE_2_2_RPC]: SvgCable22RPC,
+  [StitchType.CABLE_2_2_LPC]: SvgCable22LPC,
+  [StitchType.BIND_OFF]:      SvgBindOff,
 }
