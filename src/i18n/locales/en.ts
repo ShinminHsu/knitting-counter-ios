@@ -165,6 +165,8 @@ const en = {
     resetMessage: 'Reset stitch count for round {{number}} to 0?',
     completeChart: 'Complete Chart',
     completeRound: 'Complete Round {{number}}',
+    toggleAbbrMode: 'Switch to abbreviations',
+    toggleIconMode: 'Switch to icons',
   },
 
   // ─── Import / Export ─────────────────────────────────────────────────────────
@@ -274,6 +276,9 @@ const en = {
     nameError: 'Please enter a chart name',
     notesPlaceholder: 'e.g. beginner-friendly, use 4mm needles…',
     submitButton: 'Add Chart',
+    roundStartLabel: 'Round Numbering',
+    roundStartFrom0: 'Start from 0',
+    roundStartFrom1: 'Start from 1',
   },
 
   editChart: {

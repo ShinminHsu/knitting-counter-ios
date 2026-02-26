@@ -30,7 +30,7 @@ interface ProjectState {
 
   // ── 圖表管理 ───────────────────────────────────────────────────────────────
   /** 新增圖表到專案（Req 2.2） */
-  addChart: (projectId: string, name: string, description?: string) => Chart | null
+  addChart: (projectId: string, name: string, description?: string, roundStartNumber?: 0 | 1) => Chart | null
 
   /** 更新圖表資訊（包含段落資料） */
   updateChart: (projectId: string, chartId: string, updates: Partial<Pick<Chart, 'name' | 'description' | 'notes' | 'referenceImageUri' | 'rounds' | 'currentRound' | 'currentStitch'>>) => void
@@ -106,11 +106,11 @@ export const useProjectStore = create<ProjectState>()(
 
       // ── 圖表管理 ──────────────────────────────────────────────────────────────
 
-      addChart: (projectId, name, description) => {
+      addChart: (projectId, name, description, roundStartNumber) => {
         const project = get().projects.find((p) => p.id === projectId)
         if (!project) return null
 
-        const chart = createChart({ name, description })
+        const chart = createChart({ name, description, roundStartNumber })
         const now = new Date().toISOString()
         set((state) => ({
           projects: state.projects.map((p) =>

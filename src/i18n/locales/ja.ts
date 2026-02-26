@@ -165,6 +165,8 @@ const ja = {
     resetMessage: '{{number}} 段目の編み目カウントを 0 にリセットしますか？',
     completeChart: 'チャートを完了',
     completeRound: '{{number}} 段目を完了',
+    toggleAbbrMode: '略語に切り替え',
+    toggleIconMode: 'アイコンに切り替え',
   },
 
   // ─── インポート / エクスポート ────────────────────────────────────────────────
@@ -274,6 +276,9 @@ const ja = {
     nameError: 'チャート名を入力してください',
     notesPlaceholder: '例：初心者向け、4mm棒針を使用…',
     submitButton: 'チャートを追加',
+    roundStartLabel: '段番号の開始',
+    roundStartFrom0: '0 から開始',
+    roundStartFrom1: '1 から開始',
   },
 
   editChart: {

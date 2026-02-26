@@ -14,6 +14,7 @@ import { calcRoundTotalStitches } from './patternHelpers'
 export function createChart(params: {
   name: string
   description?: string
+  roundStartNumber?: 0 | 1
 }): Chart {
   const now = new Date().toISOString()
   return {
@@ -26,6 +27,7 @@ export function createChart(params: {
     createdAt: now,
     updatedAt: now,
     isCompleted: false,
+    roundStartNumber: params.roundStartNumber,
   }
 }
 

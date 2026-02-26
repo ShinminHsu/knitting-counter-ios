@@ -165,6 +165,8 @@ const zhTW = {
     resetMessage: '確定要將第 {{number}} 圈的針目計數重置為 0？',
     completeChart: '完成織圖',
     completeRound: '完成第 {{number}} 圈',
+    toggleAbbrMode: '切換為縮寫',
+    toggleIconMode: '切換為圖示',
   },
 
   // ─── 匯入匯出 ────────────────────────────────────────────────────────────────
@@ -274,6 +276,9 @@ const zhTW = {
     nameError: '請輸入織圖名稱',
     notesPlaceholder: '例如：適合初學者、使用 4mm 棒針…',
     submitButton: '新增織圖',
+    roundStartLabel: '段落編號起始',
+    roundStartFrom0: '從 0 開始',
+    roundStartFrom1: '從 1 開始',
   },
 
   editChart: {

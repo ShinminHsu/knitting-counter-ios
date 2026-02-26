@@ -239,6 +239,8 @@ export interface Chart {
   updatedAt: string
   isCompleted?: boolean
   notes?: string
+  /** 段落計數起始值：0 或 1（未設定時沿用 Project 的預設值）*/
+  roundStartNumber?: 0 | 1
 }
 
 // ─── Project ──────────────────────────────────────────────────────────────────

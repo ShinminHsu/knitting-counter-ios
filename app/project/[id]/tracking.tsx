@@ -14,6 +14,7 @@ import { useTranslation } from 'react-i18next'
 import { useKeepAwake } from 'expo-keep-awake'
 import * as Haptics from 'expo-haptics'
 import { ImpactFeedbackStyle, NotificationFeedbackType } from 'expo-haptics'
+import { Ionicons } from '@expo/vector-icons'
 import { useProjectStore, useProgressStore } from '../../../src/stores'
 import { logScreenView, logTrackingStarted } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
@@ -32,12 +33,14 @@ import {
 } from '../../../src/utils/patternHelpers'
 import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
 import { totalStitchesInRound } from '../../../src/stores/useProgressStore'
+import { mmkv, STORAGE_KEYS } from '../../../src/stores/mmkvStorage'
 
 // ─── Stitch Block ─────────────────────────────────────────────────────────────
 
 /** 單一符號的位置資訊（用於精確上色）*/
 interface SymbolEntry {
   abbr: string
+  stitchType?: StitchType
   /** 在本圈的絕對 physical 起始位置（inclusive）*/
   physicalStart: number
   /** 在本圈的絕對 physical 結束位置（exclusive）*/
@@ -95,7 +98,7 @@ function expandToBlocks(round: Round): StitchBlock[] {
 
       // 每個邏輯針法（stitch.count 次）→ 1 個符號，佔 stitchCount 個 physical 位置
       for (let i = 0; i < stitch.count; i++) {
-        symbols.push({ abbr, physicalStart: pos, physicalEnd: pos + stitchCount })
+        symbols.push({ abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount })
         pos += stitchCount
       }
 
@@ -116,7 +119,7 @@ function expandToBlocks(round: Round): StitchBlock[] {
           const abbr = getStitchAbbr(s)
           const sc = StitchTypeInfo[s.type]?.stitchCount ?? 1
           for (let i = 0; i < s.count; i++) {
-            symbols.push({ abbr, physicalStart: pos, physicalEnd: pos + sc })
+            symbols.push({ abbr, stitchType: s.type, physicalStart: pos, physicalEnd: pos + sc })
             pos += sc
           }
         }
@@ -162,10 +165,11 @@ function getRoundDescriptionText(round: Round): string {
 interface StitchBlockRowProps {
   block: StitchBlock
   currentStitch: number
+  showIcons: boolean
   onPress: () => void
 }
 
-function StitchBlockRow({ block, currentStitch, onPress }: StitchBlockRowProps) {
+function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBlockRowProps) {
   const blockStatus = getBlockStatus(block, currentStitch)
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
@@ -212,6 +216,32 @@ function StitchBlockRow({ block, currentStitch, onPress }: StitchBlockRowProps) 
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
+          const opacity = symStatus === 'completed' ? 0.3 : symStatus === 'current' ? 1 : 0.7
+
+          if (showIcons && symbol.stitchType) {
+            const symPng = CROCHET_PNG_MAP[symbol.stitchType]
+            const SymSvg = KNIT_SVG_MAP[symbol.stitchType]
+            const tintStyle = symStatus === 'current' ? blockStyles.symbolIconCurrent : undefined
+
+            if (symPng) {
+              return (
+                <Image
+                  key={i}
+                  source={symPng}
+                  style={[blockStyles.symbolIcon, { opacity }, tintStyle]}
+                  resizeMode="contain"
+                />
+              )
+            }
+            if (SymSvg) {
+              return (
+                <View key={i} style={{ opacity }}>
+                  <SymSvg width={24} height={24} />
+                </View>
+              )
+            }
+          }
+
           return (
             <Text
               key={i}
@@ -286,6 +316,13 @@ const blockStyles = StyleSheet.create({
   symbolUpcoming: {
     color: '#374151',   // 深灰：未完成
   },
+  symbolIcon: {
+    width: 24,
+    height: 24,
+  },
+  symbolIconCurrent: {
+    tintColor: '#D97398',
+  },
 })
 
 // ─── ProgressTrackingScreen ───────────────────────────────────────────────────
@@ -298,6 +335,15 @@ export default function ProgressTrackingScreen() {
   const router = useRouter()
 
   const [showCompletion, setShowCompletion] = useState(false)
+  const [showIcons, setShowIcons] = useState<boolean>(
+    () => mmkv.getString(STORAGE_KEYS.STITCH_DISPLAY_MODE) === 'icon'
+  )
+
+  function handleToggleDisplayMode() {
+    const next = !showIcons
+    setShowIcons(next)
+    mmkv.set(STORAGE_KEYS.STITCH_DISPLAY_MODE, next ? 'icon' : 'abbr')
+  }
 
   useEffect(() => {
     logScreenView(SCREEN_NAMES.PROGRESS_TRACKING)
@@ -340,7 +386,7 @@ export default function ProgressTrackingScreen() {
 
   // ── Derived state ────────────────────────────────────────────────────────────
 
-  const { roundStartNumber } = project
+  const roundStartNumber = activeChart.roundStartNumber ?? project.roundStartNumber
   const { currentRound, currentStitch, rounds } = activeChart
   const totalRounds = rounds.length
   const currentRoundData = rounds[currentRound] ?? null
@@ -465,7 +511,21 @@ export default function ProgressTrackingScreen() {
         {/* Header */}
         <View style={styles.cardHeader}>
           <Text style={styles.cardTitle}>{t('tracking.roundTitle', { number: displayRoundNumber })}</Text>
-          <Text style={styles.roundBadge}>{t('tracking.roundBadge', { total: displayLastRoundNumber })}</Text>
+          <View style={styles.cardHeaderRight}>
+            <Text style={styles.roundBadge}>{t('tracking.roundBadge', { total: displayLastRoundNumber })}</Text>
+            <TouchableOpacity
+              onPress={handleToggleDisplayMode}
+              style={styles.displayToggleButton}
+              accessibilityLabel={showIcons ? t('tracking.toggleAbbrMode') : t('tracking.toggleIconMode')}
+              accessibilityRole="button"
+            >
+              <Ionicons
+                name={showIcons ? 'text-outline' : 'albums-outline'}
+                size={18}
+                color="#9ca3af"
+              />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* Pattern description */}
@@ -490,6 +550,7 @@ export default function ProgressTrackingScreen() {
                 key={block.key}
                 block={block}
                 currentStitch={currentStitch}
+                showIcons={showIcons}
                 onPress={() => handleBlockTap(block)}
               />
             ))
@@ -630,9 +691,14 @@ const styles = StyleSheet.create({
   },
   cardHeader: {
     flexDirection: 'row',
-    alignItems: 'baseline',
+    alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 6,
+  },
+  cardHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
   },
   cardTitle: {
     fontSize: 17,
@@ -643,6 +709,11 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#9ca3af',
     fontWeight: '500',
+  },
+  displayToggleButton: {
+    padding: 4,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   descriptionText: {
     fontSize: 13,

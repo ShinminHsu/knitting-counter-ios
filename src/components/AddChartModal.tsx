@@ -14,23 +14,26 @@ import { useTranslation } from 'react-i18next'
 interface AddChartModalProps {
   visible: boolean
   defaultName: string
-  onConfirm: (name: string, notes: string) => void
+  defaultRoundStart?: 0 | 1
+  onConfirm: (name: string, notes: string, roundStartNumber: 0 | 1) => void
   onClose: () => void
 }
 
-export default function AddChartModal({ visible, defaultName, onConfirm, onClose }: AddChartModalProps) {
+export default function AddChartModal({ visible, defaultName, defaultRoundStart = 1, onConfirm, onClose }: AddChartModalProps) {
   const { t } = useTranslation()
   const [name, setName] = useState('')
   const [notes, setNotes] = useState('')
   const [nameError, setNameError] = useState(false)
+  const [roundStart, setRoundStart] = useState<0 | 1>(defaultRoundStart)
 
   useEffect(() => {
     if (visible) {
       setName(defaultName)
       setNotes('')
       setNameError(false)
+      setRoundStart(defaultRoundStart)
     }
-  }, [visible, defaultName])
+  }, [visible, defaultName, defaultRoundStart])
 
   const handleConfirm = () => {
     const trimmedName = name.trim()
@@ -38,7 +41,7 @@ export default function AddChartModal({ visible, defaultName, onConfirm, onClose
       setNameError(true)
       return
     }
-    onConfirm(trimmedName, notes.trim())
+    onConfirm(trimmedName, notes.trim(), roundStart)
   }
 
   return (
@@ -96,6 +99,26 @@ export default function AddChartModal({ visible, defaultName, onConfirm, onClose
               numberOfLines={3}
               textAlignVertical="top"
             />
+          </View>
+
+          {/* Round start number */}
+          <View style={styles.fieldGroup}>
+            <Text style={styles.label}>{t('addChart.roundStartLabel')}</Text>
+            <View style={styles.toggleRow}>
+              {([0, 1] as const).map((val) => (
+                <TouchableOpacity
+                  key={val}
+                  style={[styles.toggleButton, roundStart === val && styles.toggleButtonActive]}
+                  onPress={() => setRoundStart(val)}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: roundStart === val }}
+                >
+                  <Text style={[styles.toggleButtonText, roundStart === val && styles.toggleButtonTextActive]}>
+                    {val === 0 ? t('addChart.roundStartFrom0') : t('addChart.roundStartFrom1')}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
 
           <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
@@ -178,6 +201,34 @@ const styles = StyleSheet.create({
   errorText: {
     fontSize: 12,
     color: '#ef4444',
+  },
+  toggleRow: {
+    flexDirection: 'row',
+    gap: 10,
+  },
+  toggleButton: {
+    flex: 1,
+    minHeight: 44,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#ffffff',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 10,
+    paddingVertical: 10,
+  },
+  toggleButtonActive: {
+    backgroundColor: '#fce7f0',
+    borderColor: '#D97398',
+  },
+  toggleButtonText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#6b7280',
+  },
+  toggleButtonTextActive: {
+    color: '#C4527F',
+    fontWeight: '700',
   },
   confirmButton: {
     backgroundColor: '#D97398',

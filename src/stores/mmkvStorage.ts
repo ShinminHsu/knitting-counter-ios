@@ -33,4 +33,5 @@ export const STORAGE_KEYS = {
   CUSTOM_STITCHES: 'customStitches',
   TEMPLATES: 'templates',
   LANGUAGE: 'language',
+  STITCH_DISPLAY_MODE: 'stitchDisplayMode',
 } as const
