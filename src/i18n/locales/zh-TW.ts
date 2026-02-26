@@ -90,6 +90,8 @@ const zhTW = {
       dc5_shell: '5長針貝殼針',
       custom: '自訂',
     },
+    createCustom: '＋ 建立自訂針法',
+    createCustomShort: '建立新自訂針法',
   },
 
   // ─── 專案列表 ────────────────────────────────────────────────────────────────
@@ -153,6 +155,9 @@ const zhTW = {
     moveDownLabel: '下移段落',
     deleteRoundLabel: '刪除段落',
     editRoundLabel: '第 {{index}} 段，點擊編輯針法',
+    duplicateRound: '複製段落',
+    duplicateCopiesTitle: '複製段落',
+    duplicateCopiesMessage: '要複製幾次？',
   },
 
   // ─── 進度追蹤 ────────────────────────────────────────────────────────────────
@@ -335,6 +340,8 @@ const zhTW = {
     abbrPlaceholder: 'e.g. sh',
     submitCreate: '新增針法',
     submitEdit: '儲存針法',
+    duplicateTitle: '名稱已存在',
+    duplicateMessage: '已有相同名稱的自訂針法，請使用其他名稱。',
   },
 
   completion: {
@@ -375,6 +382,9 @@ const zhTW = {
     decreaseCount: '減少數量',
     increaseCount: '增加數量',
     countLabel: '數量',
+    duplicateItem: '複製',
+    duplicateCopiesTitle: '複製針法',
+    duplicateCopiesMessage: '要複製幾次？',
   },
 
   splash: {
@@ -387,6 +397,8 @@ const zhTW = {
     languageEn: 'English',
     languageZhTW: '繁體中文',
     languageJa: '日本語',
+    toolsSection: '工具',
+    stitchLibrary: '針法和範本管理',
   },
 } as const
 

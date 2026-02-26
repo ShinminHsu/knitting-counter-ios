@@ -97,6 +97,14 @@ interface PatternState {
     roundId: string,
     itemId: string
   ) => void
+
+  /** 複製針法/群組項目並插入其後 */
+  duplicatePatternItem: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -157,5 +165,9 @@ export const usePatternStore = create<PatternState>()(() => ({
 
   movePatternItemDown: (projectId, chartId, roundId, itemId) => {
     useChartStore.getState().movePatternItemDown(projectId, chartId, roundId, itemId)
+  },
+
+  duplicatePatternItem: (projectId, chartId, roundId, itemId) => {
+    useChartStore.getState().duplicatePatternItem(projectId, chartId, roundId, itemId)
   },
 }))

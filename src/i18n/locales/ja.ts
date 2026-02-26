@@ -90,6 +90,8 @@ const ja = {
       dc5_shell: '長編み5目シェル',
       custom: 'カスタム',
     },
+    createCustom: '＋ カスタム編み目を作成',
+    createCustomShort: '新しいカスタム編み目を作成',
   },
 
   // ─── プロジェクト一覧 ─────────────────────────────────────────────────────────
@@ -153,6 +155,9 @@ const ja = {
     moveDownLabel: '段を下に移動',
     deleteRoundLabel: '段を削除',
     editRoundLabel: '{{index}} 段目、タップして編み目を編集',
+    duplicateRound: '段を複製',
+    duplicateCopiesTitle: '段を複製',
+    duplicateCopiesMessage: '何回複製しますか？',
   },
 
   // ─── 進捗記録 ─────────────────────────────────────────────────────────────────
@@ -335,6 +340,8 @@ const ja = {
     abbrPlaceholder: '例：sh',
     submitCreate: '編み目を追加',
     submitEdit: '編み目を保存',
+    duplicateTitle: '名前が既に存在します',
+    duplicateMessage: '同じ名前のカスタム編み目が既に存在します。別の名前を使用してください。',
   },
 
   completion: {
@@ -375,6 +382,9 @@ const ja = {
     decreaseCount: '数を減らす',
     increaseCount: '数を増やす',
     countLabel: '数',
+    duplicateItem: '複製',
+    duplicateCopiesTitle: '編み目を複製',
+    duplicateCopiesMessage: '何回複製しますか？',
   },
 
   splash: {
@@ -387,6 +397,8 @@ const ja = {
     languageEn: 'English',
     languageZhTW: '繁體中文',
     languageJa: '日本語',
+    toolsSection: 'ツール',
+    stitchLibrary: '針目とテンプレート管理',
   },
 } as const
 

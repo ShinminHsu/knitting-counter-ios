@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { Feather } from '@expo/vector-icons'
 import { Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { logScreenView } from '../src/services'
@@ -200,7 +201,7 @@ export default function PatternElementsScreen() {
             accessibilityLabel={item.name}
             accessibilityRole="button"
           >
-            <Text style={styles.actionBtnIcon}>✏️</Text>
+            <Feather name="edit-2" size={16} color="#9ca3af" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
@@ -208,7 +209,7 @@ export default function PatternElementsScreen() {
             accessibilityLabel={item.name}
             accessibilityRole="button"
           >
-            <Text style={styles.actionBtnIcon}>🗑️</Text>
+            <Feather name="trash-2" size={16} color="#9ca3af" />
           </TouchableOpacity>
         </View>
       </View>
@@ -483,10 +484,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
   },
-  actionBtnIcon: {
-    fontSize: 18,
-  },
-
   // Separator
   separator: {
     height: StyleSheet.hairlineWidth,

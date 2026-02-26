@@ -14,6 +14,7 @@ import { STITCH_CATEGORIES_BY_CRAFT } from '../constants/stitches'
 import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../constants/stitchIcons'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 import { CraftType, CustomStitchPattern, StitchType, StitchTypeInfo } from '../types'
+import CustomStitchModal from './CustomStitchModal'
 
 // ─── Symbol mapping for built-in stitches ─────────────────────────────────────
 
@@ -110,7 +111,7 @@ interface SectionData {
 
 interface StitchPickerProps {
   craftType: CraftType
-  onSelect: (type: StitchType) => void
+  onSelect: (type: StitchType, customStitch?: CustomStitchPattern) => void
   visible: boolean
   onClose: () => void
 }
@@ -125,7 +126,8 @@ export default function StitchPicker({
 }: StitchPickerProps) {
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
-  const { getByType } = useCustomStitchStore()
+  const [showCreateCustom, setShowCreateCustom] = useState(false)
+  const { getByType, customStitches } = useCustomStitchStore()
 
   const sections = useMemo<SectionData[]>(() => {
     const q = query.trim().toLowerCase()
@@ -167,9 +169,19 @@ export default function StitchPicker({
     if (item.kind === 'builtin') {
       onSelect(item.stitchType)
     } else {
-      onSelect(StitchType.CUSTOM)
+      onSelect(StitchType.CUSTOM, item.stitch)
     }
     onClose()
+  }
+
+  function handleCustomStitchCreated(stitch: CustomStitchPattern) {
+    // Close CustomStitchModal first, then wait for its dismiss animation (~300ms)
+    // before closing StitchPicker — avoids iOS "already presenting" error
+    setShowCreateCustom(false)
+    setTimeout(() => {
+      onSelect(StitchType.CUSTOM, stitch)
+      onClose()
+    }, 350)
   }
 
   function renderItem({ item }: { item: ListItem }) {
@@ -266,7 +278,26 @@ export default function StitchPicker({
             contentContainerStyle={styles.listContent}
           />
         )}
+
+        {/* Footer: create custom stitch */}
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.createCustomButton}
+            onPress={() => setShowCreateCustom(true)}
+            activeOpacity={0.7}
+          >
+            <Text style={styles.createCustomText}>{t('stitch.createCustomShort')}</Text>
+          </TouchableOpacity>
+        </View>
       </View>
+
+      {/* Nested CustomStitchModal */}
+      <CustomStitchModal
+        visible={showCreateCustom}
+        defaultCraftType={craftType}
+        onClose={() => setShowCreateCustom(false)}
+        onCreated={handleCustomStitchCreated}
+      />
     </Modal>
   )
 }
@@ -324,7 +355,24 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   listContent: {
-    paddingBottom: 32,
+    paddingBottom: 8,
+  },
+  footer: {
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#e5e7eb',
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  createCustomButton: {
+    paddingVertical: 8,
+    paddingHorizontal: 20,
+  },
+  createCustomText: {
+    fontSize: 14,
+    color: '#D97398',
+    fontWeight: '500',
   },
   sectionHeader: {
     paddingHorizontal: 16,

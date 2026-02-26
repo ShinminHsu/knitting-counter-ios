@@ -77,6 +77,7 @@ interface RoundRowProps {
   onMoveUp: () => void
   onMoveDown: () => void
   onDelete: () => void
+  onDuplicate: (copies: number) => void
   onPress: () => void
 }
 
@@ -88,6 +89,7 @@ function RoundRow({
   onMoveUp,
   onMoveDown,
   onDelete,
+  onDuplicate,
   onPress,
 }: RoundRowProps) {
   const { t } = useTranslation()
@@ -100,6 +102,22 @@ function RoundRow({
     .map((item) => buildItemSummary(item))
     .filter(Boolean)
 
+  function handleDuplicatePress() {
+    Alert.prompt(
+      t('editor.duplicateCopiesTitle'),
+      t('editor.duplicateCopiesMessage'),
+      (text) => {
+        const n = parseInt(text, 10)
+        if (!isNaN(n) && n >= 1 && n <= 20) {
+          onDuplicate(n)
+        }
+      },
+      'plain-text',
+      '1',
+      'number-pad'
+    )
+  }
+
   return (
     <TouchableOpacity
       style={styles.roundRow}
@@ -108,15 +126,36 @@ function RoundRow({
       accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
       accessibilityRole="button"
     >
-      {/* Left: round label + content */}
-      <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
-
-      <View style={styles.roundInfo}>
-        <View style={styles.roundTitleRow}>
-          <Text style={styles.roundStitchCount}>
-            {hasItems ? t('editor.stitchCount', { count: totalStitches }) : t('editor.noStitches')}
-          </Text>
+      {/* Left: R badge + ↑↓ arrows */}
+      <View style={styles.roundLeft}>
+        <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
+        <View style={styles.roundArrows}>
+          <TouchableOpacity
+            onPress={onMoveUp}
+            disabled={isFirst}
+            accessibilityLabel={t('editor.moveUpLabel')}
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#9ca3af'} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onMoveDown}
+            disabled={isLast}
+            accessibilityLabel={t('editor.moveDownLabel')}
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#9ca3af'} />
+          </TouchableOpacity>
         </View>
+      </View>
+
+      {/* Middle: round info */}
+      <View style={styles.roundInfo}>
+        <Text style={styles.roundStitchCount}>
+          {hasItems ? t('editor.stitchCount', { count: totalStitches }) : t('editor.noStitches')}
+        </Text>
 
         {hasItems && (
           <Text style={styles.roundSubtitle} numberOfLines={3}>
@@ -131,28 +170,16 @@ function RoundRow({
         ) : null}
       </View>
 
-      {/* Right: reorder + delete controls */}
+      {/* Right: copy + delete */}
       <View style={styles.roundControls}>
         <TouchableOpacity
-          onPress={onMoveUp}
-          disabled={isFirst}
-          accessibilityLabel={t('editor.moveUpLabel')}
+          onPress={handleDuplicatePress}
+          accessibilityLabel={t('editor.duplicateRound')}
           accessibilityRole="button"
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
-          <Feather name="chevron-up" size={20} color={isFirst ? '#d1d5db' : '#6b7280'} />
+          <Feather name="copy" size={16} color="#6b7280" />
         </TouchableOpacity>
-
-        <TouchableOpacity
-          onPress={onMoveDown}
-          disabled={isLast}
-          accessibilityLabel={t('editor.moveDownLabel')}
-          accessibilityRole="button"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Feather name="chevron-down" size={20} color={isLast ? '#d1d5db' : '#6b7280'} />
-        </TouchableOpacity>
-
         <TouchableOpacity
           onPress={onDelete}
           accessibilityLabel={t('editor.deleteRoundLabel')}
@@ -178,6 +205,7 @@ export default function PatternEditorScreen() {
   const deleteRound = useChartStore((s) => s.deleteRound)
   const moveRoundUp = useChartStore((s) => s.moveRoundUp)
   const moveRoundDown = useChartStore((s) => s.moveRoundDown)
+  const duplicateRound = useChartStore((s) => s.duplicateRound)
 
   const [showEditChart, setShowEditChart] = useState(false)
 
@@ -304,6 +332,11 @@ export default function PatternEditorScreen() {
               onMoveUp={() => handleMoveRoundUp(item.id)}
               onMoveDown={() => handleMoveRoundDown(item.id)}
               onDelete={() => handleDeleteRound(item.id, index)}
+              onDuplicate={(copies) => {
+                for (let i = 0; i < copies; i++) {
+                  duplicateRound(project!.id, activeChart!.id, item.id)
+                }
+              }}
               onPress={() =>
                 router.push({
                   pathname: '/project/[id]/round',
@@ -412,7 +445,7 @@ const styles = StyleSheet.create({
   // Round row
   roundRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 10,
     padding: 12,
@@ -420,22 +453,26 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
+  // Left: badge + arrows
+  roundLeft: {
+    flexShrink: 0,
+    alignItems: 'center',
+    gap: 4,
+    minWidth: 32,
+  },
   roundBadgeText: {
     fontSize: 13,
     fontWeight: '700',
     color: '#D97398',
-    flexShrink: 0,
-    marginTop: 1,
-    minWidth: 28,
+  },
+  roundArrows: {
+    flexDirection: 'column',
+    alignItems: 'center',
+    gap: 0,
   },
   roundInfo: {
     flex: 1,
     gap: 3,
-  },
-  roundTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
   },
   roundStitchCount: {
     fontSize: 13,
@@ -453,13 +490,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Round controls (reorder + delete)
+  // Round controls (copy + delete)
   roundControls: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 6,
+    gap: 10,
     flexShrink: 0,
-    paddingTop: 2,
   },
 
   // Empty state

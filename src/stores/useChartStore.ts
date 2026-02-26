@@ -77,6 +77,14 @@ interface ChartState {
     roundId: string,
     itemId: string
   ) => void
+
+  /** 複製針法/群組項目並插入其後 */
+  duplicatePatternItem: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
 }
 
 // ─── 內部 Helper：取得圖表 ──────────────────────────────────────────────────────
@@ -273,6 +281,27 @@ export const useChartStore = create<ChartState>()(() => ({
       const idx = items.findIndex((i) => i.id === itemId)
       if (idx < 0 || idx >= items.length - 1) return r
       ;[items[idx], items[idx + 1]] = [items[idx + 1], items[idx]]
+      return { ...r, patternItems: items.map((item, i) => ({ ...item, order: i })) }
+    })
+    useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
+  },
+
+  duplicatePatternItem: (projectId, chartId, roundId, itemId) => {
+    const chart = getChart(projectId, chartId)
+    if (!chart) return
+    const updatedRounds = chart.rounds.map((r) => {
+      if (r.id !== roundId) return r
+      const items = [...r.patternItems].sort((a, b) => a.order - b.order)
+      const idx = items.findIndex((i) => i.id === itemId)
+      if (idx < 0) return r
+      const original = items[idx]
+      const duplicate: PatternItem = {
+        ...original,
+        id: generateId(),
+        createdAt: new Date().toISOString(),
+        data: JSON.parse(JSON.stringify(original.data)),
+      }
+      items.splice(idx + 1, 0, duplicate)
       return { ...r, patternItems: items.map((item, i) => ({ ...item, order: i })) }
     })
     useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })

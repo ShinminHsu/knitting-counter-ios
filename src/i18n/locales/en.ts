@@ -90,6 +90,8 @@ const en = {
       dc5_shell: '5-DC Shell',
       custom: 'Custom',
     },
+    createCustom: '+ Create Custom Stitch',
+    createCustomShort: 'Create new custom stitch',
   },
 
   // ─── Project List ────────────────────────────────────────────────────────────
@@ -153,6 +155,9 @@ const en = {
     moveDownLabel: 'Move round down',
     deleteRoundLabel: 'Delete round',
     editRoundLabel: 'Round {{index}}, tap to edit stitches',
+    duplicateRound: 'Duplicate round',
+    duplicateCopiesTitle: 'Duplicate round',
+    duplicateCopiesMessage: 'How many copies?',
   },
 
   // ─── Progress Tracking ───────────────────────────────────────────────────────
@@ -335,6 +340,8 @@ const en = {
     abbrPlaceholder: 'e.g. sh',
     submitCreate: 'Add Stitch',
     submitEdit: 'Save Stitch',
+    duplicateTitle: 'Name Already Exists',
+    duplicateMessage: 'A custom stitch with this name already exists. Please use a different name.',
   },
 
   completion: {
@@ -375,6 +382,9 @@ const en = {
     decreaseCount: 'Decrease count',
     increaseCount: 'Increase count',
     countLabel: 'Count',
+    duplicateItem: 'Duplicate',
+    duplicateCopiesTitle: 'Duplicate stitch',
+    duplicateCopiesMessage: 'How many copies?',
   },
 
   splash: {
@@ -387,6 +397,8 @@ const en = {
     languageEn: 'English',
     languageZhTW: '繁體中文',
     languageJa: '日本語',
+    toolsSection: 'Tools',
+    stitchLibrary: 'Stitch & Template Library',
   },
 } as const
 
