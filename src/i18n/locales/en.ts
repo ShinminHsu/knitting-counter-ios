@@ -95,6 +95,7 @@ const en = {
     emptyHint: 'Tap + to create your first project',
     updatedAt: 'Updated {{date}}',
     deleteProject: 'Delete project: {{name}}',
+    deleteProjectMessage: 'Delete "{{name}}"? This cannot be undone.',
   },
 
   // ─── Project Detail ──────────────────────────────────────────────────────────
@@ -177,6 +178,7 @@ const en = {
     importButton: 'Import Project',
     notFound: 'Project not found.',
     exportFailed: 'Export Failed',
+    exportUnknownError: 'An unknown error occurred during export.',
     includePhotosTitle: 'Include Photos?',
     includePhotosMessage: 'You can include or exclude photos in the exported file.',
     includePhotos: 'Include Photos',
@@ -246,6 +248,10 @@ const en = {
   // ─── Modals ──────────────────────────────────────────────────────────────────
   createProject: {
     title: 'New Project',
+    nameLabel: 'Project Name',
+    craftTypeLabel: 'Type',
+    sourceLabel: 'Source / Reference',
+    notesLabel: 'Notes',
     namePlaceholder: 'Enter project name',
     nameError: 'Please enter a project name',
     sourcePlaceholder: 'e.g. book title, URL, video link (optional)',
@@ -263,6 +269,8 @@ const en = {
 
   addChart: {
     title: 'New Chart',
+    nameLabel: 'Chart Name',
+    notesLabel: 'Notes (optional)',
     nameError: 'Please enter a chart name',
     notesPlaceholder: 'e.g. beginner-friendly, use 4mm needles…',
     submitButton: 'Add Chart',
@@ -270,6 +278,8 @@ const en = {
 
   editChart: {
     title: 'Edit Chart',
+    nameLabel: 'Chart Name',
+    notesLabel: 'Notes (optional)',
     nameError: 'Please enter a chart name',
     notesPlaceholder: 'Any notes',
     submitButton: 'Save Changes',
@@ -287,17 +297,24 @@ const en = {
     groupName: 'Group Name',
     groupNamePlaceholder: 'e.g. Shell Pattern',
     repeatCount: 'Repeat Count',
+    decreaseRepeat: 'Decrease repeat count',
+    increaseRepeat: 'Increase repeat count',
+    repeatLabel: 'Repeat count',
     stitchSequence: 'Stitch Sequence',
     emptyStitches: 'No stitches added yet',
     addStitch: 'Add Stitch',
     validationHint: 'Add at least one stitch to confirm',
     saveAsTemplate: 'Save as Template',
     saveAsTemplateHint: 'Save as "{{name}}" for easy reuse later',
+    defaultGroupName: 'Group',
   },
 
   customStitch: {
     titleCreate: 'New Custom Stitch',
     titleEdit: 'Edit Custom Stitch',
+    nameLabel: 'Stitch Name',
+    englishNameLabel: 'English Name (optional)',
+    abbrLabel: 'Symbol / Abbreviation (optional)',
     namePlaceholder: 'e.g. Shell Stitch',
     nameError: 'Please enter a stitch name',
     englishNamePlaceholder: 'e.g. Shell Stitch',
@@ -324,8 +341,36 @@ const en = {
     roundTitle: 'Round {{number}}',
   },
 
+  round: {
+    notFound: 'Round not found',
+    title: 'R{{index}} Edit',
+    summary: 'Round {{index}} · {{count}} sts',
+    emptyTitle: 'No Stitches Yet',
+    emptyHint: 'Tap the "+ Add Stitch" button below to start.',
+    addGroup: '+ Add Group',
+    addStitch: '+ Add Stitch',
+    addStitchTitle: 'Add Stitch',
+    editStitchTitle: 'Edit Stitch',
+    changeStitchType: 'Change stitch type',
+    defaultGroupName: 'Group {{n}}',
+    deleteGroupTitle: 'Delete Group',
+    deleteGroupMessage: 'Delete this group?',
+    deleteStitchTitle: 'Delete Stitch',
+    deleteStitchMessage: 'Delete this stitch?',
+    decreaseCount: 'Decrease count',
+    increaseCount: 'Increase count',
+    countLabel: 'Count',
+  },
+
   splash: {
     welcome: 'Welcome to Stitchie',
+  },
+
+  settings: {
+    title: 'Settings',
+    language: 'Language',
+    languageEn: 'English',
+    languageZhTW: '繁體中文',
   },
 } as const
 

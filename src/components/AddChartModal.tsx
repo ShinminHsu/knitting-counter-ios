@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 
 interface AddChartModalProps {
   visible: boolean
@@ -18,6 +19,7 @@ interface AddChartModalProps {
 }
 
 export default function AddChartModal({ visible, defaultName, onConfirm, onClose }: AddChartModalProps) {
+  const { t } = useTranslation()
   const [name, setName] = useState('')
   const [notes, setNotes] = useState('')
   const [nameError, setNameError] = useState(false)
@@ -53,40 +55,40 @@ export default function AddChartModal({ visible, defaultName, onConfirm, onClose
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.headerButton}>
-            <Text style={styles.cancelText}>取消</Text>
+            <Text style={styles.cancelText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>新增織圖</Text>
+          <Text style={styles.headerTitle}>{t('addChart.title')}</Text>
           <TouchableOpacity onPress={handleConfirm} style={styles.headerButton}>
-            <Text style={styles.confirmText}>新增</Text>
+            <Text style={styles.confirmText}>{t('common.add')}</Text>
           </TouchableOpacity>
         </View>
 
         <View style={styles.content}>
-          {/* 織圖名稱 */}
+          {/* Chart name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              織圖名稱 <Text style={styles.required}>*</Text>
+              {t('addChart.nameLabel')} <Text style={styles.required}>{t('common.required')}</Text>
             </Text>
             <TextInput
               style={[styles.textInput, nameError && styles.textInputError]}
               value={name}
-              onChangeText={(t) => {
-                setName(t)
-                if (nameError && t.trim()) setNameError(false)
+              onChangeText={(text) => {
+                setName(text)
+                if (nameError && text.trim()) setNameError(false)
               }}
               returnKeyType="next"
               autoFocus
               selectTextOnFocus
             />
-            {nameError && <Text style={styles.errorText}>請輸入織圖名稱</Text>}
+            {nameError && <Text style={styles.errorText}>{t('addChart.nameError')}</Text>}
           </View>
 
-          {/* 備註 */}
+          {/* Notes */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>備註（選填）</Text>
+            <Text style={styles.label}>{t('addChart.notesLabel')}</Text>
             <TextInput
               style={[styles.textInput, styles.textInputMultiline]}
-              placeholder="例如：適合初學者、使用 4mm 棒針…"
+              placeholder={t('addChart.notesPlaceholder')}
               placeholderTextColor="#9ca3af"
               value={notes}
               onChangeText={setNotes}
@@ -97,7 +99,7 @@ export default function AddChartModal({ visible, defaultName, onConfirm, onClose
           </View>
 
           <TouchableOpacity style={styles.confirmButton} onPress={handleConfirm}>
-            <Text style={styles.confirmButtonText}>新增織圖</Text>
+            <Text style={styles.confirmButtonText}>{t('addChart.submitButton')}</Text>
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

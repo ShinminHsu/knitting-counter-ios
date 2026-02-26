@@ -95,6 +95,7 @@ const zhTW = {
     emptyHint: '點擊 + 開始建立第一個專案',
     updatedAt: '更新於 {{date}}',
     deleteProject: '刪除專案：{{name}}',
+    deleteProjectMessage: '確定要刪除「{{name}}」嗎？此操作無法復原。',
   },
 
   // ─── 專案詳細 ────────────────────────────────────────────────────────────────
@@ -177,6 +178,7 @@ const zhTW = {
     importButton: '匯入專案',
     notFound: '找不到專案資料。',
     exportFailed: '匯出失敗',
+    exportUnknownError: '匯出時發生未知錯誤。',
     includePhotosTitle: '是否包含照片？',
     includePhotosMessage: '匯出檔案可包含或排除專案照片。',
     includePhotos: '包含照片',
@@ -246,6 +248,10 @@ const zhTW = {
   // ─── Modals ──────────────────────────────────────────────────────────────────
   createProject: {
     title: '新增專案',
+    nameLabel: '專案名稱',
+    craftTypeLabel: '類型',
+    sourceLabel: '來源／參考',
+    notesLabel: '備註',
     namePlaceholder: '輸入專案名稱',
     nameError: '請輸入專案名稱',
     sourcePlaceholder: '例如：書名、網址、影片連結（選填）',
@@ -263,6 +269,8 @@ const zhTW = {
 
   addChart: {
     title: '新增織圖',
+    nameLabel: '織圖名稱',
+    notesLabel: '備註（選填）',
     nameError: '請輸入織圖名稱',
     notesPlaceholder: '例如：適合初學者、使用 4mm 棒針…',
     submitButton: '新增織圖',
@@ -270,6 +278,8 @@ const zhTW = {
 
   editChart: {
     title: '編輯織圖',
+    nameLabel: '織圖名稱',
+    notesLabel: '備註（選填）',
     nameError: '請輸入織圖名稱',
     notesPlaceholder: '任何備註事項',
     submitButton: '儲存變更',
@@ -287,17 +297,24 @@ const zhTW = {
     groupName: '群組名稱',
     groupNamePlaceholder: '例：貝殼花樣',
     repeatCount: '重複次數',
+    decreaseRepeat: '減少重複次數',
+    increaseRepeat: '增加重複次數',
+    repeatLabel: '重複次數',
     stitchSequence: '針法序列',
     emptyStitches: '尚未加入任何針法',
     addStitch: '加入針法',
     validationHint: '請至少加入一個針法才能確定',
     saveAsTemplate: '儲存為樣板',
     saveAsTemplateHint: '以群組名稱「{{name}}」儲存，方便日後重複使用',
+    defaultGroupName: '群組',
   },
 
   customStitch: {
     titleCreate: '新增自訂針法',
     titleEdit: '編輯自訂針法',
+    nameLabel: '針法名稱',
+    englishNameLabel: '英文名稱（選填）',
+    abbrLabel: '符號／縮寫（選填）',
     namePlaceholder: '例：貝殼針',
     nameError: '請輸入針法名稱',
     englishNamePlaceholder: 'e.g. Shell Stitch',
@@ -324,8 +341,36 @@ const zhTW = {
     roundTitle: '第 {{number}} 段',
   },
 
+  round: {
+    notFound: '找不到段落',
+    title: 'R{{index}} 段落編輯',
+    summary: '第 {{index}} 段 · 共 {{count}} 針',
+    emptyTitle: '尚無針法',
+    emptyHint: '點擊下方「新增針法」按鈕，開始加入針法。',
+    addGroup: '+ 新增群組',
+    addStitch: '+ 新增針法',
+    addStitchTitle: '新增針法',
+    editStitchTitle: '編輯針法',
+    changeStitchType: '更換針法類型',
+    defaultGroupName: '群組 {{n}}',
+    deleteGroupTitle: '刪除群組',
+    deleteGroupMessage: '確定要刪除此群組嗎？',
+    deleteStitchTitle: '刪除針法',
+    deleteStitchMessage: '確定要刪除此針法嗎？',
+    decreaseCount: '減少數量',
+    increaseCount: '增加數量',
+    countLabel: '數量',
+  },
+
   splash: {
     welcome: 'Welcome to Stitchie',
+  },
+
+  settings: {
+    title: '設定',
+    language: '語言',
+    languageEn: 'English',
+    languageZhTW: '繁體中文',
   },
 } as const
 

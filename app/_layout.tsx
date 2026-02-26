@@ -7,11 +7,13 @@ import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
+import { useTranslation } from 'react-i18next';
 import { initializeAds } from '../src/services';
 
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
+  const { t } = useTranslation()
   const [showLottie, setShowLottie] = useState(true)
 
   useEffect(() => {
@@ -29,7 +31,7 @@ export default function RootLayout() {
           style={styles.lottie}
           onAnimationFinish={() => setShowLottie(false)}
         />
-        <Text style={styles.splashTitle}>Welcome to Stitchie</Text>
+        <Text style={styles.splashTitle}>{t('splash.welcome')}</Text>
       </View>
     )
   }
@@ -52,6 +54,7 @@ export default function RootLayout() {
         <Stack.Screen name="project/[id]/import-export" options={{ title: '匯入匯出' }} />
         <Stack.Screen name="project/[id]/round" options={{ title: '段落編輯' }} />
         <Stack.Screen name="pattern-elements" options={{ title: '針法庫' }} />
+        <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
       </Stack>
     </>
   );

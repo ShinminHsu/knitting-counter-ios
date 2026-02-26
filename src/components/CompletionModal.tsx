@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Animated, Modal, StyleSheet, Text, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { loadInterstitialAd, showInterstitialAd } from '../services/adsService'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -18,6 +19,7 @@ export default function CompletionModal({
   onClose,
   interstitialShown = false,
 }: CompletionModalProps) {
+  const { t } = useTranslation()
   const scaleAnim = useRef(new Animated.Value(0)).current
   const opacityAnim = useRef(new Animated.Value(0)).current
 
@@ -95,8 +97,8 @@ export default function CompletionModal({
             🎉
           </Animated.Text>
 
-          <Text style={styles.title}>恭喜完成！</Text>
-          <Text style={styles.subtitle}>太棒了！</Text>
+          <Text style={styles.title}>{t('completion.title')}</Text>
+          <Text style={styles.subtitle}>{t('completion.subtitle')}</Text>
 
         </Animated.View>
       </View>

@@ -1,0 +1,104 @@
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
+import i18n from '../src/i18n'
+import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage'
+
+const LANGUAGES = [
+  { code: 'en', labelKey: 'settings.languageEn' as const },
+  { code: 'zh-TW', labelKey: 'settings.languageZhTW' as const },
+]
+
+export default function SettingsScreen() {
+  const { t } = useTranslation()
+  const currentLanguage = i18n.language
+
+  function handleLanguageSelect(code: string) {
+    mmkv.set(STORAGE_KEYS.LANGUAGE, code)
+    i18n.changeLanguage(code)
+  }
+
+  return (
+    <View style={styles.container}>
+      {/* Language section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>{t('settings.language')}</Text>
+        <View style={styles.optionGroup}>
+          {LANGUAGES.map((lang, index) => {
+            const isSelected = currentLanguage === lang.code
+            const isLast = index === LANGUAGES.length - 1
+            return (
+              <TouchableOpacity
+                key={lang.code}
+                style={[styles.optionRow, !isLast && styles.optionRowBorder]}
+                onPress={() => handleLanguageSelect(lang.code)}
+                activeOpacity={0.7}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: isSelected }}
+              >
+                <Text style={[styles.optionLabel, isSelected && styles.optionLabelSelected]}>
+                  {t(lang.labelKey)}
+                </Text>
+                {isSelected && <Text style={styles.checkmark}>✓</Text>}
+              </TouchableOpacity>
+            )
+          })}
+        </View>
+      </View>
+    </View>
+  )
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#faf5f0',
+    padding: 16,
+  },
+  section: {
+    marginBottom: 32,
+  },
+  sectionHeader: {
+    fontSize: 13,
+    fontWeight: '600',
+    color: '#6b7280',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  optionGroup: {
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
+    overflow: 'hidden',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  optionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    minHeight: 48,
+  },
+  optionRowBorder: {
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+  },
+  optionLabel: {
+    fontSize: 16,
+    color: '#1f2937',
+  },
+  optionLabelSelected: {
+    color: '#D97398',
+    fontWeight: '600',
+  },
+  checkmark: {
+    fontSize: 16,
+    color: '#D97398',
+    fontWeight: '700',
+  },
+})

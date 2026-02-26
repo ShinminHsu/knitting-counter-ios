@@ -12,6 +12,7 @@ import {
   Pressable,
 } from 'react-native'
 import { useLocalSearchParams, Stack, useRouter } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { logScreenView, logImport, logExport } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { useProjectStore } from '../../../src/stores/useProjectStore'
@@ -28,6 +29,7 @@ import { ImportMode, ProjectExportData } from '../../../src/types'
 // ─── ImportExportScreen ───────────────────────────────────────────────────────
 
 export default function ImportExportScreen() {
+  const { t } = useTranslation()
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
 
@@ -48,7 +50,7 @@ export default function ImportExportScreen() {
 
   async function doExport(includePhotos: boolean) {
     if (!project) {
-      Alert.alert('錯誤', '找不到專案資料。')
+      Alert.alert(t('common.error'), t('importExport.notFound'))
       return
     }
     setIsExporting(true)
@@ -56,8 +58,8 @@ export default function ImportExportScreen() {
       await exportProject(project, includePhotos)
       await logExport()
     } catch (err) {
-      const message = err instanceof Error ? err.message : '匯出時發生未知錯誤。'
-      Alert.alert('匯出失敗', message)
+      const message = err instanceof Error ? err.message : t('importExport.exportUnknownError')
+      Alert.alert(t('importExport.exportFailed'), message)
     } finally {
       setIsExporting(false)
     }
@@ -65,7 +67,7 @@ export default function ImportExportScreen() {
 
   function handleExport() {
     if (!project) {
-      Alert.alert('錯誤', '找不到專案資料。')
+      Alert.alert(t('common.error'), t('importExport.notFound'))
       return
     }
 
@@ -74,19 +76,19 @@ export default function ImportExportScreen() {
     if (hasPhotos) {
       // Req 8.5: ask whether to include photos
       Alert.alert(
-        '是否包含照片？',
-        '匯出檔案可包含或排除專案照片。',
+        t('importExport.includePhotosTitle'),
+        t('importExport.includePhotosMessage'),
         [
           {
-            text: '包含照片',
+            text: t('importExport.includePhotos'),
             onPress: () => doExport(true),
           },
           {
-            text: '不包含照片',
+            text: t('importExport.excludePhotos'),
             onPress: () => doExport(false),
           },
           {
-            text: '取消',
+            text: t('common.cancel'),
             style: 'cancel',
           },
         ]
@@ -112,8 +114,8 @@ export default function ImportExportScreen() {
       setImportPreview(exportData)
     } catch (err) {
       // Req 8.4: show descriptive error message
-      const message = err instanceof Error ? err.message : '匯入時發生未知錯誤。'
-      Alert.alert('匯入失敗', message)
+      const message = err instanceof Error ? err.message : t('importExport.importUnknownError')
+      Alert.alert(t('importExport.importFailed'), message)
     } finally {
       setIsImporting(false)
     }
@@ -128,36 +130,36 @@ export default function ImportExportScreen() {
         const newProject = prepareProjectForImport(importPreview)
         importProject(newProject)
         await logImport()
-        Alert.alert('匯入成功', `已建立新專案「${newProject.name}」。`, [
+        Alert.alert(t('importExport.importSuccess'), t('importExport.importNewSuccess', { name: newProject.name }), [
           {
-            text: '前往新專案',
+            text: t('importExport.goToProject'),
             onPress: () => router.replace(`/project/${newProject.id}`),
           },
-          { text: '留在此頁', style: 'cancel' },
+          { text: t('importExport.stayHere'), style: 'cancel' },
         ])
       } else if (mode === ImportMode.OVERWRITE_EXISTING) {
         if (!project) {
-          Alert.alert('錯誤', '找不到目前專案資料。')
+          Alert.alert(t('common.error'), t('importExport.notFound'))
           return
         }
         const updated = prepareOverwriteProject(project, importPreview)
         overwriteProject(updated)
         await logImport()
-        Alert.alert('匯入成功', `已覆寫專案「${updated.name}」。`)
+        Alert.alert(t('importExport.importSuccess'), t('importExport.importOverwriteSuccess', { name: updated.name }))
       } else if (mode === ImportMode.MERGE_PATTERN) {
         if (!project) {
-          Alert.alert('錯誤', '找不到目前專案資料。')
+          Alert.alert(t('common.error'), t('importExport.notFound'))
           return
         }
         const merged = mergeProjectCharts(project, importPreview)
         overwriteProject(merged)
         await logImport()
         const addedCount = importPreview.project.charts.length
-        Alert.alert('匯入成功', `已將 ${addedCount} 個織圖合併至此專案。`)
+        Alert.alert(t('importExport.importSuccess'), t('importExport.importMergeSuccess', { count: addedCount }))
       }
     } catch (err) {
-      const message = err instanceof Error ? err.message : '匯入時發生未知錯誤。'
-      Alert.alert('匯入失敗', message)
+      const message = err instanceof Error ? err.message : t('importExport.importUnknownError')
+      Alert.alert(t('importExport.importFailed'), message)
     }
   }
 
@@ -170,27 +172,25 @@ export default function ImportExportScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Dynamic header title */}
-      <Stack.Screen options={{ title: '匯入 / 匯出' }} />
+      <Stack.Screen options={{ title: t('importExport.title') }} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* ── Export section ──────────────────────────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>匯出</Text>
+          <Text style={styles.sectionHeader}>{t('importExport.exportSection')}</Text>
           <View style={styles.card}>
-            <Text style={styles.cardDescription}>
-              將此專案的所有資料（織圖、進度、備註）匯出為檔案，方便備份或分享給他人。
-            </Text>
+            <Text style={styles.cardDescription}>{t('importExport.exportDesc')}</Text>
             <TouchableOpacity
               style={[styles.primaryButton, isExporting && styles.buttonDisabled]}
               onPress={handleExport}
               disabled={isExporting}
-              accessibilityLabel="匯出專案"
+              accessibilityLabel={t('importExport.exportButton')}
               accessibilityRole="button"
             >
               {isExporting ? (
                 <ActivityIndicator color="#fff" />
               ) : (
-                <Text style={styles.primaryButtonText}>匯出專案</Text>
+                <Text style={styles.primaryButtonText}>{t('importExport.exportButton')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -198,22 +198,20 @@ export default function ImportExportScreen() {
 
         {/* ── Import section ──────────────────────────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.sectionHeader}>匯入</Text>
+          <Text style={styles.sectionHeader}>{t('importExport.importSection')}</Text>
           <View style={styles.card}>
-            <Text style={styles.cardDescription}>
-              從檔案匯入專案資料，可用於還原備份或接收他人分享的專案。支援從「檔案」App、AirDrop 或其他裝置分享的 JSON 檔案。
-            </Text>
+            <Text style={styles.cardDescription}>{t('importExport.importDesc')}</Text>
             <TouchableOpacity
               style={[styles.outlineButton, isImporting && styles.buttonDisabled]}
               onPress={handleImport}
               disabled={isImporting}
-              accessibilityLabel="匯入專案"
+              accessibilityLabel={t('importExport.importButton')}
               accessibilityRole="button"
             >
               {isImporting ? (
                 <ActivityIndicator color="#D97398" />
               ) : (
-                <Text style={styles.outlineButtonText}>匯入專案</Text>
+                <Text style={styles.outlineButtonText}>{t('importExport.importButton')}</Text>
               )}
             </TouchableOpacity>
           </View>
@@ -231,7 +229,7 @@ export default function ImportExportScreen() {
           <Pressable style={styles.modalSheet} onPress={() => {}}>
             <View style={styles.modalHandle} />
 
-            <Text style={styles.modalTitle}>匯入預覽</Text>
+            <Text style={styles.modalTitle}>{t('importExport.previewTitle')}</Text>
 
             {importPreview && (
               <>
@@ -240,55 +238,55 @@ export default function ImportExportScreen() {
                   <Text style={styles.previewProjectName}>{importPreview.project.name}</Text>
                   <View style={styles.previewMeta}>
                     <Text style={styles.previewMetaText}>
-                      {importPreview.project.charts.length} 個織圖
+                      {t('importExport.previewCharts', { count: importPreview.project.charts.length })}
                     </Text>
                     <Text style={styles.previewMetaSep}>·</Text>
                     <Text style={styles.previewMetaText}>
-                      共 {getTotalRounds(importPreview)} 段
+                      {t('importExport.previewRounds', { count: getTotalRounds(importPreview) })}
                     </Text>
                   </View>
                 </View>
 
-                <Text style={styles.modalSubtitle}>請選擇匯入方式</Text>
+                <Text style={styles.modalSubtitle}>{t('importExport.selectMode')}</Text>
 
                 {/* Import mode buttons (Req 8.3) */}
                 <TouchableOpacity
                   style={styles.modeButton}
                   onPress={() => handleImportMode(ImportMode.CREATE_NEW)}
                   accessibilityRole="button"
-                  accessibilityLabel="新增為新專案"
+                  accessibilityLabel={t('importExport.modeNewTitle')}
                 >
-                  <Text style={styles.modeButtonTitle}>新增為新專案</Text>
-                  <Text style={styles.modeButtonDesc}>建立一個與現有專案獨立的新專案</Text>
+                  <Text style={styles.modeButtonTitle}>{t('importExport.modeNewTitle')}</Text>
+                  <Text style={styles.modeButtonDesc}>{t('importExport.modeNewDesc')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.modeButton}
                   onPress={() => handleImportMode(ImportMode.OVERWRITE_EXISTING)}
                   accessibilityRole="button"
-                  accessibilityLabel="覆蓋此專案"
+                  accessibilityLabel={t('importExport.modeOverwriteTitle')}
                 >
-                  <Text style={styles.modeButtonTitle}>覆蓋此專案</Text>
-                  <Text style={styles.modeButtonDesc}>以匯入資料取代目前專案的所有織圖與設定</Text>
+                  <Text style={styles.modeButtonTitle}>{t('importExport.modeOverwriteTitle')}</Text>
+                  <Text style={styles.modeButtonDesc}>{t('importExport.modeOverwriteDesc')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.modeButton}
                   onPress={() => handleImportMode(ImportMode.MERGE_PATTERN)}
                   accessibilityRole="button"
-                  accessibilityLabel="合併花樣"
+                  accessibilityLabel={t('importExport.modeMergeTitle')}
                 >
-                  <Text style={styles.modeButtonTitle}>合併花樣</Text>
-                  <Text style={styles.modeButtonDesc}>將匯入的織圖附加到此專案</Text>
+                  <Text style={styles.modeButtonTitle}>{t('importExport.modeMergeTitle')}</Text>
+                  <Text style={styles.modeButtonDesc}>{t('importExport.modeMergeDesc')}</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity
                   style={styles.cancelButton}
                   onPress={() => setImportPreview(null)}
                   accessibilityRole="button"
-                  accessibilityLabel="取消"
+                  accessibilityLabel={t('common.cancel')}
                 >
-                  <Text style={styles.cancelButtonText}>取消</Text>
+                  <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
                 </TouchableOpacity>
               </>
             )}

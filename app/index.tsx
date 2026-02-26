@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../src/stores'
 import { logScreenView } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
@@ -39,6 +40,7 @@ interface ProjectCardProps {
 }
 
 function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
+  const { t } = useTranslation()
   const coverPhoto = project.photos?.find((p) => p.isCover) ?? project.photos?.[0]
   const progress = getOverallProgress(project)
   const isCrochet = project.craftType === 'crochet'
@@ -47,14 +49,14 @@ function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
     <TouchableOpacity
       onPress={onPress}
       style={styles.card}
-      accessibilityLabel={`專案：${project.name}`}
+      accessibilityLabel={`${project.name}`}
       activeOpacity={0.75}
     >
       {/* Delete button - top right corner */}
       <TouchableOpacity
         onPress={() => onDelete(project.id, project.name)}
         style={styles.deleteButton}
-        accessibilityLabel={`刪除專案：${project.name}`}
+        accessibilityLabel={t('projectList.deleteProject', { name: project.name })}
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
         <Ionicons name="trash-outline" size={15} color="#9ca3af" />
@@ -94,7 +96,7 @@ function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
                   isCrochet ? styles.badgeTextCrochet : styles.badgeTextKnitting,
                 ]}
               >
-                {isCrochet ? '鉤針' : '棒針'}
+                {isCrochet ? t('common.crochet') : t('common.knitting')}
               </Text>
             </View>
           </View>
@@ -109,7 +111,7 @@ function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
 
           {/* Last modified date */}
           <Text style={styles.dateText}>
-            更新於 {formatDate(project.updatedAt)}
+            {t('projectList.updatedAt', { date: formatDate(project.updatedAt) })}
           </Text>
         </View>
 
@@ -119,6 +121,7 @@ function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
 }
 
 export default function ProjectListScreen() {
+  const { t } = useTranslation()
   const router = useRouter()
   const projects = useProjectStore((s) => s.projects)
   const deleteProject = useProjectStore((s) => s.deleteProject)
@@ -130,9 +133,9 @@ export default function ProjectListScreen() {
 
   const handleDelete = (projectId: string, projectName: string) => {
     showConfirmDialog({
-      title: '刪除專案',
-      message: `確定要刪除「${projectName}」嗎？此操作無法復原。`,
-      confirmLabel: '刪除',
+      title: t('projectList.deleteProject', { name: projectName }),
+      message: t('projectList.deleteProjectMessage', { name: projectName }),
+      confirmLabel: t('common.delete'),
       destructive: true,
       onConfirm: () => deleteProject(projectId),
     })
@@ -142,22 +145,31 @@ export default function ProjectListScreen() {
     <SafeAreaView style={styles.container}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={styles.headerTitle}>我的專案</Text>
-        <TouchableOpacity
-          onPress={() => setShowCreateModal(true)}
-          style={styles.addButton}
-          accessibilityLabel="新增專案"
-        >
-          <Text style={styles.addButtonText}>+</Text>
-        </TouchableOpacity>
+        <Text style={styles.headerTitle}>{t('projectList.title')}</Text>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity
+            onPress={() => router.push('/settings')}
+            style={styles.settingsButton}
+            accessibilityLabel={t('settings.title')}
+          >
+            <Ionicons name="settings-outline" size={22} color="#6b7280" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={() => setShowCreateModal(true)}
+            style={styles.addButton}
+            accessibilityLabel={t('projectList.addProject')}
+          >
+            <Text style={styles.addButtonText}>+</Text>
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* Project list or empty state */}
       {projects.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>尚無專案</Text>
+          <Text style={styles.emptyStateTitle}>{t('projectList.emptyTitle')}</Text>
           <Text style={styles.emptyStateSubtext}>
-            點擊 + 開始建立第一個專案
+            {t('projectList.emptyHint')}
           </Text>
         </View>
       ) : (
@@ -204,6 +216,17 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: '#1f2937',
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  settingsButton: {
+    width: 36,
+    height: 36,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   addButton: {
     backgroundColor: '#D97398',

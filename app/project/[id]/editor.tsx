@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../../../src/stores'
 import { useChartStore } from '../../../src/stores/useChartStore'
 import { logScreenView } from '../../../src/services'
@@ -87,6 +88,7 @@ function RoundRow({
   onDelete,
   onPress,
 }: RoundRowProps) {
+  const { t } = useTranslation()
   const totalStitches = calcRoundTotalStitches(round.patternItems)
   const hasItems = round.patternItems.length > 0
 
@@ -101,15 +103,17 @@ function RoundRow({
       style={styles.roundRow}
       onPress={onPress}
       activeOpacity={0.75}
-      accessibilityLabel={`第 ${index + 1} 段，點擊編輯針法`}
+      accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
       accessibilityRole="button"
     >
       {/* Left: round label + content */}
-      <Text style={styles.roundBadgeText}>R{index + 1}</Text>
+      <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
 
       <View style={styles.roundInfo}>
         <View style={styles.roundTitleRow}>
-          <Text style={styles.roundStitchCount}>{hasItems ? `${totalStitches} 針` : '尚無針法'}</Text>
+          <Text style={styles.roundStitchCount}>
+            {hasItems ? t('editor.stitchCount', { count: totalStitches }) : t('editor.noStitches')}
+          </Text>
         </View>
 
         {hasItems && (
@@ -120,7 +124,7 @@ function RoundRow({
 
         {round.notes ? (
           <Text style={styles.roundNotes} numberOfLines={1}>
-            備註：{round.notes}
+            {t('editor.roundNotes', { notes: round.notes })}
           </Text>
         ) : null}
       </View>
@@ -130,7 +134,7 @@ function RoundRow({
         <TouchableOpacity
           onPress={onMoveUp}
           disabled={isFirst}
-          accessibilityLabel="上移段落"
+          accessibilityLabel={t('editor.moveUpLabel')}
           accessibilityRole="button"
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
@@ -140,7 +144,7 @@ function RoundRow({
         <TouchableOpacity
           onPress={onMoveDown}
           disabled={isLast}
-          accessibilityLabel="下移段落"
+          accessibilityLabel={t('editor.moveDownLabel')}
           accessibilityRole="button"
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
@@ -149,7 +153,7 @@ function RoundRow({
 
         <TouchableOpacity
           onPress={onDelete}
-          accessibilityLabel="刪除段落"
+          accessibilityLabel={t('editor.deleteRoundLabel')}
           accessibilityRole="button"
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
         >
@@ -163,6 +167,7 @@ function RoundRow({
 // ─── PatternEditorScreen ──────────────────────────────────────────────────────
 
 export default function PatternEditorScreen() {
+  const { t } = useTranslation()
   const { id, chartId } = useLocalSearchParams<{ id: string; chartId?: string }>()
   const router = useRouter()
 
@@ -184,9 +189,9 @@ export default function PatternEditorScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到此專案</Text>
+          <Text style={styles.emptyText}>{t('editor.notFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -203,9 +208,9 @@ export default function PatternEditorScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到織圖</Text>
+          <Text style={styles.emptyText}>{t('editor.chartNotFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -218,19 +223,19 @@ export default function PatternEditorScreen() {
     if (!activeChart) return
     const newRound = addRound(project!.id, activeChart.id, insertAfterIndex)
     if (!newRound) {
-      Alert.alert('錯誤', '新增段落失敗，請再試一次。')
+      Alert.alert(t('common.error'), t('editor.addRoundError'))
     }
     // Full round editing logic will be implemented in a later task
   }
 
   function handleDeleteRound(roundId: string, roundIndex: number) {
     Alert.alert(
-      '刪除段落',
-      `確定要刪除第 ${roundIndex + 1} 段嗎？此操作無法復原。`,
+      t('editor.deleteRoundTitle'),
+      t('editor.deleteRoundMessage', { index: roundIndex + 1 }),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '刪除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => deleteRound(project!.id, activeChart!.id, roundId),
         },
@@ -258,12 +263,12 @@ export default function PatternEditorScreen() {
             <Text style={styles.chartName} numberOfLines={1}>
               {activeChart.name}
             </Text>
-            <Text style={styles.chartRoundCount}>共 {rounds.length} 段</Text>
+            <Text style={styles.chartRoundCount}>{t('editor.roundCount', { count: rounds.length })}</Text>
           </View>
           <TouchableOpacity
             style={styles.chartEditButton}
             onPress={() => setShowEditChart(true)}
-            accessibilityLabel="編輯織圖名稱與備註"
+            accessibilityLabel={t('editor.editChartLabel')}
           >
             <Feather name="edit" size={16} color="#6b7280" />
           </TouchableOpacity>
@@ -277,9 +282,9 @@ export default function PatternEditorScreen() {
       {rounds.length === 0 ? (
         <ScrollView contentContainerStyle={styles.emptyScrollContent}>
           <View style={styles.emptyState}>
-            <Text style={styles.emptyStateTitle}>尚無段落</Text>
+            <Text style={styles.emptyStateTitle}>{t('editor.emptyTitle')}</Text>
             <Text style={styles.emptyStateHint}>
-              點擊下方「新增段落」按鈕，開始建立你的織圖段落。
+              {t('editor.emptyHint')}
             </Text>
           </View>
         </ScrollView>
@@ -310,7 +315,7 @@ export default function PatternEditorScreen() {
             return (
               <InsertSeparator
                 onInsert={() => handleAddRound(leadingIndex)}
-                label={`在第 ${leadingIndex + 1} 段後插入新段落`}
+                label={t('editor.insertAfter', { index: leadingIndex + 1 })}
               />
             )
           }}
@@ -322,10 +327,10 @@ export default function PatternEditorScreen() {
         <TouchableOpacity
           style={styles.addRoundButton}
           onPress={() => handleAddRound()}
-          accessibilityLabel="新增段落"
+          accessibilityLabel={t('editor.addRound')}
           accessibilityRole="button"
         >
-          <Text style={styles.addRoundButtonText}>+ 新增段落</Text>
+          <Text style={styles.addRoundButtonText}>{t('editor.addRound')}</Text>
         </TouchableOpacity>
       </View>
 

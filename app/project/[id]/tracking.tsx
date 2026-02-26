@@ -10,6 +10,7 @@ import {
   ScrollView,
 } from 'react-native'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { useKeepAwake } from 'expo-keep-awake'
 import * as Haptics from 'expo-haptics'
 import { ImpactFeedbackStyle, NotificationFeedbackType } from 'expo-haptics'
@@ -291,6 +292,7 @@ const blockStyles = StyleSheet.create({
 
 export default function ProgressTrackingScreen() {
   useKeepAwake()
+  const { t } = useTranslation()
 
   const { id, chartId } = useLocalSearchParams<{ id: string; chartId?: string }>()
   const router = useRouter()
@@ -311,9 +313,9 @@ export default function ProgressTrackingScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到此專案</Text>
+          <Text style={styles.emptyText}>{t('tracking.notFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -327,9 +329,9 @@ export default function ProgressTrackingScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到織圖</Text>
+          <Text style={styles.emptyText}>{t('tracking.chartNotFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -392,12 +394,12 @@ export default function ProgressTrackingScreen() {
   function handleResetRound() {
     if (!id) return
     Alert.alert(
-      '重新開始此圈',
-      `確定要將第 ${displayRoundNumber} 圈的針目計數重置為 0？`,
+      t('tracking.resetTitle'),
+      t('tracking.resetMessage', { number: displayRoundNumber }),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '確定',
+          text: t('common.confirm'),
           style: 'destructive',
           onPress: () => {
             useProgressStore.getState().resetRound(id, activeChart.id)
@@ -462,8 +464,8 @@ export default function ProgressTrackingScreen() {
       <View style={styles.patternCard}>
         {/* Header */}
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>第 {displayRoundNumber} 圈織圖</Text>
-          <Text style={styles.roundBadge}>共 {displayLastRoundNumber} 圈</Text>
+          <Text style={styles.cardTitle}>{t('tracking.roundTitle', { number: displayRoundNumber })}</Text>
+          <Text style={styles.roundBadge}>{t('tracking.roundBadge', { total: displayLastRoundNumber })}</Text>
         </View>
 
         {/* Pattern description */}
@@ -473,7 +475,7 @@ export default function ProgressTrackingScreen() {
 
         {/* Notes */}
         {currentRoundData?.notes ? (
-          <Text style={styles.notesText}>備註：{currentRoundData.notes}</Text>
+          <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
         ) : null}
 
         {/* Blocks：ScrollView 內，不蓋住下方按鈕 */}
@@ -492,7 +494,7 @@ export default function ProgressTrackingScreen() {
               />
             ))
           ) : (
-            <Text style={styles.emptyRoundText}>（此圈無針法）</Text>
+            <Text style={styles.emptyRoundText}>{t('tracking.emptyRound')}</Text>
           )}
         </ScrollView>
       </View>
@@ -505,10 +507,10 @@ export default function ProgressTrackingScreen() {
           <TouchableOpacity
             style={styles.prevButton}
             onPress={handlePreviousStitch}
-            accessibilityLabel="上一針"
+            accessibilityLabel={t('tracking.prevLabel')}
             accessibilityRole="button"
           >
-            <Text style={styles.prevButtonText}>← 上一針</Text>
+            <Text style={styles.prevButtonText}>{t('tracking.prevStitch')}</Text>
           </TouchableOpacity>
 
           <View style={styles.counter}>
@@ -519,10 +521,10 @@ export default function ProgressTrackingScreen() {
           <TouchableOpacity
             style={styles.nextButton}
             onPress={handleNextStitch}
-            accessibilityLabel="下一針"
+            accessibilityLabel={t('tracking.nextLabel')}
             accessibilityRole="button"
           >
-            <Text style={styles.nextButtonText}>下一針 →</Text>
+            <Text style={styles.nextButtonText}>{t('tracking.nextStitch')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -531,21 +533,21 @@ export default function ProgressTrackingScreen() {
           <TouchableOpacity
             style={styles.resetButton}
             onPress={handleResetRound}
-            accessibilityLabel="重新開始此圈"
+            accessibilityLabel={t('tracking.resetRound')}
             accessibilityRole="button"
           >
-            <Text style={styles.resetButtonText}>重新開始此圈</Text>
+            <Text style={styles.resetButtonText}>{t('tracking.resetRound')}</Text>
           </TouchableOpacity>
 
           {isLiveRound ? (
             <TouchableOpacity
               style={styles.completeRoundButton}
               onPress={handleCompleteRound}
-              accessibilityLabel={isLastRound ? '完成織圖' : `完成第 ${displayRoundNumber} 圈`}
+              accessibilityLabel={isLastRound ? t('tracking.completeChart') : t('tracking.completeRound', { number: displayRoundNumber })}
               accessibilityRole="button"
             >
               <Text style={styles.completeRoundButtonText}>
-                {isLastRound ? '完成織圖' : `完成第 ${displayRoundNumber} 圈`}
+                {isLastRound ? t('tracking.completeChart') : t('tracking.completeRound', { number: displayRoundNumber })}
               </Text>
             </TouchableOpacity>
           ) : (

@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { CraftType, CustomStitchPattern } from '../types'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 
@@ -31,6 +32,7 @@ export default function CustomStitchModal({
   defaultCraftType = 'crochet',
   editStitch,
 }: CustomStitchModalProps) {
+  const { t } = useTranslation()
   const addCustomStitch = useCustomStitchStore((s) => s.addCustomStitch)
   const updateCustomStitch = useCustomStitchStore((s) => s.updateCustomStitch)
 
@@ -107,21 +109,21 @@ export default function CustomStitchModal({
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={handleCancel}
-            accessibilityLabel="取消"
+            accessibilityLabel={t('common.cancel')}
             accessibilityRole="button"
           >
-            <Text style={styles.headerBtnCancel}>取消</Text>
+            <Text style={styles.headerBtnCancel}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>{isEditMode ? '編輯自訂針法' : '新增自訂針法'}</Text>
+          <Text style={styles.headerTitle}>{isEditMode ? t('customStitch.titleEdit') : t('customStitch.titleCreate')}</Text>
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={handleConfirm}
             disabled={!canConfirm}
-            accessibilityLabel="確定"
+            accessibilityLabel={t('common.confirm')}
             accessibilityRole="button"
           >
             <Text style={[styles.headerBtnConfirm, !canConfirm && styles.headerBtnDisabled]}>
-              確定
+              {t('common.confirm')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -131,10 +133,10 @@ export default function CustomStitchModal({
           contentContainerStyle={styles.bodyContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* 針法名稱（必填）*/}
+          {/* Stitch name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              針法名稱 <Text style={styles.required}>*</Text>
+              {t('customStitch.nameLabel')} <Text style={styles.required}>{t('common.required')}</Text>
             </Text>
             <TextInput
               style={[styles.textInput, nameError && styles.textInputError]}
@@ -143,49 +145,49 @@ export default function CustomStitchModal({
                 setName(text)
                 if (nameError && text.trim()) setNameError(false)
               }}
-              placeholder="例：貝殼針"
+              placeholder={t('customStitch.namePlaceholder')}
               placeholderTextColor="#9ca3af"
               returnKeyType="next"
               autoFocus
-              accessibilityLabel="針法名稱"
+              accessibilityLabel={t('customStitch.nameLabel')}
             />
-            {nameError && <Text style={styles.errorText}>請輸入針法名稱</Text>}
+            {nameError && <Text style={styles.errorText}>{t('customStitch.nameError')}</Text>}
           </View>
 
-          {/* 英文名稱（選填）*/}
+          {/* English name */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>英文名稱（選填）</Text>
+            <Text style={styles.label}>{t('customStitch.englishNameLabel')}</Text>
             <TextInput
               style={styles.textInput}
               value={englishName}
               onChangeText={setEnglishName}
-              placeholder="e.g. Shell Stitch"
+              placeholder={t('customStitch.englishNamePlaceholder')}
               placeholderTextColor="#9ca3af"
               returnKeyType="next"
               autoCapitalize="words"
-              accessibilityLabel="英文名稱"
+              accessibilityLabel={t('customStitch.englishNameLabel')}
             />
           </View>
 
-          {/* 符號／縮寫（選填）*/}
+          {/* Abbreviation */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>符號／縮寫（選填）</Text>
+            <Text style={styles.label}>{t('customStitch.abbrLabel')}</Text>
             <TextInput
               style={styles.textInput}
               value={abbr}
               onChangeText={setAbbr}
-              placeholder="e.g. sh"
+              placeholder={t('customStitch.abbrPlaceholder')}
               placeholderTextColor="#9ca3af"
               returnKeyType="done"
               autoCapitalize="none"
-              accessibilityLabel="符號縮寫"
+              accessibilityLabel={t('customStitch.abbrLabel')}
             />
           </View>
 
-          {/* 類型：鉤針／棒針（編輯模式下不可更改）*/}
+          {/* Craft type (disabled in edit mode) */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              類型 <Text style={styles.required}>*</Text>
+              {t('createProject.craftTypeLabel')} <Text style={styles.required}>{t('common.required')}</Text>
             </Text>
             <View style={styles.toggleRow}>
               <TouchableOpacity
@@ -196,7 +198,7 @@ export default function CustomStitchModal({
                 ]}
                 onPress={() => !isEditMode && setCraftType('crochet')}
                 disabled={isEditMode}
-                accessibilityLabel="鉤針"
+                accessibilityLabel={t('common.crochet')}
                 accessibilityState={{ selected: craftType === 'crochet' }}
               >
                 <Text
@@ -205,7 +207,7 @@ export default function CustomStitchModal({
                     craftType === 'crochet' && styles.toggleButtonTextActive,
                   ]}
                 >
-                  鉤針
+                  {t('common.crochet')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -216,7 +218,7 @@ export default function CustomStitchModal({
                 ]}
                 onPress={() => !isEditMode && setCraftType('knitting')}
                 disabled={isEditMode}
-                accessibilityLabel="棒針"
+                accessibilityLabel={t('common.knitting')}
                 accessibilityState={{ selected: craftType === 'knitting' }}
               >
                 <Text
@@ -225,7 +227,7 @@ export default function CustomStitchModal({
                     craftType === 'knitting' && styles.toggleButtonTextActive,
                   ]}
                 >
-                  棒針
+                  {t('common.knitting')}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -236,10 +238,10 @@ export default function CustomStitchModal({
             style={[styles.confirmButton, !canConfirm && styles.confirmButtonDisabled]}
             onPress={handleConfirm}
             disabled={!canConfirm}
-            accessibilityLabel={isEditMode ? '儲存自訂針法' : '新增自訂針法'}
+            accessibilityLabel={isEditMode ? t('customStitch.titleEdit') : t('customStitch.titleCreate')}
             accessibilityRole="button"
           >
-            <Text style={styles.confirmButtonText}>{isEditMode ? '儲存針法' : '新增針法'}</Text>
+            <Text style={styles.confirmButtonText}>{isEditMode ? t('customStitch.submitEdit') : t('customStitch.submitCreate')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native'
 import { Stack } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { logScreenView } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { useCustomStitchStore } from '../src/stores/useCustomStitchStore'
@@ -22,6 +23,7 @@ type TabKey = 'custom' | 'template'
 // ─── PatternElementsScreen ────────────────────────────────────────────────────
 
 export default function PatternElementsScreen() {
+  const { t } = useTranslation()
   const [activeTab, setActiveTab] = useState<TabKey>('custom')
   const [searchQuery, setSearchQuery] = useState('')
   const [templateSearchQuery, setTemplateSearchQuery] = useState('')
@@ -70,12 +72,12 @@ export default function PatternElementsScreen() {
 
   function handleDeletePress(stitch: CustomStitchPattern) {
     Alert.alert(
-      '刪除自訂針法',
-      `確定要刪除「${stitch.name}」嗎？此操作無法復原。`,
+      t('patternElements.deleteCustomTitle'),
+      t('patternElements.deleteCustomMessage', { name: stitch.name }),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '刪除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => deleteCustomStitch(stitch.id),
         },
@@ -90,12 +92,12 @@ export default function PatternElementsScreen() {
 
   function handleDeleteTemplatePress(template: StitchGroupTemplate) {
     Alert.alert(
-      '刪除樣板',
-      `確定要刪除「${template.name}」嗎？此操作無法復原。`,
+      t('patternElements.deleteTemplateTitle'),
+      t('patternElements.deleteTemplateMessage', { name: template.name }),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '刪除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => deleteTemplate(template.id),
         },
@@ -120,13 +122,15 @@ export default function PatternElementsScreen() {
   function renderTemplateItem({ item }: { item: StitchGroupTemplate }) {
     const preview = buildStitchPreview(item)
     const repeatLabel =
-      item.repeatCount > 1 ? `重複 ${item.repeatCount} 次` : '不重複'
+      item.repeatCount > 1
+        ? t('patternElements.repeatCount', { count: item.repeatCount })
+        : t('patternElements.noRepeat')
 
     return (
       <TouchableOpacity
         style={styles.templateRow}
         onLongPress={() => handleDeleteTemplatePress(item)}
-        accessibilityLabel={`長按刪除樣板 ${item.name}`}
+        accessibilityLabel={item.name}
         delayLongPress={400}
         activeOpacity={0.7}
       >
@@ -138,7 +142,7 @@ export default function PatternElementsScreen() {
             {item.useCount > 0 && (
               <View style={styles.useBadge}>
                 <Text style={styles.useBadgeText}>
-                  用過 {item.useCount} 次
+                  {t('patternElements.useCount', { count: item.useCount })}
                 </Text>
               </View>
             )}
@@ -155,7 +159,7 @@ export default function PatternElementsScreen() {
   }
 
   function renderStitchItem({ item }: { item: CustomStitchPattern }) {
-    const craftLabel = item.craftType === 'crochet' ? '鉤針' : '棒針'
+    const craftLabel = item.craftType === 'crochet' ? t('common.crochet') : t('common.knitting')
     const craftBadgeStyle =
       item.craftType === 'crochet' ? styles.badgeCrochet : styles.badgeKnitting
     const craftTextStyle =
@@ -193,7 +197,7 @@ export default function PatternElementsScreen() {
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => handleEditPress(item)}
-            accessibilityLabel={`編輯 ${item.name}`}
+            accessibilityLabel={item.name}
             accessibilityRole="button"
           >
             <Text style={styles.actionBtnIcon}>✏️</Text>
@@ -201,7 +205,7 @@ export default function PatternElementsScreen() {
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => handleDeletePress(item)}
-            accessibilityLabel={`刪除 ${item.name}`}
+            accessibilityLabel={item.name}
             accessibilityRole="button"
           >
             <Text style={styles.actionBtnIcon}>🗑️</Text>
@@ -214,7 +218,7 @@ export default function PatternElementsScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Dynamic header title */}
-      <Stack.Screen options={{ title: '針法庫' }} />
+      <Stack.Screen options={{ title: t('patternElements.title') }} />
 
       {/* ── Tab selector ────────────────────────────────────────────────────── */}
       <View style={styles.tabBar}>
@@ -225,7 +229,7 @@ export default function PatternElementsScreen() {
           accessibilityState={{ selected: activeTab === 'custom' }}
         >
           <Text style={[styles.tabText, activeTab === 'custom' && styles.tabTextActive]}>
-            自訂針法
+            {t('patternElements.tabCustom')}
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -235,7 +239,7 @@ export default function PatternElementsScreen() {
           accessibilityState={{ selected: activeTab === 'template' }}
         >
           <Text style={[styles.tabText, activeTab === 'template' && styles.tabTextActive]}>
-            樣板
+            {t('patternElements.tabTemplates')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -249,11 +253,11 @@ export default function PatternElementsScreen() {
               style={styles.searchInput}
               value={searchQuery}
               onChangeText={setSearchQuery}
-              placeholder="搜尋針法名稱..."
+              placeholder={t('patternElements.searchCustom')}
               placeholderTextColor="#9ca3af"
               clearButtonMode="while-editing"
               returnKeyType="search"
-              accessibilityLabel="搜尋自訂針法"
+              accessibilityLabel={t('patternElements.searchCustom')}
             />
           </View>
 
@@ -269,11 +273,11 @@ export default function PatternElementsScreen() {
             ListEmptyComponent={
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateTitle}>
-                  {searchQuery.trim() ? '找不到符合的針法' : '尚無自訂針法'}
+                  {searchQuery.trim() ? t('patternElements.noResultsCustom') : t('patternElements.emptyCustomTitle')}
                 </Text>
                 {!searchQuery.trim() && (
                   <Text style={styles.emptyStateHint}>
-                    點擊下方「＋ 新增自訂針法」按鈕，建立你的自訂針法。
+                    {t('patternElements.emptyCustomHint')}
                   </Text>
                 )}
               </View>
@@ -290,11 +294,11 @@ export default function PatternElementsScreen() {
               style={styles.searchInput}
               value={templateSearchQuery}
               onChangeText={setTemplateSearchQuery}
-              placeholder="搜尋樣板名稱..."
+              placeholder={t('patternElements.searchTemplates')}
               placeholderTextColor="#9ca3af"
               clearButtonMode="while-editing"
               returnKeyType="search"
-              accessibilityLabel="搜尋樣板"
+              accessibilityLabel={t('patternElements.searchTemplates')}
             />
           </View>
 
@@ -310,11 +314,11 @@ export default function PatternElementsScreen() {
             ListEmptyComponent={
               <View style={styles.emptyState}>
                 <Text style={styles.emptyStateTitle}>
-                  {templateSearchQuery.trim() ? '找不到符合的樣板' : '尚無樣板'}
+                  {templateSearchQuery.trim() ? t('patternElements.noResultsTemplates') : t('patternElements.emptyTemplatesTitle')}
                 </Text>
                 {!templateSearchQuery.trim() && (
                   <Text style={styles.emptyStateHint}>
-                    在圈段編輯器中儲存針法群組為樣板後，即可在此管理。
+                    {t('patternElements.emptyTemplatesHint')}
                   </Text>
                 )}
               </View>
@@ -330,10 +334,10 @@ export default function PatternElementsScreen() {
           <TouchableOpacity
             style={styles.addButton}
             onPress={handleAddPress}
-            accessibilityLabel="新增自訂針法"
+            accessibilityLabel={t('patternElements.addCustom')}
             accessibilityRole="button"
           >
-            <Text style={styles.addButtonText}>＋ 新增自訂針法</Text>
+            <Text style={styles.addButtonText}>{t('patternElements.addCustom')}</Text>
           </TouchableOpacity>
         </View>
       )}

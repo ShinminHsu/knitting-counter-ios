@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { ProjectPhoto } from '../types'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
@@ -28,28 +29,30 @@ export default function PhotoGallery({
   onSetCover,
   onPhotoPress,
 }: PhotoGalleryProps) {
+  const { t } = useTranslation()
+
   function handleLongPress(photo: ProjectPhoto) {
     const options: Array<{ text: string; style?: 'destructive' | 'cancel' | 'default'; onPress?: () => void }> = []
 
     if (!photo.isCover) {
       options.push({
-        text: '設為封面',
+        text: t('photoGallery.setCover'),
         onPress: () => onSetCover(photo),
       })
     }
 
     options.push({
-      text: '刪除',
+      text: t('common.delete'),
       style: 'destructive',
       onPress: () => onDelete(photo),
     })
 
     options.push({
-      text: '取消',
+      text: t('common.cancel'),
       style: 'cancel',
     })
 
-    Alert.alert('照片選項', undefined, options, { cancelable: true })
+    Alert.alert(t('photoGallery.optionsTitle'), undefined, options, { cancelable: true })
   }
 
   return (

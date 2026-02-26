@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../stores'
 import { Chart } from '../types'
 
@@ -21,6 +22,7 @@ interface EditChartModalProps {
 }
 
 export default function EditChartModal({ visible, projectId, chart, onClose }: EditChartModalProps) {
+  const { t } = useTranslation()
   const updateChart = useProjectStore((s) => s.updateChart)
 
   const [name, setName] = useState('')
@@ -61,11 +63,11 @@ export default function EditChartModal({ visible, projectId, chart, onClose }: E
       >
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.headerButton}>
-            <Text style={styles.cancelText}>取消</Text>
+            <Text style={styles.cancelText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>編輯織圖</Text>
+          <Text style={styles.headerTitle}>{t('editChart.title')}</Text>
           <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
-            <Text style={styles.saveText}>儲存</Text>
+            <Text style={styles.saveText}>{t('common.save')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -74,30 +76,30 @@ export default function EditChartModal({ visible, projectId, chart, onClose }: E
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* 織圖名稱 */}
+          {/* Chart name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              織圖名稱 <Text style={styles.required}>*</Text>
+              {t('editChart.nameLabel')} <Text style={styles.required}>{t('common.required')}</Text>
             </Text>
             <TextInput
               style={[styles.textInput, nameError && styles.textInputError]}
               value={name}
-              onChangeText={(t) => {
-                setName(t)
-                if (nameError && t.trim()) setNameError(false)
+              onChangeText={(text) => {
+                setName(text)
+                if (nameError && text.trim()) setNameError(false)
               }}
               returnKeyType="next"
               autoFocus
             />
-            {nameError && <Text style={styles.errorText}>請輸入織圖名稱</Text>}
+            {nameError && <Text style={styles.errorText}>{t('editChart.nameError')}</Text>}
           </View>
 
-          {/* 備註 */}
+          {/* Notes */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>備註（選填）</Text>
+            <Text style={styles.label}>{t('editChart.notesLabel')}</Text>
             <TextInput
               style={[styles.textInput, styles.textInputMultiline]}
-              placeholder="任何備註事項"
+              placeholder={t('editChart.notesPlaceholder')}
               placeholderTextColor="#9ca3af"
               value={notes}
               onChangeText={setNotes}
@@ -108,7 +110,7 @@ export default function EditChartModal({ visible, projectId, chart, onClose }: E
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-            <Text style={styles.saveButtonText}>儲存變更</Text>
+            <Text style={styles.saveButtonText}>{t('editChart.submitButton')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

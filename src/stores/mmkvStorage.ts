@@ -32,4 +32,5 @@ export const STORAGE_KEYS = {
   PROJECTS: 'projects',
   CUSTOM_STITCHES: 'customStitches',
   TEMPLATES: 'templates',
+  LANGUAGE: 'language',
 } as const

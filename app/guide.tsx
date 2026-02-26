@@ -7,12 +7,15 @@ import {
   StyleSheet,
 } from 'react-native'
 import { Stack } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { logScreenView } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 
 // ─── GuideScreen ──────────────────────────────────────────────────────────────
 
 export default function GuideScreen() {
+  const { t } = useTranslation()
+
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
     logScreenView(SCREEN_NAMES.GUIDE)
@@ -21,92 +24,92 @@ export default function GuideScreen() {
   return (
     <SafeAreaView style={styles.container}>
       {/* Dynamic header title */}
-      <Stack.Screen options={{ title: '使用說明' }} />
+      <Stack.Screen options={{ title: t('guide.title') }} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
-        {/* ── Section 1: 如何新增專案 ───────────────────────────────────────── */}
+        {/* ── Section 1 ─────────────────────────────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>如何新增專案</Text>
+          <Text style={styles.sectionTitle}>{t('guide.addProjectTitle')}</Text>
           <View style={styles.card}>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>1</Text>
               </View>
-              <Text style={styles.stepText}>在「我的專案」主畫面點擊右上角的「＋」按鈕。</Text>
+              <Text style={styles.stepText}>{t('guide.addProject1')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>2</Text>
               </View>
-              <Text style={styles.stepText}>輸入專案名稱（例如：圍巾、帽子），並選擇針法類型。</Text>
+              <Text style={styles.stepText}>{t('guide.addProject2')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>3</Text>
               </View>
-              <Text style={styles.stepText}>點擊「建立」完成新增，專案會出現在清單中。</Text>
+              <Text style={styles.stepText}>{t('guide.addProject3')}</Text>
             </View>
           </View>
         </View>
 
-        {/* ── Section 2: 如何建立織圖 ───────────────────────────────────────── */}
+        {/* ── Section 2 ─────────────────────────────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>如何建立織圖</Text>
+          <Text style={styles.sectionTitle}>{t('guide.buildChartTitle')}</Text>
           <View style={styles.card}>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>1</Text>
               </View>
-              <Text style={styles.stepText}>進入專案詳細頁面，點擊「織圖編輯器」。</Text>
+              <Text style={styles.stepText}>{t('guide.buildChart1')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>2</Text>
               </View>
-              <Text style={styles.stepText}>點擊「新增段落」，為每一圈或每一排新增一個段落。</Text>
+              <Text style={styles.stepText}>{t('guide.buildChart2')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>3</Text>
               </View>
-              <Text style={styles.stepText}>在段落中新增針法項目，設定針法類型和針數。</Text>
+              <Text style={styles.stepText}>{t('guide.buildChart3')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>4</Text>
               </View>
-              <Text style={styles.stepText}>可為段落或針法加上備註，方便日後參考。</Text>
+              <Text style={styles.stepText}>{t('guide.buildChart4')}</Text>
             </View>
           </View>
         </View>
 
-        {/* ── Section 3: 如何追蹤進度 ───────────────────────────────────────── */}
+        {/* ── Section 3 ─────────────────────────────────────────────────────── */}
         <View style={styles.section}>
-          <Text style={styles.sectionTitle}>如何追蹤進度</Text>
+          <Text style={styles.sectionTitle}>{t('guide.trackTitle')}</Text>
           <View style={styles.card}>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>1</Text>
               </View>
-              <Text style={styles.stepText}>在專案詳細頁面點擊「開始追蹤」進入追蹤模式。</Text>
+              <Text style={styles.stepText}>{t('guide.track1')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>2</Text>
               </View>
-              <Text style={styles.stepText}>每完成一針，點擊「下一針」，計數器會自動前進。</Text>
+              <Text style={styles.stepText}>{t('guide.track2')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>3</Text>
               </View>
-              <Text style={styles.stepText}>若針數錯誤，點擊「上一針」退回一步。</Text>
+              <Text style={styles.stepText}>{t('guide.track3')}</Text>
             </View>
             <View style={styles.step}>
               <View style={styles.stepBadge}>
                 <Text style={styles.stepBadgeText}>4</Text>
               </View>
-              <Text style={styles.stepText}>完成一圈後，系統會自動跳至下一段落繼續計數。</Text>
+              <Text style={styles.stepText}>{t('guide.track4')}</Text>
             </View>
           </View>
         </View>

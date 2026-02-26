@@ -1,4 +1,5 @@
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { Round } from '../types'
 import { getTotalStitchesInRound } from '../utils/patternUtils'
 
@@ -28,24 +29,25 @@ export default function RoundCard({
   onDelete,
   onDuplicate,
 }: RoundCardProps) {
+  const { t } = useTranslation()
   const totalStitches = getTotalStitchesInRound(round)
 
   function handleLongPress() {
     Alert.alert(
-      `第 ${roundNumber} 段`,
+      t('roundCard.roundTitle', { number: roundNumber }),
       undefined,
       [
         {
-          text: '複製此段落',
+          text: t('roundCard.duplicate'),
           onPress: onDuplicate,
         },
         {
-          text: '刪除此段落',
+          text: t('roundCard.deleteRound'),
           style: 'destructive',
           onPress: onDelete,
         },
         {
-          text: '取消',
+          text: t('common.cancel'),
           style: 'cancel',
         },
       ],
@@ -67,7 +69,7 @@ export default function RoundCard({
 
       {/* Center: stitch summary */}
       <View style={styles.content}>
-        <Text style={styles.stitchCount}>{totalStitches} 針</Text>
+        <Text style={styles.stitchCount}>{t('roundCard.stitchCount', { count: totalStitches })}</Text>
         {round.notes ? (
           <Text style={styles.notes} numberOfLines={1}>
             {round.notes}

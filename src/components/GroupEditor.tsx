@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
+import { useTranslation } from 'react-i18next'
 import { CraftType, StitchInfo, StitchType } from '../types'
 import { generateId } from '../utils/helpers'
 import { getStitchLabel } from '../utils/patternHelpers'
@@ -50,6 +51,7 @@ interface StitchRowProps {
 }
 
 function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCount, onDelete }: StitchRowProps) {
+  const { t } = useTranslation()
   const label = getStitchLabel(stitch)
 
   return (
@@ -60,7 +62,7 @@ function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCoun
           onPress={onMoveUp}
           disabled={isFirst}
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          accessibilityLabel="上移"
+          accessibilityLabel={t('editor.moveUpLabel')}
         >
           <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#6b7280'} />
         </TouchableOpacity>
@@ -68,7 +70,7 @@ function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCoun
           onPress={onMoveDown}
           disabled={isLast}
           hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          accessibilityLabel="下移"
+          accessibilityLabel={t('editor.moveDownLabel')}
         >
           <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#6b7280'} />
         </TouchableOpacity>
@@ -84,7 +86,7 @@ function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCoun
         <TouchableOpacity
           style={styles.countBtn}
           onPress={() => onChangeCount(Math.max(1, stitch.count - 1))}
-          accessibilityLabel="減少數量"
+          accessibilityLabel={t('round.decreaseCount')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Feather name="minus" size={16} color="#6b7280" />
@@ -99,19 +101,19 @@ function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCoun
           }}
           keyboardType="number-pad"
           selectTextOnFocus
-          accessibilityLabel="數量"
+          accessibilityLabel={t('round.countLabel')}
         />
         <TouchableOpacity
           style={styles.countBtn}
           onPress={() => onChangeCount(stitch.count + 1)}
-          accessibilityLabel="增加數量"
+          accessibilityLabel={t('round.increaseCount')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
           <Feather name="plus" size={16} color="#6b7280" />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={onDelete}
-          accessibilityLabel="刪除針法"
+          accessibilityLabel={t('round.deleteStitchTitle')}
           accessibilityRole="button"
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           style={styles.deleteBtn}
@@ -135,6 +137,7 @@ export default function GroupEditor({
   onConfirm,
   onCancel,
 }: GroupEditorProps) {
+  const { t } = useTranslation()
   const isEditMode = initialName !== undefined
 
   const [groupName, setGroupName] = useState('')
@@ -195,7 +198,7 @@ export default function GroupEditor({
       return
     }
 
-    const finalName = groupName.trim() || defaultName || '群組'
+    const finalName = groupName.trim() || defaultName || t('groupEditor.defaultGroupName')
 
     onConfirm({
       name: finalName,
@@ -220,23 +223,23 @@ export default function GroupEditor({
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={handleCancel}
-            accessibilityLabel="取消"
+            accessibilityLabel={t('common.cancel')}
             accessibilityRole="button"
           >
-            <Text style={styles.headerBtnCancel}>取消</Text>
+            <Text style={styles.headerBtnCancel}>{t('common.cancel')}</Text>
           </TouchableOpacity>
           <Text style={styles.headerTitle}>
-            {isEditMode ? '編輯針法群組' : '新增針法群組'}
+            {isEditMode ? t('groupEditor.titleEdit') : t('groupEditor.titleCreate')}
           </Text>
           <TouchableOpacity
             style={styles.headerBtn}
             onPress={handleConfirm}
             disabled={!canConfirm}
-            accessibilityLabel="確定"
+            accessibilityLabel={t('common.confirm')}
             accessibilityRole="button"
           >
             <Text style={[styles.headerBtnConfirm, !canConfirm && styles.headerBtnDisabled]}>
-              確定
+              {t('common.confirm')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -248,26 +251,26 @@ export default function GroupEditor({
         >
           {/* Group Name */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>群組名稱</Text>
+            <Text style={styles.sectionLabel}>{t('groupEditor.groupName')}</Text>
             <TextInput
               style={styles.textInput}
               value={groupName}
               onChangeText={setGroupName}
-              placeholder={defaultName ?? '例：貝殼花樣'}
+              placeholder={defaultName ?? t('groupEditor.groupNamePlaceholder')}
               placeholderTextColor="#9ca3af"
               returnKeyType="done"
-              accessibilityLabel="群組名稱"
+              accessibilityLabel={t('groupEditor.groupName')}
             />
           </View>
 
           {/* Repeat Count */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>重複次數</Text>
+            <Text style={styles.sectionLabel}>{t('groupEditor.repeatCount')}</Text>
             <View style={styles.repeatRow}>
               <TouchableOpacity
                 style={styles.countBtn}
                 onPress={() => setRepeatCount((c) => Math.max(1, c - 1))}
-                accessibilityLabel="減少重複次數"
+                accessibilityLabel={t('groupEditor.decreaseRepeat')}
               >
                 <Feather name="minus" size={20} color="#6b7280" />
               </TouchableOpacity>
@@ -281,12 +284,12 @@ export default function GroupEditor({
                 }}
                 keyboardType="number-pad"
                 selectTextOnFocus
-                accessibilityLabel="重複次數"
+                accessibilityLabel={t('groupEditor.repeatLabel')}
               />
               <TouchableOpacity
                 style={styles.countBtn}
                 onPress={() => setRepeatCount((c) => c + 1)}
-                accessibilityLabel="增加重複次數"
+                accessibilityLabel={t('groupEditor.increaseRepeat')}
               >
                 <Feather name="plus" size={20} color="#6b7280" />
               </TouchableOpacity>
@@ -295,11 +298,11 @@ export default function GroupEditor({
 
           {/* Stitches in group */}
           <View style={styles.section}>
-            <Text style={styles.sectionLabel}>針法序列</Text>
+            <Text style={styles.sectionLabel}>{t('groupEditor.stitchSequence')}</Text>
 
             {stitches.length === 0 ? (
               <View style={styles.emptyStitches}>
-                <Text style={styles.emptyStitchesText}>尚未加入任何針法</Text>
+                <Text style={styles.emptyStitchesText}>{t('groupEditor.emptyStitches')}</Text>
               </View>
             ) : (
               <View style={styles.stitchesList}>
@@ -321,15 +324,15 @@ export default function GroupEditor({
             <TouchableOpacity
               style={styles.addStitchButton}
               onPress={() => setShowStitchPicker(true)}
-              accessibilityLabel="加入針法"
+              accessibilityLabel={t('groupEditor.addStitch')}
               accessibilityRole="button"
             >
               <Feather name="plus" size={16} color="#D97398" />
-              <Text style={styles.addStitchButtonText}>加入針法</Text>
+              <Text style={styles.addStitchButtonText}>{t('groupEditor.addStitch')}</Text>
             </TouchableOpacity>
 
             {stitches.length === 0 && (
-              <Text style={styles.validationHint}>請至少加入一個針法才能確定</Text>
+              <Text style={styles.validationHint}>{t('groupEditor.validationHint')}</Text>
             )}
           </View>
 
@@ -338,9 +341,9 @@ export default function GroupEditor({
             <View style={styles.section}>
               <View style={styles.templateToggleRow}>
                 <View style={styles.templateToggleInfo}>
-                  <Text style={styles.sectionLabel}>儲存為樣板</Text>
+                  <Text style={styles.sectionLabel}>{t('groupEditor.saveAsTemplate')}</Text>
                   <Text style={styles.templateToggleHint}>
-                    以群組名稱「{groupName.trim() || defaultName || '群組'}」儲存，方便日後重複使用
+                    {t('groupEditor.saveAsTemplateHint', { name: groupName.trim() || defaultName || t('groupEditor.defaultGroupName') })}
                   </Text>
                 </View>
                 <Switch
@@ -348,7 +351,7 @@ export default function GroupEditor({
                   onValueChange={setSaveAsTemplate}
                   trackColor={{ false: '#d1d5db', true: '#D97398' }}
                   thumbColor="#fff"
-                  accessibilityLabel="儲存為樣板"
+                  accessibilityLabel={t('groupEditor.saveAsTemplate')}
                 />
               </View>
             </View>

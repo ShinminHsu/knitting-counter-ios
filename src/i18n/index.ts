@@ -3,8 +3,11 @@ import { initReactI18next } from 'react-i18next'
 import { getLocales } from 'expo-localization'
 import zhTW from './locales/zh-TW'
 import en from './locales/en'
+import { mmkv, STORAGE_KEYS } from '../stores/mmkvStorage'
 
+const savedLanguage = mmkv.getString(STORAGE_KEYS.LANGUAGE)
 const deviceLanguage = getLocales()[0]?.languageCode ?? 'zh'
+const initialLanguage = savedLanguage ?? (deviceLanguage.startsWith('en') ? 'en' : 'zh-TW')
 
 i18n
   .use(initReactI18next)
@@ -13,7 +16,7 @@ i18n
       'zh-TW': { translation: zhTW },
       en: { translation: en },
     },
-    lng: deviceLanguage.startsWith('en') ? 'en' : 'zh-TW',
+    lng: initialLanguage,
     fallbackLng: 'zh-TW',
     interpolation: {
       escapeValue: false,

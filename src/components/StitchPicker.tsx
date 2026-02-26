@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { STITCH_CATEGORIES_BY_CRAFT } from '../constants/stitches'
 import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../constants/stitchIcons'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
@@ -122,6 +123,7 @@ export default function StitchPicker({
   visible,
   onClose,
 }: StitchPickerProps) {
+  const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const { getByType } = useCustomStitchStore()
 
@@ -155,7 +157,7 @@ export default function StitchPicker({
 
     const customSection: SectionData[] =
       customStitches.length > 0
-        ? [{ title: '自訂', data: customStitches.map((s): CustomItem => ({ kind: 'custom', stitch: s })) }]
+        ? [{ title: t('stitch.category.custom'), data: customStitches.map((s): CustomItem => ({ kind: 'custom', stitch: s })) }]
         : []
 
     return [...builtInSections, ...customSection]
@@ -226,7 +228,7 @@ export default function StitchPicker({
       <View style={styles.container}>
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.headerTitle}>選擇針法</Text>
+          <Text style={styles.headerTitle}>{t('stitchPicker.title')}</Text>
           <TouchableOpacity style={styles.closeButton} onPress={onClose} activeOpacity={0.7}>
             <Text style={styles.closeButtonText}>✕</Text>
           </TouchableOpacity>
@@ -236,7 +238,7 @@ export default function StitchPicker({
         <View style={styles.searchContainer}>
           <TextInput
             style={styles.searchInput}
-            placeholder="搜尋針法..."
+            placeholder={t('stitchPicker.searchPlaceholder')}
             placeholderTextColor="#9ca3af"
             value={query}
             onChangeText={setQuery}
@@ -249,7 +251,7 @@ export default function StitchPicker({
         {/* Stitch list */}
         {sections.length === 0 ? (
           <View style={styles.emptyContainer}>
-            <Text style={styles.emptyText}>找不到符合的針法</Text>
+            <Text style={styles.emptyText}>{t('stitchPicker.noResults')}</Text>
           </View>
         ) : (
           <SectionList

@@ -11,6 +11,7 @@ import {
   View,
 } from 'react-native'
 import { useRouter } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../stores'
 import { logProjectCreated } from '../services'
 import { CraftType } from '../types'
@@ -25,6 +26,7 @@ interface CreateProjectModalProps {
 // ─── Component ────────────────────────────────────────────────────────────────
 
 export default function CreateProjectModal({ visible, onClose }: CreateProjectModalProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const addProject = useProjectStore((s) => s.addProject)
 
@@ -84,17 +86,17 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
           <TouchableOpacity
             onPress={handleClose}
             style={styles.cancelButton}
-            accessibilityLabel="取消"
+            accessibilityLabel={t('common.cancel')}
           >
-            <Text style={styles.cancelButtonText}>取消</Text>
+            <Text style={styles.cancelButtonText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>新增專案</Text>
+          <Text style={styles.headerTitle}>{t('createProject.title')}</Text>
           <TouchableOpacity
             onPress={handleSubmit}
             style={styles.submitButton}
-            accessibilityLabel="建立專案"
+            accessibilityLabel={t('createProject.submitButton')}
           >
-            <Text style={styles.submitButtonText}>建立</Text>
+            <Text style={styles.submitButtonText}>{t('common.create')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -103,14 +105,14 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* 專案名稱 */}
+          {/* Project name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              專案名稱 <Text style={styles.required}>*</Text>
+              {t('createProject.nameLabel')} <Text style={styles.required}>{t('common.required')}</Text>
             </Text>
             <TextInput
               style={[styles.textInput, nameError && styles.textInputError]}
-              placeholder="輸入專案名稱"
+              placeholder={t('createProject.namePlaceholder')}
               placeholderTextColor="#9ca3af"
               value={name}
               onChangeText={(text) => {
@@ -121,13 +123,13 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
               autoFocus
             />
             {nameError && (
-              <Text style={styles.errorText}>請輸入專案名稱</Text>
+              <Text style={styles.errorText}>{t('createProject.nameError')}</Text>
             )}
           </View>
 
-          {/* 類型 */}
+          {/* Craft type */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>類型 <Text style={styles.required}>*</Text></Text>
+            <Text style={styles.label}>{t('createProject.craftTypeLabel')} <Text style={styles.required}>{t('common.required')}</Text></Text>
             <View style={styles.toggleRow}>
               <TouchableOpacity
                 style={[
@@ -135,7 +137,7 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
                   craftType === 'crochet' && styles.toggleButtonActive,
                 ]}
                 onPress={() => setCraftType('crochet')}
-                accessibilityLabel="鉤針"
+                accessibilityLabel={t('common.crochet')}
                 accessibilityState={{ selected: craftType === 'crochet' }}
               >
                 <Text
@@ -144,7 +146,7 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
                     craftType === 'crochet' && styles.toggleButtonTextActive,
                   ]}
                 >
-                  鉤針
+                  {t('common.crochet')}
                 </Text>
               </TouchableOpacity>
               <TouchableOpacity
@@ -153,7 +155,7 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
                   craftType === 'knitting' && styles.toggleButtonActive,
                 ]}
                 onPress={() => setCraftType('knitting')}
-                accessibilityLabel="棒針"
+                accessibilityLabel={t('common.knitting')}
                 accessibilityState={{ selected: craftType === 'knitting' }}
               >
                 <Text
@@ -162,18 +164,18 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
                     craftType === 'knitting' && styles.toggleButtonTextActive,
                   ]}
                 >
-                  棒針
+                  {t('common.knitting')}
                 </Text>
               </TouchableOpacity>
             </View>
           </View>
 
-          {/* 來源/參考 */}
+          {/* Source */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>來源／參考</Text>
+            <Text style={styles.label}>{t('createProject.sourceLabel')}</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="例如：書名、網址、影片連結（選填）"
+              placeholder={t('createProject.sourcePlaceholder')}
               placeholderTextColor="#9ca3af"
               value={source}
               onChangeText={setSource}
@@ -181,12 +183,12 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
             />
           </View>
 
-          {/* 備註 */}
+          {/* Notes */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>備註</Text>
+            <Text style={styles.label}>{t('createProject.notesLabel')}</Text>
             <TextInput
               style={[styles.textInput, styles.textInputMultiline]}
-              placeholder="任何備註事項（選填）"
+              placeholder={t('createProject.notesPlaceholder')}
               placeholderTextColor="#9ca3af"
               value={notes}
               onChangeText={setNotes}
@@ -200,9 +202,9 @@ export default function CreateProjectModal({ visible, onClose }: CreateProjectMo
           <TouchableOpacity
             style={styles.createButton}
             onPress={handleSubmit}
-            accessibilityLabel="建立專案"
+            accessibilityLabel={t('createProject.submitButton')}
           >
-            <Text style={styles.createButtonText}>建立專案</Text>
+            <Text style={styles.createButtonText}>{t('createProject.submitButton')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

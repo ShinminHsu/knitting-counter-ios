@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../../../src/stores'
 import { usePatternStore } from '../../../src/stores/usePatternStore'
 import { useTemplateStore } from '../../../src/stores/useTemplateStore'
@@ -37,6 +38,7 @@ interface StitchEditorProps {
 }
 
 function StitchEditor({ title, stitchType, count: initialCount, craftType, onConfirm, onCancel }: StitchEditorProps) {
+  const { t } = useTranslation()
   const [currentType, setCurrentType] = useState(stitchType)
   const [count, setCount] = useState(initialCount)
   const [showChangePicker, setShowChangePicker] = useState(false)
@@ -51,10 +53,10 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
           <TouchableOpacity
             style={styles.stitchTypeRow}
             onPress={() => setShowChangePicker(true)}
-            accessibilityLabel="更換針法類型"
+            accessibilityLabel={t('round.changeStitchType')}
           >
             <Text style={styles.stitchTypeLabel} numberOfLines={1}>
-              {currentType === StitchType.CUSTOM ? '自訂' : StitchTypeInfo[currentType]?.label ?? currentType}
+              {currentType === StitchType.CUSTOM ? t('stitch.category.custom') : StitchTypeInfo[currentType]?.label ?? currentType}
             </Text>
             <Feather name="chevron-right" size={16} color="#9ca3af" />
           </TouchableOpacity>
@@ -64,7 +66,7 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
             <TouchableOpacity
               style={styles.countButton}
               onPress={() => setCount((c) => Math.max(1, c - 1))}
-              accessibilityLabel="減少數量"
+              accessibilityLabel={t('round.decreaseCount')}
             >
               <Feather name="minus" size={20} color="#6b7280" />
             </TouchableOpacity>
@@ -78,12 +80,12 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
               }}
               keyboardType="number-pad"
               selectTextOnFocus
-              accessibilityLabel="數量"
+              accessibilityLabel={t('round.countLabel')}
             />
             <TouchableOpacity
               style={styles.countButton}
               onPress={() => setCount((c) => c + 1)}
-              accessibilityLabel="增加數量"
+              accessibilityLabel={t('round.increaseCount')}
             >
               <Feather name="plus" size={20} color="#6b7280" />
             </TouchableOpacity>
@@ -92,13 +94,13 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
           {/* Actions */}
           <View style={styles.countEditorActions}>
             <TouchableOpacity style={styles.countActionCancel} onPress={onCancel}>
-              <Text style={styles.countActionCancelText}>取消</Text>
+              <Text style={styles.countActionCancelText}>{t('common.cancel')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.countActionConfirm}
               onPress={() => onConfirm(currentType, count)}
             >
-              <Text style={styles.countActionConfirmText}>確定</Text>
+              <Text style={styles.countActionConfirmText}>{t('common.confirm')}</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -131,12 +133,13 @@ interface PatternItemRowProps {
 }
 
 function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, onDelete }: PatternItemRowProps) {
+  const { t } = useTranslation()
   const reorderControls = (
     <View style={styles.reorderControls}>
       <TouchableOpacity
         onPress={onMoveUp}
         disabled={isFirst}
-        accessibilityLabel="上移"
+        accessibilityLabel={t('editor.moveUpLabel')}
         accessibilityRole="button"
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       >
@@ -145,7 +148,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
       <TouchableOpacity
         onPress={onMoveDown}
         disabled={isLast}
-        accessibilityLabel="下移"
+        accessibilityLabel={t('editor.moveDownLabel')}
         accessibilityRole="button"
         hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       >
@@ -164,7 +167,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
           <TouchableOpacity
             onPress={onEdit}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityLabel="編輯針法"
+            accessibilityLabel={t('round.editStitchTitle')}
           >
             <Text style={styles.itemCount}>×{stitch.count}</Text>
           </TouchableOpacity>
@@ -173,7 +176,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
           {reorderControls}
           <TouchableOpacity
             onPress={onEdit}
-            accessibilityLabel="編輯針法"
+            accessibilityLabel={t('round.editStitchTitle')}
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
@@ -181,7 +184,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
-            accessibilityLabel="刪除針法"
+            accessibilityLabel={t('round.deleteStitchTitle')}
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
@@ -209,7 +212,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
           {reorderControls}
           <TouchableOpacity
             onPress={onEdit}
-            accessibilityLabel="編輯群組"
+            accessibilityLabel={t('round.editStitchTitle')}
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
@@ -217,7 +220,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
           </TouchableOpacity>
           <TouchableOpacity
             onPress={onDelete}
-            accessibilityLabel="刪除群組"
+            accessibilityLabel={t('round.deleteGroupTitle')}
             accessibilityRole="button"
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
           >
@@ -234,6 +237,7 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
 // ─── RoundEditScreen ──────────────────────────────────────────────────────────
 
 export default function RoundEditScreen() {
+  const { t } = useTranslation()
   const { id, chartId, roundId } = useLocalSearchParams<{
     id: string
     chartId: string
@@ -263,9 +267,9 @@ export default function RoundEditScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到此專案</Text>
+          <Text style={styles.emptyText}>{t('editor.notFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -277,9 +281,9 @@ export default function RoundEditScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到織圖</Text>
+          <Text style={styles.emptyText}>{t('editor.chartNotFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -291,9 +295,9 @@ export default function RoundEditScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到段落</Text>
+          <Text style={styles.emptyText}>{t('round.notFound')}</Text>
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>返回</Text>
+            <Text style={styles.backButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -304,9 +308,9 @@ export default function RoundEditScreen() {
   const totalStitches = calcRoundTotalStitches(round.patternItems)
   const roundIndex = chart.rounds.findIndex((r) => r.id === roundId)
 
-  // Default group name: "群組 N" based on existing group count
+  // Default group name based on existing group count
   const existingGroupCount = sortedItems.filter((item) => item.type === PatternItemType.GROUP).length
-  const defaultGroupName = `群組 ${existingGroupCount + 1}`
+  const defaultGroupName = t('round.defaultGroupName', { n: existingGroupCount + 1 })
 
   function handleStitchSelected(stitchType: StitchType) {
     setShowStitchPicker(false)
@@ -342,12 +346,12 @@ export default function RoundEditScreen() {
     const isGroupItem = item.type === PatternItemType.GROUP
 
     Alert.alert(
-      isGroupItem ? '刪除群組' : '刪除針法',
-      isGroupItem ? '確定要刪除此群組嗎？' : '確定要刪除此針法嗎？',
+      isGroupItem ? t('round.deleteGroupTitle') : t('round.deleteStitchTitle'),
+      isGroupItem ? t('round.deleteGroupMessage') : t('round.deleteStitchMessage'),
       [
-        { text: '取消', style: 'cancel' },
+        { text: t('common.cancel'), style: 'cancel' },
         {
-          text: '刪除',
+          text: t('common.delete'),
           style: 'destructive',
           onPress: () => {
             if (isGroupItem) {
@@ -396,20 +400,20 @@ export default function RoundEditScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: `R${roundIndex + 1} 段落編輯` }} />
+      <Stack.Screen options={{ title: t('round.title', { index: roundIndex + 1 }) }} />
 
       {/* Summary bar */}
       <View style={styles.summaryBar}>
         <Text style={styles.summaryText}>
-          第 {roundIndex + 1} 段 · 共 {totalStitches} 針
+          {t('round.summary', { index: roundIndex + 1, count: totalStitches })}
         </Text>
       </View>
 
       {/* Pattern items list */}
       {sortedItems.length === 0 ? (
         <View style={styles.emptyState}>
-          <Text style={styles.emptyStateTitle}>尚無針法</Text>
-          <Text style={styles.emptyStateHint}>點擊下方「新增針法」按鈕，開始加入針法。</Text>
+          <Text style={styles.emptyStateTitle}>{t('round.emptyTitle')}</Text>
+          <Text style={styles.emptyStateHint}>{t('round.emptyHint')}</Text>
         </View>
       ) : (
         <FlatList
@@ -446,18 +450,18 @@ export default function RoundEditScreen() {
               setEditingGroup(null)
               setShowGroupEditor(true)
             }}
-            accessibilityLabel="新增群組"
+            accessibilityLabel={t('round.addGroup')}
             accessibilityRole="button"
           >
-            <Text style={styles.addButtonSecondaryText}>+ 新增群組</Text>
+            <Text style={styles.addButtonSecondaryText}>{t('round.addGroup')}</Text>
           </TouchableOpacity>
           <TouchableOpacity
             style={[styles.addButton, styles.addButtonPrimary]}
             onPress={() => setShowStitchPicker(true)}
-            accessibilityLabel="新增針法"
+            accessibilityLabel={t('round.addStitch')}
             accessibilityRole="button"
           >
-            <Text style={styles.addButtonText}>+ 新增針法</Text>
+            <Text style={styles.addButtonText}>{t('round.addStitch')}</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -473,7 +477,7 @@ export default function RoundEditScreen() {
       {/* Add stitch editor */}
       {pendingAddType !== null && (
         <StitchEditor
-          title="新增針法"
+          title={t('round.addStitchTitle')}
           stitchType={pendingAddType}
           count={1}
           craftType={project.craftType}
@@ -485,7 +489,7 @@ export default function RoundEditScreen() {
       {/* Edit stitch editor */}
       {editingItem !== null && editingItem.type === PatternItemType.STITCH && isStitchInfo(editingItem.data) && (
         <StitchEditor
-          title="編輯針法"
+          title={t('round.editStitchTitle')}
           stitchType={editingItem.data.type}
           count={editingItem.data.count}
           craftType={project.craftType}

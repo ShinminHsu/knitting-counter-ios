@@ -10,6 +10,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../stores'
 import { Project } from '../types'
 
@@ -20,6 +21,7 @@ interface EditProjectModalProps {
 }
 
 export default function EditProjectModal({ visible, project, onClose }: EditProjectModalProps) {
+  const { t } = useTranslation()
   const updateProject = useProjectStore((s) => s.updateProject)
 
   const [name, setName] = useState('')
@@ -65,11 +67,11 @@ export default function EditProjectModal({ visible, project, onClose }: EditProj
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity onPress={onClose} style={styles.headerButton}>
-            <Text style={styles.cancelText}>取消</Text>
+            <Text style={styles.cancelText}>{t('common.cancel')}</Text>
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>編輯專案</Text>
+          <Text style={styles.headerTitle}>{t('editProject.title')}</Text>
           <TouchableOpacity onPress={handleSubmit} style={styles.headerButton}>
-            <Text style={styles.saveText}>儲存</Text>
+            <Text style={styles.saveText}>{t('common.save')}</Text>
           </TouchableOpacity>
         </View>
 
@@ -78,30 +80,30 @@ export default function EditProjectModal({ visible, project, onClose }: EditProj
           contentContainerStyle={styles.scrollContent}
           keyboardShouldPersistTaps="handled"
         >
-          {/* 專案名稱 */}
+          {/* Project name */}
           <View style={styles.fieldGroup}>
             <Text style={styles.label}>
-              專案名稱 <Text style={styles.required}>*</Text>
+              {t('createProject.nameLabel')} <Text style={styles.required}>{t('common.required')}</Text>
             </Text>
             <TextInput
               style={[styles.textInput, nameError && styles.textInputError]}
               value={name}
-              onChangeText={(t) => {
-                setName(t)
-                if (nameError && t.trim()) setNameError(false)
+              onChangeText={(text) => {
+                setName(text)
+                if (nameError && text.trim()) setNameError(false)
               }}
               returnKeyType="next"
               autoFocus
             />
-            {nameError && <Text style={styles.errorText}>請輸入專案名稱</Text>}
+            {nameError && <Text style={styles.errorText}>{t('editProject.nameError')}</Text>}
           </View>
 
-          {/* 來源／參考 */}
+          {/* Source */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>來源／參考</Text>
+            <Text style={styles.label}>{t('createProject.sourceLabel')}</Text>
             <TextInput
               style={styles.textInput}
-              placeholder="例如：書名、網址、影片連結（選填）"
+              placeholder={t('editProject.sourcePlaceholder')}
               placeholderTextColor="#9ca3af"
               value={source}
               onChangeText={setSource}
@@ -109,12 +111,12 @@ export default function EditProjectModal({ visible, project, onClose }: EditProj
             />
           </View>
 
-          {/* 備註 */}
+          {/* Notes */}
           <View style={styles.fieldGroup}>
-            <Text style={styles.label}>備註</Text>
+            <Text style={styles.label}>{t('createProject.notesLabel')}</Text>
             <TextInput
               style={[styles.textInput, styles.textInputMultiline]}
-              placeholder="任何備註事項（選填）"
+              placeholder={t('editProject.notesPlaceholder')}
               placeholderTextColor="#9ca3af"
               value={notes}
               onChangeText={setNotes}
@@ -125,7 +127,7 @@ export default function EditProjectModal({ visible, project, onClose }: EditProj
           </View>
 
           <TouchableOpacity style={styles.saveButton} onPress={handleSubmit}>
-            <Text style={styles.saveButtonText}>儲存變更</Text>
+            <Text style={styles.saveButtonText}>{t('editProject.submitButton')}</Text>
           </TouchableOpacity>
         </ScrollView>
       </KeyboardAvoidingView>

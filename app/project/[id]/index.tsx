@@ -10,6 +10,7 @@ import {
 } from 'react-native'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
+import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../../../src/stores'
 import { logScreenView } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
@@ -30,6 +31,7 @@ import {
 // ─── Craft Type Badge ─────────────────────────────────────────────────────────
 
 function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
+  const { t } = useTranslation()
   const isCrochet = craftType === 'crochet'
   return (
     <View
@@ -37,7 +39,6 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
         styles.craftBadge,
         { backgroundColor: isCrochet ? '#dbeafe' : '#dcfce7' },
       ]}
-      accessibilityLabel={isCrochet ? '鉤針專案' : '棒針專案'}
     >
       <Text
         style={[
@@ -45,7 +46,7 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
           { color: isCrochet ? '#1d4ed8' : '#15803d' },
         ]}
       >
-        {isCrochet ? '鉤針' : '棒針'}
+        {isCrochet ? t('common.crochet') : t('common.knitting')}
       </Text>
     </View>
   )
@@ -60,6 +61,7 @@ interface ChartCardProps {
 }
 
 function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
+  const { t } = useTranslation()
   const router = useRouter()
   const totalRounds = chart.rounds.length
   const progress =
@@ -77,12 +79,12 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
         <View style={styles.chartCardHeaderRight}>
           {chart.isCompleted && (
             <View style={styles.completedBadge}>
-              <Text style={styles.completedBadgeText}>完成</Text>
+              <Text style={styles.completedBadgeText}>{t('projectDetail.chartCompleted')}</Text>
             </View>
           )}
           <TouchableOpacity
             onPress={onDelete}
-            accessibilityLabel={`刪除織圖：${chart.name}`}
+            accessibilityLabel={t('projectDetail.deleteChart', { name: chart.name })}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
           >
             <Feather name="trash-2" size={15} color="#6b7280" />
@@ -99,8 +101,9 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
 
       {/* Progress */}
       <Text style={styles.chartCardProgress}>
-        進度：第 {chart.currentRound} / {totalRounds} 段
-        {totalRounds > 0 ? `（${progress}%）` : ''}
+        {totalRounds > 0
+          ? t('projectDetail.chartProgress', { current: chart.currentRound, total: totalRounds, progress })
+          : `${chart.currentRound} / ${totalRounds}`}
       </Text>
 
       {/* Action buttons */}
@@ -110,9 +113,8 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
           onPress={() =>
             router.push(`/project/${projectId}/editor?chartId=${chart.id}`)
           }
-          accessibilityLabel={`編輯織圖：${chart.name}`}
         >
-          <Text style={styles.actionButtonText}>編輯織圖</Text>
+          <Text style={styles.actionButtonText}>{t('projectDetail.editChart')}</Text>
         </TouchableOpacity>
 
         <TouchableOpacity
@@ -120,10 +122,9 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
           onPress={() =>
             router.push(`/project/${projectId}/tracking?chartId=${chart.id}`)
           }
-          accessibilityLabel={`開始追蹤：${chart.name}`}
         >
           <Text style={[styles.actionButtonText, styles.actionButtonTextPrimary]}>
-            開始追蹤
+            {t('projectDetail.startTracking')}
           </Text>
         </TouchableOpacity>
       </View>
@@ -134,6 +135,7 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
 // ─── ProjectDetailScreen ──────────────────────────────────────────────────────
 
 export default function ProjectDetailScreen() {
+  const { t } = useTranslation()
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
 
@@ -151,9 +153,9 @@ export default function ProjectDetailScreen() {
   // ── 照片處理 ────────────────────────────────────────────────────────────────
 
   const handleAddPhoto = () => {
-    Alert.alert('新增照片', undefined, [
+    Alert.alert(t('projectDetail.addPhotoTitle'), undefined, [
       {
-        text: '使用相機',
+        text: t('projectDetail.addPhotoCamera'),
         onPress: async () => {
           const uri = await takePhoto()
           if (uri && project) {
@@ -163,7 +165,7 @@ export default function ProjectDetailScreen() {
         },
       },
       {
-        text: '從相簿選擇',
+        text: t('projectDetail.addPhotoLibrary'),
         onPress: async () => {
           const uri = await pickPhotoFromLibrary()
           if (uri && project) {
@@ -172,15 +174,15 @@ export default function ProjectDetailScreen() {
           }
         },
       },
-      { text: '取消', style: 'cancel' },
+      { text: t('common.cancel'), style: 'cancel' },
     ])
   }
 
   const handleDeletePhoto = (photo: ProjectPhoto) => {
     showConfirmDialog({
-      title: '刪除照片',
-      message: '確定要刪除這張照片嗎？此操作無法復原。',
-      confirmLabel: '刪除',
+      title: t('projectDetail.deletePhotoTitle'),
+      message: t('projectDetail.deletePhotoMessage'),
+      confirmLabel: t('common.delete'),
       destructive: true,
       onConfirm: async () => {
         await deletePhotoFile(photo)
@@ -199,9 +201,9 @@ export default function ProjectDetailScreen() {
 
   const handleDeleteChart = (chart: Chart) => {
     showConfirmDialog({
-      title: '刪除織圖',
-      message: `確定要刪除「${chart.name}」嗎？此操作無法復原。`,
-      confirmLabel: '刪除',
+      title: t('projectDetail.deleteChartTitle'),
+      message: t('projectDetail.deleteChartMessage', { name: chart.name }),
+      confirmLabel: t('common.delete'),
       destructive: true,
       onConfirm: () => {
         deleteChart(project!.id, chart.id)
@@ -219,12 +221,12 @@ export default function ProjectDetailScreen() {
     return (
       <SafeAreaView style={styles.container}>
         <View style={styles.centered}>
-          <Text style={styles.emptyText}>找不到此專案</Text>
+          <Text style={styles.emptyText}>{t('projectDetail.notFound')}</Text>
           <TouchableOpacity
             style={styles.actionButton}
             onPress={() => router.back()}
           >
-            <Text style={styles.actionButtonText}>返回</Text>
+            <Text style={styles.actionButtonText}>{t('common.back')}</Text>
           </TouchableOpacity>
         </View>
       </SafeAreaView>
@@ -248,14 +250,14 @@ export default function ProjectDetailScreen() {
             <TouchableOpacity
               style={styles.headerIconButton}
               onPress={() => router.push(`/project/${project.id}/import-export`)}
-              accessibilityLabel="匯入/匯出"
+              accessibilityLabel={t('projectDetail.importExport')}
             >
               <Feather name="share" size={18} color="#6b7280" />
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.headerIconButton}
               onPress={() => setShowEditProject(true)}
-              accessibilityLabel="編輯專案"
+              accessibilityLabel={t('projectDetail.editProject')}
             >
               <Feather name="edit" size={18} color="#6b7280" />
             </TouchableOpacity>
@@ -265,18 +267,18 @@ export default function ProjectDetailScreen() {
         {/* ── Project meta: date + source + notes ──────────────────────────── */}
         <View style={styles.metaSection}>
           <View style={styles.metaRow}>
-            <Text style={styles.metaLabel}>建立</Text>
+            <Text style={styles.metaLabel}>{t('projectDetail.metaCreated')}</Text>
             <Text style={styles.metaValue}>{formatDate(project.createdAt)}</Text>
           </View>
           {project.source ? (
             <View style={styles.metaRow}>
-              <Text style={styles.metaLabel}>來源</Text>
+              <Text style={styles.metaLabel}>{t('projectDetail.metaSource')}</Text>
               <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
             </View>
           ) : null}
           {project.notes ? (
             <View style={styles.metaRow}>
-              <Text style={styles.metaLabel}>備註</Text>
+              <Text style={styles.metaLabel}>{t('projectDetail.metaNotes')}</Text>
               <Text style={styles.metaValue}>{project.notes}</Text>
             </View>
           ) : null}
@@ -285,7 +287,7 @@ export default function ProjectDetailScreen() {
         {/* ── Photos section ────────────────────────────────────────────────── */}
         <View style={styles.section}>
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>相片</Text>
+            <Text style={styles.sectionTitle}>{t('projectDetail.sectionPhotos')}</Text>
           </View>
           <PhotoGallery
             photos={project.photos}
@@ -300,13 +302,12 @@ export default function ProjectDetailScreen() {
         <View style={styles.section}>
           {/* Section header */}
           <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>織圖</Text>
+            <Text style={styles.sectionTitle}>{t('projectDetail.sectionCharts')}</Text>
             <TouchableOpacity
               style={styles.addChartButton}
               onPress={() => setShowAddChart(true)}
-              accessibilityLabel="新增織圖"
             >
-              <Text style={styles.addChartButtonText}>+ 新增</Text>
+              <Text style={styles.addChartButtonText}>{t('projectDetail.addChart')}</Text>
             </TouchableOpacity>
           </View>
 
@@ -314,9 +315,9 @@ export default function ProjectDetailScreen() {
             /* Empty state — Req 1.7 / Req 2.1 */
             <View style={styles.emptyCharts}>
               <MaterialCommunityIcons name="file-outline" size={36} color="#d1d5db" />
-              <Text style={styles.emptyChartsTitle}>尚無織圖</Text>
+              <Text style={styles.emptyChartsTitle}>{t('projectDetail.emptyChartsTitle')}</Text>
               <Text style={styles.emptyChartsHint}>
-                點擊「+ 新增」建立第一個織圖，開始記錄你的編織圖案。
+                {t('projectDetail.emptyChartsHint')}
               </Text>
             </View>
           ) : (
