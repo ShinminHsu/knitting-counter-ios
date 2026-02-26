@@ -322,20 +322,20 @@ const styles = StyleSheet.create({
     borderRadius: 10,
   },
   badgeCrochet: {
-    backgroundColor: '#ede9fe',
+    backgroundColor: '#f3f4f6',
   },
   badgeKnitting: {
-    backgroundColor: '#dcfce7',
+    backgroundColor: '#f3f4f6',
   },
   badgeText: {
     fontSize: 11,
     fontWeight: '600',
   },
   badgeTextCrochet: {
-    color: '#6d28d9',
+    color: '#6b7280',
   },
   badgeTextKnitting: {
-    color: '#16a34a',
+    color: '#6b7280',
   },
   progressRow: {
     flexDirection: 'row',

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import {
   Alert,
   FlatList,
@@ -16,6 +16,7 @@ import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
 import { usePatternStore } from '../../../src/stores/usePatternStore'
 import { useTemplateStore } from '../../../src/stores/useTemplateStore'
+import { useChartStore } from '../../../src/stores/useChartStore'
 import { CraftType, CustomStitchPattern, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
 import GroupEditor, { GroupEditorResult } from '../../../src/components/GroupEditor'
@@ -273,6 +274,13 @@ export default function RoundEditScreen() {
   const router = useRouter()
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
+  const updateRound = useChartStore((s) => s.updateRound)
+  // Selector to get round notes at hook level (needed to initialize notesText state)
+  const initialNotes = useProjectStore((s) => {
+    const p = s.getProjectById(id ?? '')
+    const c = p?.charts.find((ch) => ch.id === (chartId ?? ''))
+    return c?.rounds.find((r) => r.id === (roundId ?? ''))?.notes ?? ''
+  })
   const addStitchToRound = usePatternStore((s) => s.addStitchToRound)
   const updateStitch = usePatternStore((s) => s.updateStitch)
   const deleteStitch = usePatternStore((s) => s.deleteStitch)
@@ -290,6 +298,13 @@ export default function RoundEditScreen() {
   const [editingGroup, setEditingGroup] = useState<PatternItem | null>(null)
   const [pendingAddType, setPendingAddType] = useState<StitchType | null>(null)
   const [pendingCustomStitch, setPendingCustomStitch] = useState<CustomStitchPattern | null>(null)
+  const [notesText, setNotesText] = useState(initialNotes)
+  // Sync notesText when navigating to a different round
+  const prevRoundIdRef = useRef(roundId)
+  if (prevRoundIdRef.current !== roundId) {
+    prevRoundIdRef.current = roundId
+    setNotesText(initialNotes)
+  }
 
   // Project / chart / round guards
   if (!project) {
@@ -451,6 +466,25 @@ export default function RoundEditScreen() {
         </Text>
       </View>
 
+      {/* Notes input */}
+      <View style={styles.notesBar}>
+        <TextInput
+          style={styles.notesInput}
+          value={notesText}
+          onChangeText={setNotesText}
+          placeholder={t('round.notesPlaceholder')}
+          placeholderTextColor="#d1d5db"
+          returnKeyType="done"
+          onBlur={() => {
+            const text = notesText.trim()
+            const current = round.notes ?? ''
+            if (text !== current) {
+              updateRound(project!.id, chart!.id, round!.id, { notes: text || undefined })
+            }
+          }}
+        />
+      </View>
+
       {/* Pattern items list */}
       {sortedItems.length === 0 ? (
         <View style={styles.emptyState}>
@@ -587,6 +621,20 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#6b7280',
     fontWeight: '500',
+  },
+
+  // Notes bar
+  notesBar: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+  },
+  notesInput: {
+    fontSize: 13,
+    color: '#6b7280',
+    paddingVertical: 4,
   },
 
   // List

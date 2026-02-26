@@ -126,68 +126,62 @@ function RoundRow({
       accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
       accessibilityRole="button"
     >
-      {/* Left: R badge + ↑↓ arrows */}
-      <View style={styles.roundLeft}>
-        <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
-        <View style={styles.roundArrows}>
-          <TouchableOpacity
-            onPress={onMoveUp}
-            disabled={isFirst}
-            accessibilityLabel={t('editor.moveUpLabel')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#9ca3af'} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onMoveDown}
-            disabled={isLast}
-            accessibilityLabel={t('editor.moveDownLabel')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#9ca3af'} />
-          </TouchableOpacity>
-        </View>
+      {/* Far left: ↑↓ arrows — vertically centered */}
+      <View style={styles.roundArrowsCol}>
+        <TouchableOpacity
+          onPress={onMoveUp}
+          disabled={isFirst}
+          accessibilityLabel={t('editor.moveUpLabel')}
+          accessibilityRole="button"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        >
+          <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#9ca3af'} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={onMoveDown}
+          disabled={isLast}
+          accessibilityLabel={t('editor.moveDownLabel')}
+          accessibilityRole="button"
+          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        >
+          <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#9ca3af'} />
+        </TouchableOpacity>
       </View>
 
-      {/* Middle: round info */}
+      {/* Middle: R badge on top, summary below, notes below */}
       <View style={styles.roundInfo}>
-        <Text style={styles.roundStitchCount}>
-          {hasItems ? t('editor.stitchCount', { count: totalStitches }) : t('editor.noStitches')}
+        <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
+        <Text style={styles.roundSummaryText} numberOfLines={3}>
+          {hasItems ? itemSummaries.join('、') : t('editor.noStitches')}
         </Text>
-
-        {hasItems && (
-          <Text style={styles.roundSubtitle} numberOfLines={3}>
-            {itemSummaries.join('、')}
-          </Text>
-        )}
-
         {round.notes ? (
-          <Text style={styles.roundNotes} numberOfLines={1}>
-            {t('editor.roundNotes', { notes: round.notes })}
-          </Text>
+          <Text style={styles.roundNotes} numberOfLines={1}>{round.notes}</Text>
         ) : null}
       </View>
 
-      {/* Right: copy + delete */}
+      {/* Right: stitch count (centered) + vertical icon column */}
       <View style={styles.roundControls}>
-        <TouchableOpacity
-          onPress={handleDuplicatePress}
-          accessibilityLabel={t('editor.duplicateRound')}
-          accessibilityRole="button"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Feather name="copy" size={16} color="#6b7280" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onDelete}
-          accessibilityLabel={t('editor.deleteRoundLabel')}
-          accessibilityRole="button"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Feather name="trash-2" size={16} color="#6b7280" />
-        </TouchableOpacity>
+        {hasItems && (
+          <Text style={styles.roundStitchCount}>{t('editor.stitchCount', { count: totalStitches })}</Text>
+        )}
+        <View style={styles.roundIconsCol}>
+          <TouchableOpacity
+            onPress={handleDuplicatePress}
+            accessibilityLabel={t('editor.duplicateRound')}
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Feather name="copy" size={16} color="#9ca3af" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={onDelete}
+            accessibilityLabel={t('editor.deleteRoundLabel')}
+            accessibilityRole="button"
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <Feather name="trash-2" size={16} color="#9ca3af" />
+          </TouchableOpacity>
+        </View>
       </View>
     </TouchableOpacity>
   )
@@ -445,57 +439,60 @@ const styles = StyleSheet.create({
   // Round row
   roundRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'stretch',
     backgroundColor: '#fff',
     borderRadius: 10,
-    padding: 12,
-    gap: 10,
+    paddingVertical: 12,
+    paddingHorizontal: 10,
+    gap: 8,
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
-  // Left: badge + arrows
-  roundLeft: {
+  // Far left: ↑↓ arrows — vertically centered
+  roundArrowsCol: {
     flexShrink: 0,
     alignItems: 'center',
-    gap: 4,
-    minWidth: 32,
+    justifyContent: 'center',
+    gap: 2,
+  },
+  // Middle: content (R1, summary, notes stacked)
+  roundInfo: {
+    flex: 1,
+    gap: 3,
   },
   roundBadgeText: {
     fontSize: 13,
     fontWeight: '700',
     color: '#D97398',
   },
-  roundArrows: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 0,
-  },
-  roundInfo: {
-    flex: 1,
-    gap: 3,
-  },
-  roundStitchCount: {
+  roundSummaryText: {
     fontSize: 13,
-    color: '#6b7280',
+    color: '#1f2937',
     fontWeight: '500',
-  },
-  roundSubtitle: {
-    fontSize: 13,
-    color: '#6b7280',
     lineHeight: 18,
   },
   roundNotes: {
     fontSize: 12,
     color: '#9ca3af',
-    marginTop: 2,
+    lineHeight: 16,
   },
 
-  // Round controls (copy + delete)
+  // Right: stitch count centered + vertical icon column
   roundControls: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    flexShrink: 0,
+  },
+  roundStitchCount: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  roundIconsCol: {
     flexDirection: 'column',
     alignItems: 'center',
-    gap: 10,
-    flexShrink: 0,
+    gap: 8,
   },
 
   // Empty state

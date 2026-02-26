@@ -37,13 +37,13 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
     <View
       style={[
         styles.craftBadge,
-        { backgroundColor: isCrochet ? '#dbeafe' : '#dcfce7' },
+        { backgroundColor: '#f3f4f6' },
       ]}
     >
       <Text
         style={[
           styles.craftBadgeText,
-          { color: isCrochet ? '#1d4ed8' : '#15803d' },
+          { color: '#6b7280' },
         ]}
       >
         {isCrochet ? t('common.crochet') : t('common.knitting')}

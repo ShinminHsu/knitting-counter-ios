@@ -385,6 +385,7 @@ const zhTW = {
     duplicateItem: '複製',
     duplicateCopiesTitle: '複製針法',
     duplicateCopiesMessage: '要複製幾次？',
+    notesPlaceholder: '加入段落備註（選填）',
   },
 
   splash: {

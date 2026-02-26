@@ -385,6 +385,7 @@ const en = {
     duplicateItem: 'Duplicate',
     duplicateCopiesTitle: 'Duplicate stitch',
     duplicateCopiesMessage: 'How many copies?',
+    notesPlaceholder: 'Add round notes (optional)',
   },
 
   splash: {

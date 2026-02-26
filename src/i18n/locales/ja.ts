@@ -385,6 +385,7 @@ const ja = {
     duplicateItem: '複製',
     duplicateCopiesTitle: '編み目を複製',
     duplicateCopiesMessage: '何回複製しますか？',
+    notesPlaceholder: '段備考を追加（任意）',
   },
 
   splash: {

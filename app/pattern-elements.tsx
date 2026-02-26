@@ -456,20 +456,20 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   badgeCrochet: {
-    backgroundColor: '#fce7f0',
+    backgroundColor: '#f3f4f6',
   },
   badgeKnitting: {
-    backgroundColor: '#e0f2fe',
+    backgroundColor: '#f3f4f6',
   },
   craftBadgeText: {
     fontSize: 12,
     fontWeight: '600',
   },
   badgeCrochetText: {
-    color: '#C4527F',
+    color: '#6b7280',
   },
   badgeKnittingText: {
-    color: '#0284c7',
+    color: '#6b7280',
   },
 
   // Row action buttons
