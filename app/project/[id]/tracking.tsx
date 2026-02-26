@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   View,
   Text,
+  Image,
   SafeAreaView,
   TouchableOpacity,
   Alert,
@@ -21,12 +22,14 @@ import {
   Round,
   StitchGroup,
   StitchInfo,
+  StitchType,
   StitchTypeInfo,
 } from '../../../src/types'
 import {
   getStitchLabel,
   getStitchAbbr,
 } from '../../../src/utils/patternHelpers'
+import { STITCH_ICON } from '../../../src/constants/stitchIcons'
 import { totalStitchesInRound } from '../../../src/stores/useProgressStore'
 
 // ─── Stitch Block ─────────────────────────────────────────────────────────────
@@ -50,6 +53,8 @@ interface StitchBlock {
   startPos: number
   /** 此 block 的 physical 結束位置（exclusive）*/
   endPos: number
+  /** 單一針法 block 的針法類型（群組 block 不設定）*/
+  stitchType?: StitchType
 }
 
 type BlockStatus = 'completed' | 'active' | 'upcoming'
@@ -93,7 +98,7 @@ function expandToBlocks(round: Round): StitchBlock[] {
         pos += stitchCount
       }
 
-      blocks.push({ key: item.id, label: `${abbr} ${stitch.count}`, symbols, startPos: blockStart, endPos: pos })
+      blocks.push({ key: item.id, label: `${abbr} ${stitch.count}`, symbols, startPos: blockStart, endPos: pos, stitchType: stitch.type })
     } else {
       const group = item.data as StitchGroup
       // 計算每次重複的 physical 針數
@@ -164,6 +169,8 @@ function StitchBlockRow({ block, currentStitch, onPress }: StitchBlockRowProps) 
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
+  const icon = block.stitchType ? STITCH_ICON[block.stitchType] : undefined
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -172,16 +179,25 @@ function StitchBlockRow({ block, currentStitch, onPress }: StitchBlockRowProps) 
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label：純文字，無背景 */}
-      <Text
-        style={[
-          blockStyles.label,
-          isActive && blockStyles.labelActive,
-          isCompleted && blockStyles.labelCompleted,
-        ]}
-      >
-        {block.label}
-      </Text>
+      {/* Label row：icon（若有）+ 文字 */}
+      <View style={blockStyles.labelRow}>
+        {icon && (
+          <Image
+            source={icon}
+            style={[blockStyles.labelIcon, isCompleted && blockStyles.labelIconCompleted]}
+            resizeMode="contain"
+          />
+        )}
+        <Text
+          style={[
+            blockStyles.label,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+        >
+          {block.label}
+        </Text>
+      </View>
 
       {/* 符號區：flex-wrap，每個符號獨立上色，無底色 */}
       <View style={blockStyles.symbolsRow}>
@@ -210,12 +226,26 @@ const blockStyles = StyleSheet.create({
   row: {
     marginBottom: 14,
   },
+  // Label row：icon + 文字水平排列
+  labelRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 10,
+    gap: 6,
+  },
+  labelIcon: {
+    width: 18,
+    height: 18,
+    opacity: 0.85,
+  },
+  labelIconCompleted: {
+    opacity: 0.35,
+  },
   // Label：無背景
   label: {
     fontSize: 12,
     fontWeight: '500',
     color: '#374151',
-    marginBottom: 10,
   },
   labelActive: {
     color: '#D97398',

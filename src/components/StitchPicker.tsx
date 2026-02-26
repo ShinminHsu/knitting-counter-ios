@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import {
+  Image,
   Modal,
   SectionList,
   StyleSheet,
@@ -9,6 +10,7 @@ import {
   View,
 } from 'react-native'
 import { STITCH_CATEGORIES_BY_CRAFT } from '../constants/stitches'
+import { STITCH_ICON } from '../constants/stitchIcons'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 import { CraftType, CustomStitchPattern, StitchType, StitchTypeInfo } from '../types'
 
@@ -172,13 +174,18 @@ export default function StitchPicker({
     if (item.kind === 'builtin') {
       const info = StitchTypeInfo[item.stitchType]
       const symbol = getSymbol(item.stitchType)
+      const icon = STITCH_ICON[item.stitchType]
       return (
         <TouchableOpacity
           style={styles.stitchRow}
           onPress={() => handleSelect(item)}
           activeOpacity={0.6}
         >
-          <Text style={styles.stitchSymbol}>{symbol}</Text>
+          {icon ? (
+            <Image source={icon} style={styles.stitchIcon} resizeMode="contain" />
+          ) : (
+            <Text style={styles.stitchSymbol}>{symbol}</Text>
+          )}
           <Text style={styles.stitchLabel}>{info.label}</Text>
           <Text style={styles.stitchAbbr}>{info.abbr}</Text>
         </TouchableOpacity>
@@ -342,6 +349,11 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#D97398',
     textAlign: 'center',
+    marginRight: 8,
+  },
+  stitchIcon: {
+    width: 28,
+    height: 28,
     marginRight: 8,
   },
   stitchLabel: {
