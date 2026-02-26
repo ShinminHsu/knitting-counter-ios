@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
   View,
   Text,
@@ -7,10 +7,8 @@ import {
   TouchableOpacity,
   Image,
   StyleSheet,
-  Animated,
-  PanResponder,
-  Dimensions,
 } from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useProjectStore } from '../src/stores'
 import { logScreenView } from '../src/services'
@@ -20,10 +18,6 @@ import { calculateProgressPercentage } from '../src/utils/progressUtils'
 import AdBanner from '../src/components/AdBanner'
 import CreateProjectModal from '../src/components/CreateProjectModal'
 import { showConfirmDialog } from '../src/components/ConfirmDialog'
-
-const SCREEN_WIDTH = Dimensions.get('window').width
-const DELETE_THRESHOLD = -80
-const DELETE_ACTION_WIDTH = 80
 
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr)
@@ -38,149 +32,89 @@ const getOverallProgress = (project: Project): number => {
   )
 }
 
-interface SwipeableProjectCardProps {
+interface ProjectCardProps {
   project: Project
   onPress: () => void
   onDelete: (projectId: string, projectName: string) => void
 }
 
-function SwipeableProjectCard({ project, onPress, onDelete }: SwipeableProjectCardProps) {
-  const translateX = useRef(new Animated.Value(0)).current
+function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
   const coverPhoto = project.photos?.find((p) => p.isCover) ?? project.photos?.[0]
   const progress = getOverallProgress(project)
   const isCrochet = project.craftType === 'crochet'
 
-  const panResponder = useRef(
-    PanResponder.create({
-      onMoveShouldSetPanResponder: (_evt, gestureState) => {
-        // Only activate for intentional horizontal swipes (>= 12px, dominates vertical)
-        return (
-          Math.abs(gestureState.dx) >= 12 &&
-          Math.abs(gestureState.dx) > Math.abs(gestureState.dy) * 1.5
-        )
-      },
-      onPanResponderMove: (_evt, gestureState) => {
-        // Only allow left swipe (negative dx), cap at delete action width
-        const newX = Math.min(0, Math.max(gestureState.dx, -DELETE_ACTION_WIDTH))
-        translateX.setValue(newX)
-      },
-      onPanResponderRelease: (_evt, gestureState) => {
-        if (gestureState.dx < DELETE_THRESHOLD) {
-          // Snap open to reveal delete button
-          Animated.spring(translateX, {
-            toValue: -DELETE_ACTION_WIDTH,
-            useNativeDriver: true,
-            bounciness: 0,
-          }).start()
-        } else {
-          // Snap back to closed
-          Animated.spring(translateX, {
-            toValue: 0,
-            useNativeDriver: true,
-            bounciness: 4,
-          }).start()
-        }
-      },
-    })
-  ).current
-
-  const closeSwipe = () => {
-    Animated.spring(translateX, {
-      toValue: 0,
-      useNativeDriver: true,
-      bounciness: 4,
-    }).start()
-  }
-
-  const handleDeletePress = () => {
-    closeSwipe()
-    onDelete(project.id, project.name)
-  }
-
   return (
-    <View style={styles.swipeContainer}>
-      {/* Delete action background */}
-      <View style={styles.deleteAction}>
-        <TouchableOpacity
-          onPress={handleDeletePress}
-          style={styles.deleteButton}
-          accessibilityLabel={`刪除專案：${project.name}`}
-        >
-          <Text style={styles.deleteButtonText}>刪除</Text>
-        </TouchableOpacity>
-      </View>
-
-      {/* Swipeable card */}
-      <Animated.View
-        style={[styles.animatedCard, { transform: [{ translateX }] }]}
-        {...panResponder.panHandlers}
+    <TouchableOpacity
+      onPress={onPress}
+      style={styles.card}
+      accessibilityLabel={`專案：${project.name}`}
+      activeOpacity={0.75}
+    >
+      {/* Delete button - top right corner */}
+      <TouchableOpacity
+        onPress={() => onDelete(project.id, project.name)}
+        style={styles.deleteButton}
+        accessibilityLabel={`刪除專案：${project.name}`}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <TouchableOpacity
-          onPress={() => {
-            closeSwipe()
-            onPress()
-          }}
-          style={styles.card}
-          accessibilityLabel={`專案：${project.name}`}
-          activeOpacity={0.75}
-        >
-          <View style={styles.cardContent}>
-            {/* Cover photo thumbnail */}
-            {coverPhoto ? (
-              <Image
-                source={{ uri: coverPhoto.uri }}
-                style={styles.thumbnail}
-                resizeMode="cover"
-              />
-            ) : (
-              <Image
-                source={require('../assets/images/kniitingIcon.png')}
-                style={styles.thumbnailPlaceholder}
-                resizeMode="contain"
-              />
-            )}
+        <Ionicons name="trash-outline" size={15} color="#9ca3af" />
+      </TouchableOpacity>
+      <View style={styles.cardContent}>
+        {/* Cover photo thumbnail */}
+        {coverPhoto ? (
+          <Image
+            source={{ uri: coverPhoto.uri }}
+            style={styles.thumbnail}
+            resizeMode="cover"
+          />
+        ) : (
+          <Image
+            source={require('../assets/images/kniitingIcon.png')}
+            style={styles.thumbnailPlaceholder}
+            resizeMode="contain"
+          />
+        )}
 
-            {/* Right side info */}
-            <View style={styles.cardInfo}>
-              {/* Name + badge row */}
-              <View style={styles.nameRow}>
-                <Text style={styles.projectName} numberOfLines={1}>
-                  {project.name}
-                </Text>
-                <View
-                  style={[
-                    styles.badge,
-                    isCrochet ? styles.badgeCrochet : styles.badgeKnitting,
-                  ]}
-                >
-                  <Text
-                    style={[
-                      styles.badgeText,
-                      isCrochet ? styles.badgeTextCrochet : styles.badgeTextKnitting,
-                    ]}
-                  >
-                    {isCrochet ? '鉤針' : '棒針'}
-                  </Text>
-                </View>
-              </View>
-
-              {/* Progress row */}
-              <View style={styles.progressRow}>
-                <View style={styles.progressBarBackground}>
-                  <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
-                </View>
-                <Text style={styles.progressText}>{progress}%</Text>
-              </View>
-
-              {/* Last modified date */}
-              <Text style={styles.dateText}>
-                更新於 {formatDate(project.updatedAt)}
+        {/* Right side info */}
+        <View style={styles.cardInfo}>
+          {/* Name + badge row */}
+          <View style={styles.nameRow}>
+            <Text style={styles.projectName} numberOfLines={1}>
+              {project.name}
+            </Text>
+            <View
+              style={[
+                styles.badge,
+                isCrochet ? styles.badgeCrochet : styles.badgeKnitting,
+              ]}
+            >
+              <Text
+                style={[
+                  styles.badgeText,
+                  isCrochet ? styles.badgeTextCrochet : styles.badgeTextKnitting,
+                ]}
+              >
+                {isCrochet ? '鉤針' : '棒針'}
               </Text>
             </View>
           </View>
-        </TouchableOpacity>
-      </Animated.View>
-    </View>
+
+          {/* Progress row */}
+          <View style={styles.progressRow}>
+            <View style={styles.progressBarBackground}>
+              <View style={[styles.progressBarFill, { width: `${progress}%` }]} />
+            </View>
+            <Text style={styles.progressText}>{progress}%</Text>
+          </View>
+
+          {/* Last modified date */}
+          <Text style={styles.dateText}>
+            更新於 {formatDate(project.updatedAt)}
+          </Text>
+        </View>
+
+      </View>
+    </TouchableOpacity>
   )
 }
 
@@ -232,7 +166,7 @@ export default function ProjectListScreen() {
           keyExtractor={(item: Project) => item.id}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }: { item: Project }) => (
-            <SwipeableProjectCard
+            <ProjectCard
               project={item}
               onPress={() => router.push(`/project/${item.id}`)}
               onDelete={handleDelete}
@@ -307,42 +241,9 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  // Swipe container
-  swipeContainer: {
+  card: {
     marginHorizontal: 16,
     marginVertical: 6,
-    overflow: 'hidden',
-    borderRadius: 12,
-  },
-  deleteAction: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    bottom: 0,
-    width: DELETE_ACTION_WIDTH,
-    backgroundColor: '#ef4444',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 12,
-  },
-  deleteButton: {
-    width: DELETE_ACTION_WIDTH,
-    height: '100%',
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 44,
-  },
-  deleteButtonText: {
-    color: '#ffffff',
-    fontSize: 14,
-    fontWeight: '700',
-  },
-  animatedCard: {
-    width: '100%',
-  },
-
-  // Card styles
-  card: {
     backgroundColor: '#ffffff',
     borderRadius: 12,
     padding: 16,
@@ -351,6 +252,12 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.08,
     shadowRadius: 4,
     elevation: 2,
+  },
+  deleteButton: {
+    position: 'absolute',
+    top: 8,
+    right: 8,
+    padding: 4,
   },
   cardContent: {
     flexDirection: 'row',
@@ -373,6 +280,7 @@ const styles = StyleSheet.create({
   cardInfo: {
     flex: 1,
     gap: 6,
+    paddingRight: 24,
   },
   nameRow: {
     flexDirection: 'row',
