@@ -135,7 +135,8 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
 // ─── ProjectDetailScreen ──────────────────────────────────────────────────────
 
 export default function ProjectDetailScreen() {
-  const { t } = useTranslation()
+  const { t, i18n } = useTranslation()
+  const metaLabelWidth = i18n.language === 'ja' ? 56 : i18n.language === 'en' ? 52 : 36
   const { id } = useLocalSearchParams<{ id: string }>()
   const router = useRouter()
 
@@ -267,18 +268,18 @@ export default function ProjectDetailScreen() {
         {/* ── Project meta: date + source + notes ──────────────────────────── */}
         <View style={styles.metaSection}>
           <View style={styles.metaRow}>
-            <Text style={styles.metaLabel}>{t('projectDetail.metaCreated')}</Text>
+            <Text style={[styles.metaLabel, { width: metaLabelWidth }]}>{t('projectDetail.metaCreated')}</Text>
             <Text style={styles.metaValue}>{formatDate(project.createdAt)}</Text>
           </View>
           {project.source ? (
             <View style={styles.metaRow}>
-              <Text style={styles.metaLabel}>{t('projectDetail.metaSource')}</Text>
+              <Text style={[styles.metaLabel, { width: metaLabelWidth }]}>{t('projectDetail.metaSource')}</Text>
               <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
             </View>
           ) : null}
           {project.notes ? (
             <View style={styles.metaRow}>
-              <Text style={styles.metaLabel}>{t('projectDetail.metaNotes')}</Text>
+              <Text style={[styles.metaLabel, { width: metaLabelWidth }]}>{t('projectDetail.metaNotes')}</Text>
               <Text style={styles.metaValue}>{project.notes}</Text>
             </View>
           ) : null}
@@ -445,7 +446,6 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: '#9ca3af',
-    width: 36,
     paddingTop: 1,
   },
   metaValue: {
