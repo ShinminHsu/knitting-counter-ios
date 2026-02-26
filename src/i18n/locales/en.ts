@@ -371,6 +371,7 @@ const en = {
     language: 'Language',
     languageEn: 'English',
     languageZhTW: '繁體中文',
+    languageJa: '日本語',
   },
 } as const
 

@@ -6,6 +6,7 @@ import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage'
 const LANGUAGES = [
   { code: 'en', labelKey: 'settings.languageEn' as const },
   { code: 'zh-TW', labelKey: 'settings.languageZhTW' as const },
+  { code: 'ja', labelKey: 'settings.languageJa' as const },
 ]
 
 export default function SettingsScreen() {

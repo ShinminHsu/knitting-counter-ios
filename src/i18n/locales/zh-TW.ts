@@ -371,6 +371,7 @@ const zhTW = {
     language: '語言',
     languageEn: 'English',
     languageZhTW: '繁體中文',
+    languageJa: '日本語',
   },
 } as const
 
