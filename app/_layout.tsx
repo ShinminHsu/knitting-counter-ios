@@ -47,13 +47,13 @@ export default function RootLayout() {
           contentStyle: { backgroundColor: '#faf5f0' },
         }}
       >
-        <Stack.Screen name="index" options={{ title: '我的專案', headerShown: false }} />
-        <Stack.Screen name="project/[id]/index" options={{ title: '專案詳細' }} />
-        <Stack.Screen name="project/[id]/editor" options={{ title: '織圖編輯器' }} />
-        <Stack.Screen name="project/[id]/tracking" options={{ title: '進度追蹤' }} />
-        <Stack.Screen name="project/[id]/import-export" options={{ title: '匯入匯出' }} />
-        <Stack.Screen name="project/[id]/round" options={{ title: '段落編輯' }} />
-        <Stack.Screen name="pattern-elements" options={{ title: '針法庫' }} />
+        <Stack.Screen name="index" options={{ title: t('projectList.title'), headerShown: false }} />
+        <Stack.Screen name="project/[id]/index" options={{ title: t('projectDetail.title') }} />
+        <Stack.Screen name="project/[id]/editor" options={{ title: t('editor.navTitle') }} />
+        <Stack.Screen name="project/[id]/tracking" options={{ title: t('tracking.navTitle') }} />
+        <Stack.Screen name="project/[id]/import-export" options={{ title: t('importExport.title') }} />
+        <Stack.Screen name="project/[id]/round" options={{ title: t('round.navTitle') }} />
+        <Stack.Screen name="pattern-elements" options={{ title: t('patternElements.title') }} />
         <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
       </Stack>
     </>

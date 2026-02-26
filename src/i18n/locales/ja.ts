@@ -100,6 +100,7 @@ const ja = {
 
   // ─── プロジェクト詳細 ─────────────────────────────────────────────────────────
   projectDetail: {
+    title: 'プロジェクト',
     notFound: 'プロジェクトが見つかりません',
     editProject: 'プロジェクトを編集',
     importExport: 'インポート/エクスポート',
@@ -127,6 +128,7 @@ const ja = {
 
   // ─── パターンエディタ ─────────────────────────────────────────────────────────
   editor: {
+    navTitle: 'パターンエディタ',
     notFound: 'プロジェクトが見つかりません',
     chartNotFound: 'チャートが見つかりません',
     roundCount: '{{count}} 段',
@@ -150,6 +152,7 @@ const ja = {
 
   // ─── 進捗記録 ─────────────────────────────────────────────────────────────────
   tracking: {
+    navTitle: '進捗記録',
     notFound: 'プロジェクトが見つかりません',
     chartNotFound: 'チャートが見つかりません',
     roundTitle: '{{number}} 段目',
@@ -347,6 +350,7 @@ const ja = {
   },
 
   round: {
+    navTitle: '段編集',
     notFound: '段が見つかりません',
     title: 'R{{index}} 編集',
     summary: '{{index}} 段目 · {{count}} 目',

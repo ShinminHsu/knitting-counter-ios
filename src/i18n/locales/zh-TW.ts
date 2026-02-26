@@ -100,6 +100,7 @@ const zhTW = {
 
   // ─── 專案詳細 ────────────────────────────────────────────────────────────────
   projectDetail: {
+    title: '專案詳細',
     notFound: '找不到此專案',
     editProject: '編輯專案',
     importExport: '匯入/匯出',
@@ -127,6 +128,7 @@ const zhTW = {
 
   // ─── 織圖編輯器 ──────────────────────────────────────────────────────────────
   editor: {
+    navTitle: '織圖編輯器',
     notFound: '找不到此專案',
     chartNotFound: '找不到織圖',
     roundCount: '共 {{count}} 段',
@@ -150,6 +152,7 @@ const zhTW = {
 
   // ─── 進度追蹤 ────────────────────────────────────────────────────────────────
   tracking: {
+    navTitle: '進度追蹤',
     notFound: '找不到此專案',
     chartNotFound: '找不到織圖',
     roundTitle: '第 {{number}} 圈織圖',
@@ -347,6 +350,7 @@ const zhTW = {
   },
 
   round: {
+    navTitle: '段落編輯',
     notFound: '找不到段落',
     title: 'R{{index}} 段落編輯',
     summary: '第 {{index}} 段 · 共 {{count}} 針',

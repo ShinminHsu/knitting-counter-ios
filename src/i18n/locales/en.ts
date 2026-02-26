@@ -100,6 +100,7 @@ const en = {
 
   // ─── Project Detail ──────────────────────────────────────────────────────────
   projectDetail: {
+    title: 'Project',
     notFound: 'Project not found',
     editProject: 'Edit Project',
     importExport: 'Import/Export',
@@ -127,6 +128,7 @@ const en = {
 
   // ─── Pattern Editor ──────────────────────────────────────────────────────────
   editor: {
+    navTitle: 'Pattern Editor',
     notFound: 'Project not found',
     chartNotFound: 'Chart not found',
     roundCount: '{{count}} rounds',
@@ -150,6 +152,7 @@ const en = {
 
   // ─── Progress Tracking ───────────────────────────────────────────────────────
   tracking: {
+    navTitle: 'Tracking',
     notFound: 'Project not found',
     chartNotFound: 'Chart not found',
     roundTitle: 'Round {{number}}',
@@ -347,6 +350,7 @@ const en = {
   },
 
   round: {
+    navTitle: 'Round Editor',
     notFound: 'Round not found',
     title: 'R{{index}} Edit',
     summary: 'Round {{index}} · {{count}} sts',
