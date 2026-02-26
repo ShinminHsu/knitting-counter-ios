@@ -29,7 +29,7 @@ import {
   getStitchLabel,
   getStitchAbbr,
 } from '../../../src/utils/patternHelpers'
-import { STITCH_ICON } from '../../../src/constants/stitchIcons'
+import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
 import { totalStitchesInRound } from '../../../src/stores/useProgressStore'
 
 // ─── Stitch Block ─────────────────────────────────────────────────────────────
@@ -169,7 +169,8 @@ function StitchBlockRow({ block, currentStitch, onPress }: StitchBlockRowProps) 
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
-  const icon = block.stitchType ? STITCH_ICON[block.stitchType] : undefined
+  const pngIcon = block.stitchType ? CROCHET_PNG_MAP[block.stitchType] : undefined
+  const SvgIcon = block.stitchType ? KNIT_SVG_MAP[block.stitchType] : undefined
 
   return (
     <TouchableOpacity
@@ -181,11 +182,18 @@ function StitchBlockRow({ block, currentStitch, onPress }: StitchBlockRowProps) 
     >
       {/* Label row：icon（若有）+ 文字 */}
       <View style={blockStyles.labelRow}>
-        {icon && (
+        {pngIcon && (
           <Image
-            source={icon}
+            source={pngIcon}
             style={[blockStyles.labelIcon, isCompleted && blockStyles.labelIconCompleted]}
             resizeMode="contain"
+          />
+        )}
+        {SvgIcon && !pngIcon && (
+          <SvgIcon
+            width={18}
+            height={18}
+            style={isCompleted ? blockStyles.labelIconCompleted : undefined}
           />
         )}
         <Text

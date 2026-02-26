@@ -10,7 +10,7 @@ import {
   View,
 } from 'react-native'
 import { STITCH_CATEGORIES_BY_CRAFT } from '../constants/stitches'
-import { STITCH_ICON } from '../constants/stitchIcons'
+import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../constants/stitchIcons'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 import { CraftType, CustomStitchPattern, StitchType, StitchTypeInfo } from '../types'
 
@@ -174,15 +174,18 @@ export default function StitchPicker({
     if (item.kind === 'builtin') {
       const info = StitchTypeInfo[item.stitchType]
       const symbol = getSymbol(item.stitchType)
-      const icon = STITCH_ICON[item.stitchType]
+      const pngIcon = CROCHET_PNG_MAP[item.stitchType]
+      const SvgIcon = KNIT_SVG_MAP[item.stitchType]
       return (
         <TouchableOpacity
           style={styles.stitchRow}
           onPress={() => handleSelect(item)}
           activeOpacity={0.6}
         >
-          {icon ? (
-            <Image source={icon} style={styles.stitchIcon} resizeMode="contain" />
+          {pngIcon ? (
+            <Image source={pngIcon} style={styles.stitchIcon} resizeMode="contain" />
+          ) : SvgIcon ? (
+            <SvgIcon width={24} height={24} style={{ marginRight: 8 }} />
           ) : (
             <Text style={styles.stitchSymbol}>{symbol}</Text>
           )}
@@ -352,8 +355,8 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   stitchIcon: {
-    width: 28,
-    height: 28,
+    width: 24,
+    height: 24,
     marginRight: 8,
   },
   stitchLabel: {
