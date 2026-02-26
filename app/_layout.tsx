@@ -2,13 +2,36 @@ import '../global.css';
 
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import * as SplashScreen from 'expo-splash-screen';
+import LottieView from 'lottie-react-native';
 import { initializeAds } from '../src/services';
 
+SplashScreen.preventAutoHideAsync()
+
 export default function RootLayout() {
+  const [showLottie, setShowLottie] = useState(true)
+
   useEffect(() => {
     initializeAds()
+    SplashScreen.hideAsync()
   }, [])
+
+  if (showLottie) {
+    return (
+      <View style={styles.splash}>
+        <LottieView
+          source={require('../assets/circles-yarn.json')}
+          autoPlay
+          loop={false}
+          style={styles.lottie}
+          onAnimationFinish={() => setShowLottie(false)}
+        />
+        <Text style={styles.splashTitle}>Welcome to Stitchie</Text>
+      </View>
+    )
+  }
 
   return (
     <>
@@ -32,3 +55,23 @@ export default function RootLayout() {
     </>
   );
 }
+
+const styles = StyleSheet.create({
+  splash: {
+    flex: 1,
+    backgroundColor: '#faf5f0',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  lottie: {
+    width: 120,
+    height: 120,
+  },
+  splashTitle: {
+    marginTop: 16,
+    fontSize: 20,
+    fontWeight: '600',
+    color: '#D97398',
+    letterSpacing: 0.5,
+  },
+})
