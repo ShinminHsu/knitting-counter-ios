@@ -93,6 +93,9 @@ interface ChartState {
     roundId: string,
     orderedIds: string[]
   ) => void
+
+  /** 依提供的 ID 順序重新排列圖表內的段落 */
+  reorderRounds: (projectId: string, chartId: string, orderedIds: string[]) => void
 }
 
 // ─── 內部 Helper：取得圖表 ──────────────────────────────────────────────────────
@@ -329,5 +332,17 @@ export const useChartStore = create<ChartState>()(() => ({
       return { ...r, patternItems: reordered }
     })
     useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
+  },
+
+  reorderRounds: (projectId, chartId, orderedIds) => {
+    const chart = getChart(projectId, chartId)
+    if (!chart) return
+    const reordered = orderedIds
+      .map((id, idx) => {
+        const round = chart.rounds.find((r) => r.id === id)
+        return round ? { ...round, roundNumber: idx } : null
+      })
+      .filter(Boolean) as Round[]
+    useProjectStore.getState().updateChart(projectId, chartId, { rounds: reordered })
   },
 }))

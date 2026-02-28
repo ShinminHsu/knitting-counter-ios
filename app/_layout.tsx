@@ -23,7 +23,6 @@ function BackHeaderButton({ label, tintColor }: { label?: string; tintColor?: st
       hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
     >
       <Feather name="chevron-left" size={22} color={chevronColor} />
-      {label ? <Text style={styles.backBtnText}>{label}</Text> : null}
     </TouchableOpacity>
   )
 }
@@ -107,22 +106,15 @@ export default function RootLayout() {
 
 const styles = StyleSheet.create({
   backBtn: {
-    flexDirection: 'row',
+    width: 44,
+    height: 44,
     alignItems: 'center',
-    gap: 2,
-    borderRadius: 20,
-    paddingVertical: 6,
-    paddingLeft: 6,
-    paddingRight: 10,
-  },
-  backBtnText: {
-    fontSize: 17,
-    color: '#2D2D2D',
+    justifyContent: 'center',
   },
   homeBtn: {
     borderRadius: 20,
-    width: 36,
-    height: 36,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },

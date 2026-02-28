@@ -487,27 +487,24 @@ export default function ProgressTrackingScreen() {
           <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
         ) : null}
 
-        {/* Blocks：橫向 ScrollView，每個 block 並排顯示 */}
-        <ScrollView
-          horizontal
-          style={styles.blocksScroll}
-          contentContainerStyle={styles.blocksContent}
-          showsHorizontalScrollIndicator={false}
-        >
-          {blocks.length > 0 ? (
-            blocks.map((block) => (
-              <StitchBlockRow
-                key={block.key}
-                block={block}
-                currentStitch={currentStitch}
-                showIcons={showIcons}
-                onPress={() => handleBlockTap(block)}
-              />
-            ))
-          ) : (
-            <Text style={styles.emptyRoundText}>{t('tracking.emptyRound')}</Text>
-          )}
-        </ScrollView>
+        {/* Blocks：wrap 排列，超過螢幕寬度自動換行 */}
+        <View style={styles.blocksContainer}>
+          <View style={styles.blocksContent}>
+            {blocks.length > 0 ? (
+              blocks.map((block) => (
+                <StitchBlockRow
+                  key={block.key}
+                  block={block}
+                  currentStitch={currentStitch}
+                  showIcons={showIcons}
+                  onPress={() => handleBlockTap(block)}
+                />
+              ))
+            ) : (
+              <Text style={styles.emptyRoundText}>{t('tracking.emptyRound')}</Text>
+            )}
+          </View>
+        </View>
       </View>
 
       {/* ── Bottom controls（固定在底部）────────────────────────────────────── */}
@@ -677,16 +674,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 4,
   },
-  // ScrollView 內部：blocks 橫向並排
-  blocksScroll: {
-    flex: 1,
+  // blocks 容器：wrap 排列，超過螢幕寬度自動換行
+  blocksContainer: {
     marginTop: 12,
+    paddingHorizontal: 4,
+    paddingVertical: 4,
   },
   blocksContent: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     alignItems: 'flex-start',
-    paddingHorizontal: 4,
-    paddingVertical: 4,
   },
   emptyRoundText: {
     fontSize: 14,

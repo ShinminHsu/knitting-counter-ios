@@ -172,6 +172,7 @@ const zhTW = {
     deleteSelected: '刪除',
     deleteSelectedTitle: '刪除段落',
     deleteSelectedMessage: '確定要刪除已選取的 {{count}} 個段落嗎？此操作無法復原。',
+    dragHandle: '拖曳排序',
   },
 
   // ─── 進度追蹤 ────────────────────────────────────────────────────────────────

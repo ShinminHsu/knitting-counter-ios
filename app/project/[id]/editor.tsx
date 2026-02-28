@@ -5,11 +5,12 @@ import {
   SafeAreaView,
   ScrollView,
   TouchableOpacity,
-  FlatList,
   Alert,
   StyleSheet,
 } from 'react-native'
 import { Swipeable } from 'react-native-gesture-handler'
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
+import * as Haptics from 'expo-haptics'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -78,9 +79,10 @@ interface RoundRowProps {
   isLast: boolean
   isSelecting: boolean
   isSelected: boolean
+  isActive: boolean
+  drag: () => void
   onMoveUp: () => void
   onMoveDown: () => void
-  onDuplicate: (copies: number) => void
   onPress: () => void
   onLongPress: () => void
 }
@@ -92,9 +94,10 @@ function RoundRow({
   isLast,
   isSelecting,
   isSelected,
+  isActive,
+  drag,
   onMoveUp,
   onMoveDown,
-  onDuplicate,
   onPress,
   onLongPress,
 }: RoundRowProps) {
@@ -109,105 +112,92 @@ function RoundRow({
     .map((item) => buildItemSummary(item))
     .filter(Boolean)
 
-  function handleDuplicatePress() {
-    Alert.prompt(
-      t('editor.duplicateCopiesTitle'),
-      t('editor.duplicateCopiesMessage'),
-      (text) => {
-        const n = parseInt(text, 10)
-        if (!isNaN(n) && n >= 1 && n <= 20) {
-          onDuplicate(n)
-        }
-      },
-      'plain-text',
-      '1',
-      'number-pad'
-    )
-  }
-
   return (
-    <TouchableOpacity
-      style={styles.roundRow}
-      onPress={onPress}
-      onLongPress={onLongPress}
-      delayLongPress={250}
-      activeOpacity={0.75}
-      accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
-      accessibilityRole="button"
-    >
-      {/* Far left: checkbox (select mode) or ↑↓ arrows (normal mode) */}
-      {isSelecting ? (
+    <View style={[styles.roundRowWrapper, isActive && styles.roundRowActive]}>
+      {/* Drag handle — long-press triggers drag, separate from row long-press */}
+      {!isSelecting && (
         <TouchableOpacity
-          style={styles.checkboxContainer}
-          onPress={onPress}
-          accessibilityRole="checkbox"
-          accessibilityLabel={
-            isSelected
-              ? t('editor.deselectRoundLabel', { index: index + 1 })
-              : t('editor.selectRoundLabel', { index: index + 1 })
-          }
-          accessibilityState={{ checked: isSelected }}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          onLongPress={drag}
+          delayLongPress={150}
+          style={styles.dragHandle}
+          accessibilityLabel={t('editor.dragHandle')}
+          accessibilityRole="button"
         >
-          <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
-            {isSelected && (
-              <Feather name="check" size={14} color="#fff" />
-            )}
-          </View>
+          <Feather name="menu" size={18} color="#9ca3af" />
         </TouchableOpacity>
-      ) : (
-        <View style={styles.roundArrowsCol}>
-          <TouchableOpacity
-            onPress={onMoveUp}
-            disabled={isFirst}
-            accessibilityLabel={t('editor.moveUpLabel')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#9ca3af'} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onMoveDown}
-            disabled={isLast}
-            accessibilityLabel={t('editor.moveDownLabel')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#9ca3af'} />
-          </TouchableOpacity>
-        </View>
       )}
 
-      {/* Middle: R badge on top, summary below, notes below */}
-      <View style={styles.roundInfo}>
-        <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
-        <Text style={styles.roundSummaryText} numberOfLines={3}>
-          {hasItems ? itemSummaries.join('、') : t('editor.noStitches')}
-        </Text>
-        {round.notes ? (
-          <Text style={styles.roundNotes} numberOfLines={1}>{round.notes}</Text>
-        ) : null}
-      </View>
-
-      {/* Right: stitch count (centered) + vertical icon column (hidden in select mode) */}
-      {!isSelecting && (
-        <View style={styles.roundControls}>
-          {hasItems && (
-            <Text style={styles.roundStitchCount}>{t('editor.stitchCount', { count: totalStitches })}</Text>
-          )}
-          <View style={styles.roundIconsCol}>
+      <TouchableOpacity
+        style={styles.roundRow}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        delayLongPress={250}
+        activeOpacity={0.75}
+        accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
+        accessibilityRole="button"
+      >
+        {/* Far left: checkbox (select mode) or ↑↓ arrows (normal mode) */}
+        {isSelecting ? (
+          <TouchableOpacity
+            style={styles.checkboxContainer}
+            onPress={onPress}
+            accessibilityRole="checkbox"
+            accessibilityLabel={
+              isSelected
+                ? t('editor.deselectRoundLabel', { index: index + 1 })
+                : t('editor.selectRoundLabel', { index: index + 1 })
+            }
+            accessibilityState={{ checked: isSelected }}
+            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+          >
+            <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+              {isSelected && (
+                <Feather name="check" size={14} color="#fff" />
+              )}
+            </View>
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.roundArrowsCol}>
             <TouchableOpacity
-              onPress={handleDuplicatePress}
-              accessibilityLabel={t('editor.duplicateRound')}
+              onPress={onMoveUp}
+              disabled={isFirst}
+              accessibilityLabel={t('editor.moveUpLabel')}
               accessibilityRole="button"
               hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
             >
-              <Feather name="copy" size={16} color="#9ca3af" />
+              <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#9ca3af'} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={onMoveDown}
+              disabled={isLast}
+              accessibilityLabel={t('editor.moveDownLabel')}
+              accessibilityRole="button"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#9ca3af'} />
             </TouchableOpacity>
           </View>
+        )}
+
+        {/* Middle: R badge on top, summary below, notes below */}
+        <View style={styles.roundInfo}>
+          <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
+          <Text style={styles.roundSummaryText} numberOfLines={3}>
+            {hasItems ? itemSummaries.join('、') : t('editor.noStitches')}
+          </Text>
+          {round.notes ? (
+            <Text style={styles.roundNotes} numberOfLines={1}>{round.notes}</Text>
+          ) : null}
         </View>
-      )}
-    </TouchableOpacity>
+
+        {/* Right: stitch count (centered, hidden in select mode) */}
+        {!isSelecting && hasItems && (
+          <View style={styles.roundControls}>
+            <Text style={styles.roundStitchCount}>{t('editor.stitchCount', { count: totalStitches })}</Text>
+          </View>
+        )}
+      </TouchableOpacity>
+    </View>
   )
 }
 
@@ -224,6 +214,7 @@ export default function PatternEditorScreen() {
   const moveRoundUp = useChartStore((s) => s.moveRoundUp)
   const moveRoundDown = useChartStore((s) => s.moveRoundDown)
   const duplicateRound = useChartStore((s) => s.duplicateRound)
+  const reorderRounds = useChartStore((s) => s.reorderRounds)
 
   const hasSeenMultiSelectHint = useSettingsStore((s) => s.hasSeenMultiSelectHint)
   const markMultiSelectHintSeen = useSettingsStore((s) => s.markMultiSelectHintSeen)
@@ -231,6 +222,7 @@ export default function PatternEditorScreen() {
   const [showEditChart, setShowEditChart] = useState(false)
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
+  const [isDragging, setIsDragging] = useState(false)
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -414,43 +406,51 @@ export default function PatternEditorScreen() {
           </View>
         </ScrollView>
       ) : (
-        <FlatList
+        <DraggableFlatList
           data={rounds}
           keyExtractor={(item: Round) => item.id}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item, index }: { item: Round; index: number }) => (
-            <Swipeable
-              enabled={!isSelecting}
-              renderRightActions={() => (
-                <TouchableOpacity
-                  style={styles.swipeDeleteButton}
-                  onPress={() => handleDeleteRound(item.id, index)}
-                  accessibilityLabel={t('common.deleteRound')}
-                  accessibilityRole="button"
-                >
-                  <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
-                </TouchableOpacity>
-              )}
-            >
-              <RoundRow
-                round={item}
-                index={index}
-                isFirst={index === 0}
-                isLast={index === rounds.length - 1}
-                isSelecting={isSelecting}
-                isSelected={selectedIds.has(item.id)}
-                onMoveUp={() => handleMoveRoundUp(item.id)}
-                onMoveDown={() => handleMoveRoundDown(item.id)}
-                onDuplicate={(copies) => {
-                  for (let i = 0; i < copies; i++) {
-                    duplicateRound(project!.id, activeChart!.id, item.id)
-                  }
-                }}
-                onLongPress={() => handleLongPress(item.id)}
-                onPress={() => handleRowPress(item)}
-              />
-            </Swipeable>
-          )}
+          onDragBegin={() => {
+            setIsDragging(true)
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+          }}
+          onDragEnd={({ data }) => {
+            setIsDragging(false)
+            reorderRounds(project!.id, activeChart!.id, data.map((r) => r.id))
+          }}
+          renderItem={({ item, getIndex, drag, isActive }: RenderItemParams<Round>) => {
+            const index = getIndex() ?? 0
+            return (
+              <Swipeable
+                enabled={!isDragging && !isSelecting}
+                renderRightActions={() => (
+                  <TouchableOpacity
+                    style={styles.swipeDeleteButton}
+                    onPress={() => handleDeleteRound(item.id, index)}
+                    accessibilityLabel={t('common.deleteRound')}
+                    accessibilityRole="button"
+                  >
+                    <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+                  </TouchableOpacity>
+                )}
+              >
+                <RoundRow
+                  round={item}
+                  index={index}
+                  isFirst={index === 0}
+                  isLast={index === rounds.length - 1}
+                  isSelecting={isSelecting}
+                  isSelected={selectedIds.has(item.id)}
+                  isActive={isActive}
+                  drag={drag}
+                  onMoveUp={() => handleMoveRoundUp(item.id)}
+                  onMoveDown={() => handleMoveRoundDown(item.id)}
+                  onLongPress={() => handleLongPress(item.id)}
+                  onPress={() => handleRowPress(item)}
+                />
+              </Swipeable>
+            )
+          }}
           ItemSeparatorComponent={({ leadingItem }: { leadingItem: Round }) => {
             const leadingIndex = rounds.indexOf(leadingItem)
             return (
@@ -593,8 +593,29 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
 
+  // Round row wrapper (drag handle + row)
+  roundRowWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  roundRowActive: {
+    opacity: 0.9,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 8,
+  },
+  dragHandle: {
+    width: 44,
+    height: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
   // Round row
   roundRow: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'stretch',
     backgroundColor: '#fff',
@@ -670,12 +691,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#1f2937',
   },
-  roundIconsCol: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 8,
-  },
-
   // Swipe-to-delete action button
   swipeDeleteButton: {
     backgroundColor: '#ef4444',

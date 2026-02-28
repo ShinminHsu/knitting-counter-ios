@@ -172,6 +172,7 @@ const en = {
     deleteSelected: 'Delete',
     deleteSelectedTitle: 'Delete Rounds',
     deleteSelectedMessage: 'Delete {{count}} selected round(s)? This cannot be undone.',
+    dragHandle: 'Drag to reorder',
   },
 
   // ─── Progress Tracking ───────────────────────────────────────────────────────

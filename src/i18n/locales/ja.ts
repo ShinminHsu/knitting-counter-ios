@@ -172,6 +172,7 @@ const ja = {
     deleteSelected: '削除',
     deleteSelectedTitle: '段を削除',
     deleteSelectedMessage: '選択した {{count}} つの段を削除しますか？この操作は取り消せません。',
+    dragHandle: '並べ替え',
   },
 
   // ─── 進捗記録 ─────────────────────────────────────────────────────────────────
