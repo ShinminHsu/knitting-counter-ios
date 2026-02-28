@@ -239,10 +239,10 @@ const blockStyles = StyleSheet.create({
   },
   // Label：文字標籤，無 icon
   label: {
-    fontSize: 13,
+    fontSize: 10,
     fontWeight: '500',
-    color: '#374151',
-    marginBottom: 6,
+    color: '#4b5563',
+    marginBottom: 10,
   },
   labelActive: {
     color: '#D97398',
@@ -252,10 +252,11 @@ const blockStyles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#9ca3af',
   },
-  // 符號區：單行，不換行
+  // 符號區：可換行
   symbolsRow: {
     flexDirection: 'row',
-    gap: 10,
+    flexWrap: 'wrap',
+    gap: 6,
   },
   symbol: {
     fontSize: 15,
@@ -488,24 +489,27 @@ export default function ProgressTrackingScreen() {
           <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
         ) : null}
 
-        {/* Blocks：wrap 排列，超過螢幕寬度自動換行 */}
-        <View style={styles.blocksContainer}>
-          <View style={styles.blocksContent}>
-            {blocks.length > 0 ? (
-              blocks.map((block) => (
-                <StitchBlockRow
-                  key={block.key}
-                  block={block}
-                  currentStitch={currentStitch}
-                  showIcons={showIcons}
-                  onPress={() => handleBlockTap(block)}
-                />
-              ))
-            ) : (
-              <Text style={styles.emptyRoundText}>{t('tracking.emptyRound')}</Text>
-            )}
-          </View>
-        </View>
+        {/* Blocks：wrap 排列，超出高度可垂直滾動 */}
+        <ScrollView
+          style={styles.blocksContainer}
+          contentContainerStyle={styles.blocksContent}
+          showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
+        >
+          {blocks.length > 0 ? (
+            blocks.map((block) => (
+              <StitchBlockRow
+                key={block.key}
+                block={block}
+                currentStitch={currentStitch}
+                showIcons={showIcons}
+                onPress={() => handleBlockTap(block)}
+              />
+            ))
+          ) : (
+            <Text style={styles.emptyRoundText}>{t('tracking.emptyRound')}</Text>
+          )}
+        </ScrollView>
       </View>
 
       {/* ── Bottom controls（固定在底部）────────────────────────────────────── */}
@@ -641,7 +645,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 14,
   },
   cardHeaderRight: {
     flexDirection: 'row',
@@ -677,15 +681,15 @@ const styles = StyleSheet.create({
   },
   // blocks 容器：wrap 排列，超過螢幕寬度自動換行
   blocksContainer: {
-    marginTop: 16,
-    paddingHorizontal: 4,
-    paddingVertical: 4,
+    flex: 1,
+    marginTop: 4,
   },
   blocksContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
-    width: '100%',
+    paddingVertical: 4,
+    paddingHorizontal: 4,
   },
   emptyRoundText: {
     fontSize: 14,
