@@ -32,7 +32,7 @@ import {
   getStitchLabel,
   getStitchAbbr,
 } from '../../../src/utils/patternHelpers'
-import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
+import { CROCHET_SVG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
 import { totalStitchesInRound } from '../../../src/stores/useProgressStore'
 import { mmkv, STORAGE_KEYS } from '../../../src/stores/mmkvStorage'
 
@@ -177,8 +177,9 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
-  const pngIcon = block.stitchType ? CROCHET_PNG_MAP[block.stitchType] : undefined
-  const SvgIcon = block.stitchType ? KNIT_SVG_MAP[block.stitchType] : undefined
+  const SvgIcon = block.stitchType
+    ? (CROCHET_SVG_MAP[block.stitchType] ?? KNIT_SVG_MAP[block.stitchType])
+    : undefined
 
   return (
     <TouchableOpacity
@@ -190,14 +191,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
     >
       {/* Label row：icon（若有）+ 文字 */}
       <View style={blockStyles.labelRow}>
-        {pngIcon && (
-          <Image
-            source={pngIcon}
-            style={[blockStyles.labelIcon, isCompleted && blockStyles.labelIconCompleted]}
-            resizeMode="contain"
-          />
-        )}
-        {SvgIcon && !pngIcon && (
+        {SvgIcon && (
           <SvgIcon
             width={18}
             height={18}
@@ -222,20 +216,8 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
           const opacity = symStatus === 'completed' ? 0.3 : symStatus === 'current' ? 1 : 0.7
 
           if (showIcons && symbol.stitchType) {
-            const symPng = CROCHET_PNG_MAP[symbol.stitchType]
-            const SymSvg = KNIT_SVG_MAP[symbol.stitchType]
-            const tintStyle = symStatus === 'current' ? blockStyles.symbolIconCurrent : undefined
+            const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]
 
-            if (symPng) {
-              return (
-                <Image
-                  key={i}
-                  source={symPng}
-                  style={[blockStyles.symbolIcon, { opacity }, tintStyle]}
-                  resizeMode="contain"
-                />
-              )
-            }
             if (SymSvg) {
               return (
                 <View key={i} style={{ opacity }}>

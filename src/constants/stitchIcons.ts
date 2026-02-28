@@ -1,28 +1,48 @@
-import { ImageSourcePropType } from 'react-native'
 import { ComponentType } from 'react'
 import { SvgProps } from 'react-native-svg'
 import { StitchType } from '../types'
 
-// ─── Crochet (PNG) ────────────────────────────────────────────────────────────
-export const CROCHET_PNG_MAP: Partial<Record<StitchType, ImageSourcePropType>> = {
-  [StitchType.CHAIN]:        require('../../assets/crochet-chart-symbols/32px-Crochet_chain.png'),
-  [StitchType.SLIP_STITCH]:  require('../../assets/crochet-chart-symbols/8px-Slst-crochet-symbols.png'),
-  [StitchType.SINGLE]:       require('../../assets/crochet-chart-symbols/32px-Crochet_single_crochet.png'),
-  [StitchType.HALF_DOUBLE]:  require('../../assets/crochet-chart-symbols/32px-Crochet_half_double_crochet.png'),
-  [StitchType.DOUBLE]:       require('../../assets/crochet-chart-symbols/32px-Crochet_double_crochet.png'),
-  [StitchType.TREBLE]:       require('../../assets/crochet-chart-symbols/32px-Crochet_double_triple.png'),
-  [StitchType.SC_INC]:       require('../../assets/crochet-chart-symbols/32px-Crochet_single_crochet.png'),
-  [StitchType.HDC_INC]:      require('../../assets/crochet-chart-symbols/16px-Hdc-crochet-symbols.png'),
-  [StitchType.DC_INC]:       require('../../assets/crochet-chart-symbols/32px-Crochet_inc1dc.png'),
-  [StitchType.SC2TOG]:       require('../../assets/crochet-chart-symbols/16px-Sc2tog-crochet-symbols.png'),
-  [StitchType.HDC2TOG]:      require('../../assets/crochet-chart-symbols/32px-Hdc2tog-crochet-symbols.png'),
-  [StitchType.HDC3TOG]:      require('../../assets/crochet-chart-symbols/32px-Hdg3tog-crochet-symbols.png'),
-  [StitchType.DC2TOG]:       require('../../assets/crochet-chart-symbols/32px-Crochet_dc2tog.png'),
-  [StitchType.DC3TOG]:       require('../../assets/crochet-chart-symbols/32px-Crochet_dc3tog.png'),
-  [StitchType.DC3_CLUSTER]:  require('../../assets/crochet-chart-symbols/32px-Dc3sh-crochet-symbols.png'),
-  [StitchType.HDC3_CLUSTER]: require('../../assets/crochet-chart-symbols/32px-Hdc3sh-crochet-symbols.png'),
-  [StitchType.DC5_POPCORN]:  require('../../assets/crochet-chart-symbols/32px-Crochet_popcorn.png'),
-  [StitchType.DC5_SHELL]:    require('../../assets/crochet-chart-symbols/32px-Dc4sh-crochet-symbols.png'),
+// ─── Crochet (SVG) ────────────────────────────────────────────────────────────
+import SvgChain       from '../../assets/crochet-symbols/svg/crochet-master_chain.svg'
+import SvgSlst        from '../../assets/crochet-symbols/svg/crochet-master_slst.svg'
+import SvgSc          from '../../assets/crochet-symbols/svg/crochet-master_sc.svg'
+import SvgHdc         from '../../assets/crochet-symbols/svg/crochet-master_hdc.svg'
+import SvgDc          from '../../assets/crochet-symbols/svg/crochet-master_dc.svg'
+import SvgTr          from '../../assets/crochet-symbols/svg/crochet-master_tr.svg'
+import SvgScInc       from '../../assets/crochet-symbols/svg/crochet-master_sc-inc.svg'
+import SvgHdcInc      from '../../assets/crochet-symbols/svg/crochet-master_hdcinc.svg'
+import SvgDcInc       from '../../assets/crochet-symbols/svg/crochet-master_dcinc.svg'
+import SvgTrInc       from '../../assets/crochet-symbols/svg/crochet-master_3dc-inc.svg'
+import SvgSc2tog      from '../../assets/crochet-symbols/svg/crochet-master_sc2tog.svg'
+import SvgHdc2tog     from '../../assets/crochet-symbols/svg/crochet-master_hdc2tog.svg'
+import SvgHdc3tog     from '../../assets/crochet-symbols/svg/crochet-master_sc3tog.svg'
+import SvgDc2tog      from '../../assets/crochet-symbols/svg/crochet-master_dc2tog.svg'
+import SvgDc3tog      from '../../assets/crochet-symbols/svg/crochet-master_dc3tog.svg'
+import SvgDc3Cluster  from '../../assets/crochet-symbols/svg/crochet-master_3dc-cluster.svg'
+import SvgHdc3Cluster from '../../assets/crochet-symbols/svg/crochet-master_3hdc-cluster.svg'
+import SvgDc5Popcorn  from '../../assets/crochet-symbols/svg/crochet-master_5dc-popcorn.svg'
+import SvgDc5Shell    from '../../assets/crochet-symbols/svg/crochet-master_5dc-shell.svg'
+
+export const CROCHET_SVG_MAP: Partial<Record<StitchType, ComponentType<SvgProps>>> = {
+  [StitchType.CHAIN]:        SvgChain,
+  [StitchType.SLIP_STITCH]:  SvgSlst,
+  [StitchType.SINGLE]:       SvgSc,
+  [StitchType.HALF_DOUBLE]:  SvgHdc,
+  [StitchType.DOUBLE]:       SvgDc,
+  [StitchType.TREBLE]:       SvgTr,
+  [StitchType.SC_INC]:       SvgScInc,
+  [StitchType.HDC_INC]:      SvgHdcInc,
+  [StitchType.DC_INC]:       SvgDcInc,
+  [StitchType.TR_INC]:       SvgTrInc,
+  [StitchType.SC2TOG]:       SvgSc2tog,
+  [StitchType.HDC2TOG]:      SvgHdc2tog,
+  [StitchType.HDC3TOG]:      SvgHdc3tog,
+  [StitchType.DC2TOG]:       SvgDc2tog,
+  [StitchType.DC3TOG]:       SvgDc3tog,
+  [StitchType.DC3_CLUSTER]:  SvgDc3Cluster,
+  [StitchType.HDC3_CLUSTER]: SvgHdc3Cluster,
+  [StitchType.DC5_POPCORN]:  SvgDc5Popcorn,
+  [StitchType.DC5_SHELL]:    SvgDc5Shell,
 }
 
 // ─── Knitting (SVG) ───────────────────────────────────────────────────────────

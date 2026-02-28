@@ -1,6 +1,5 @@
 import { useMemo, useState } from 'react'
 import {
-  Image,
   Modal,
   SectionList,
   StyleSheet,
@@ -11,7 +10,7 @@ import {
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { STITCH_CATEGORIES_BY_CRAFT } from '../constants/stitches'
-import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../constants/stitchIcons'
+import { CROCHET_SVG_MAP, KNIT_SVG_MAP } from '../constants/stitchIcons'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 import { CraftType, CustomStitchPattern, StitchType, StitchTypeInfo } from '../types'
 import CustomStitchModal from './CustomStitchModal'
@@ -188,17 +187,14 @@ export default function StitchPicker({
     if (item.kind === 'builtin') {
       const info = StitchTypeInfo[item.stitchType]
       const symbol = getSymbol(item.stitchType)
-      const pngIcon = CROCHET_PNG_MAP[item.stitchType]
-      const SvgIcon = KNIT_SVG_MAP[item.stitchType]
+      const SvgIcon = CROCHET_SVG_MAP[item.stitchType] ?? KNIT_SVG_MAP[item.stitchType]
       return (
         <TouchableOpacity
           style={styles.stitchRow}
           onPress={() => handleSelect(item)}
           activeOpacity={0.6}
         >
-          {pngIcon ? (
-            <Image source={pngIcon} style={styles.stitchIcon} resizeMode="contain" />
-          ) : SvgIcon ? (
+          {SvgIcon ? (
             <SvgIcon width={24} height={24} style={{ marginRight: 8 }} />
           ) : (
             <Text style={styles.stitchSymbol}>{symbol}</Text>
