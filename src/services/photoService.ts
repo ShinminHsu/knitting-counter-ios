@@ -70,6 +70,17 @@ export async function savePhoto(
   }
 }
 
+// ─── photoFileExists ──────────────────────────────────────────────────────────
+
+/**
+ * Check if a photo file exists on the filesystem.
+ * Used to detect orphaned metadata after app rebuilds.
+ */
+export async function photoFileExists(photo: ProjectPhoto): Promise<boolean> {
+  const info = await FileSystem.getInfoAsync(photo.uri)
+  return info.exists
+}
+
 // ─── deletePhoto ──────────────────────────────────────────────────────────────
 
 /**

@@ -26,6 +26,7 @@ import {
   deletePhoto as deletePhotoFile,
   takePhoto,
   pickPhotoFromLibrary,
+  photoFileExists,
 } from '../../../src/services/photoService'
 
 // ─── Craft Type Badge ─────────────────────────────────────────────────────────
@@ -216,6 +217,21 @@ export default function ProjectDetailScreen() {
   useEffect(() => {
     logScreenView(SCREEN_NAMES.PROJECT_DETAIL)
   }, [])
+
+  // Cleanup orphaned photo metadata (files deleted after app rebuild)
+  useEffect(() => {
+    if (!project || project.photos.length === 0) return
+    const cleanup = async () => {
+      for (const photo of project.photos) {
+        const exists = await photoFileExists(photo)
+        if (!exists) {
+          deletePhotoStore(project.id, photo.id)
+        }
+      }
+    }
+    cleanup()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [project?.id])
 
   // Project not found guard
   if (!project) {
