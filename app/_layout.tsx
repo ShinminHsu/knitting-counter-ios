@@ -2,15 +2,44 @@ import 'react-native-gesture-handler';
 import '../global.css';
 import '../src/i18n';
 
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
+import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { initializeAds } from '../src/services';
+
+function BackHeaderButton({ label, tintColor }: { label?: string; tintColor?: string }) {
+  const router = useRouter()
+  const chevronColor = '#2D2D2D'
+  return (
+    <TouchableOpacity
+      onPress={() => router.back()}
+      style={styles.backBtn}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Feather name="chevron-left" size={22} color={chevronColor} />
+      {label ? <Text style={styles.backBtnText}>{label}</Text> : null}
+    </TouchableOpacity>
+  )
+}
+
+function HomeHeaderButton() {
+  const router = useRouter()
+  return (
+    <TouchableOpacity
+      onPress={() => router.navigate('/')}
+      style={styles.homeBtn}
+      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+    >
+      <Feather name="home" size={20} color="#6b7280" />
+    </TouchableOpacity>
+  )
+}
 
 SplashScreen.preventAutoHideAsync()
 
@@ -47,6 +76,9 @@ export default function RootLayout() {
           headerTintColor: '#D97398',
           headerTitleStyle: { color: '#2D2D2D' },
           contentStyle: { backgroundColor: '#faf5f0' },
+          headerLeft: ({ canGoBack, label, tintColor }) =>
+            canGoBack ? <BackHeaderButton label={label} tintColor={tintColor} /> : null,
+          headerRight: () => <HomeHeaderButton />,
         }}
       >
         <Stack.Screen name="index" options={{ title: t('projectList.title'), headerShown: false }} />
@@ -63,6 +95,26 @@ export default function RootLayout() {
 }
 
 const styles = StyleSheet.create({
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    borderRadius: 20,
+    paddingVertical: 6,
+    paddingLeft: 6,
+    paddingRight: 10,
+  },
+  backBtnText: {
+    fontSize: 17,
+    color: '#2D2D2D',
+  },
+  homeBtn: {
+    borderRadius: 20,
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
   splash: {
     flex: 1,
     backgroundColor: '#faf5f0',

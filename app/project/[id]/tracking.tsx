@@ -29,10 +29,10 @@ import {
   StitchTypeInfo,
 } from '../../../src/types'
 import {
-  getStitchLabel,
+  getLocalizedStitchName,
   getStitchAbbr,
 } from '../../../src/utils/patternHelpers'
-import { CROCHET_PNG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
+import { CROCHET_SVG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
 import { totalStitchesInRound } from '../../../src/stores/useProgressStore'
 import { mmkv, STORAGE_KEYS } from '../../../src/stores/mmkvStorage'
 
@@ -125,11 +125,7 @@ function expandToBlocks(round: Round): StitchBlock[] {
           }
         }
 
-        const sep = i18n.t('common.stitchListSep')
-        const innerSummary = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
-        const groupLabel = innerSummary
-          ? i18n.t('common.groupRepTitle', { name: group.name, stitches: innerSummary, n: r + 1 })
-          : i18n.t('common.groupRepTitleEmpty', { name: group.name, n: r + 1 })
+        const groupLabel = `${group.name} - ${r + 1}`
         blocks.push({
           key: `${item.id}-r${r}`,
           label: groupLabel,
@@ -150,11 +146,11 @@ function getRoundDescriptionText(round: Round): string {
     .map((item) => {
       if (item.type === PatternItemType.STITCH) {
         const stitch = item.data as StitchInfo
-        return `${getStitchLabel(stitch)} × ${stitch.count}`
+        return `${getLocalizedStitchName(stitch, i18n.t)} × ${stitch.count}`
       } else {
         const group = item.data as StitchGroup
         const sep = i18n.t('common.stitchListSep')
-        const inner = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
+        const inner = group.stitches.map((s) => `${getLocalizedStitchName(s, i18n.t)} ${s.count}`).join(sep)
         return i18n.t('common.groupSummary', { name: group.name, stitches: inner, count: group.repeatCount })
       }
     })
@@ -177,9 +173,6 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
-  const pngIcon = block.stitchType ? CROCHET_PNG_MAP[block.stitchType] : undefined
-  const SvgIcon = block.stitchType ? KNIT_SVG_MAP[block.stitchType] : undefined
-
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -188,54 +181,27 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label row：icon（若有）+ 文字 */}
-      <View style={blockStyles.labelRow}>
-        {pngIcon && (
-          <Image
-            source={pngIcon}
-            style={[blockStyles.labelIcon, isCompleted && blockStyles.labelIconCompleted]}
-            resizeMode="contain"
-          />
-        )}
-        {SvgIcon && !pngIcon && (
-          <SvgIcon
-            width={18}
-            height={18}
-            style={isCompleted ? blockStyles.labelIconCompleted : undefined}
-          />
-        )}
-        <Text
-          style={[
-            blockStyles.label,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-        >
-          {block.label}
-        </Text>
-      </View>
+      {/* Label：只顯示文字，不顯示 icon */}
+      <Text
+        style={[
+          blockStyles.label,
+          isActive && blockStyles.labelActive,
+          isCompleted && blockStyles.labelCompleted,
+        ]}
+        numberOfLines={1}
+      >
+        {block.label}
+      </Text>
 
-      {/* 符號區：flex-wrap，每個符號獨立上色，無底色 */}
+      {/* 符號區：單行排列，不換行 */}
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
           const opacity = symStatus === 'completed' ? 0.3 : symStatus === 'current' ? 1 : 0.7
 
           if (showIcons && symbol.stitchType) {
-            const symPng = CROCHET_PNG_MAP[symbol.stitchType]
-            const SymSvg = KNIT_SVG_MAP[symbol.stitchType]
-            const tintStyle = symStatus === 'current' ? blockStyles.symbolIconCurrent : undefined
+            const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]
 
-            if (symPng) {
-              return (
-                <Image
-                  key={i}
-                  source={symPng}
-                  style={[blockStyles.symbolIcon, { opacity }, tintStyle]}
-                  resizeMode="contain"
-                />
-              )
-            }
             if (SymSvg) {
               return (
                 <View key={i} style={{ opacity }}>
@@ -265,29 +231,17 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 }
 
 const blockStyles = StyleSheet.create({
+  // 每個 block 是一個直向欄位，橫向並排
   row: {
-    marginBottom: 14,
+    alignItems: 'flex-start',
+    marginRight: 20,
   },
-  // Label row：icon + 文字水平排列
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    gap: 6,
-  },
-  labelIcon: {
-    width: 18,
-    height: 18,
-    opacity: 0.85,
-  },
-  labelIconCompleted: {
-    opacity: 0.35,
-  },
-  // Label：無背景
+  // Label：文字標籤，無 icon
   label: {
     fontSize: 12,
     fontWeight: '500',
     color: '#374151',
+    marginBottom: 10,
   },
   labelActive: {
     color: '#D97398',
@@ -297,12 +251,10 @@ const blockStyles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#9ca3af',
   },
-  // 符號區：flex-wrap，無背景色
+  // 符號區：單行，不換行
   symbolsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    columnGap: 14,
-    rowGap: 10,
+    gap: 10,
   },
   symbol: {
     fontSize: 15,
@@ -318,13 +270,6 @@ const blockStyles = StyleSheet.create({
   },
   symbolUpcoming: {
     color: '#374151',   // 深灰：未完成
-  },
-  symbolIcon: {
-    width: 24,
-    height: 24,
-  },
-  symbolIconCurrent: {
-    tintColor: '#D97398',
   },
 })
 
@@ -541,11 +486,12 @@ export default function ProgressTrackingScreen() {
           <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
         ) : null}
 
-        {/* Blocks：ScrollView 內，不蓋住下方按鈕 */}
+        {/* Blocks：橫向 ScrollView，每個 block 並排顯示 */}
         <ScrollView
+          horizontal
           style={styles.blocksScroll}
           contentContainerStyle={styles.blocksContent}
-          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
         >
           {blocks.length > 0 ? (
             blocks.map((block) => (
@@ -730,13 +676,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 4,
   },
-  // ScrollView 內部：blocks 可垂直滾動，不蓋住底部按鈕
+  // ScrollView 內部：blocks 橫向並排
   blocksScroll: {
     flex: 1,
     marginTop: 12,
   },
   blocksContent: {
-    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 4,
+    paddingVertical: 4,
   },
   emptyRoundText: {
     fontSize: 14,

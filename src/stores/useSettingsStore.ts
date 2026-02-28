@@ -1,6 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { mmkvStorage } from './mmkvStorage'
+import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
 // ─── State & Actions Interface ─────────────────────────────────────────────────
 
@@ -22,7 +22,7 @@ export const useSettingsStore = create<SettingsState>()(
       markMultiSelectHintSeen: () => set({ hasSeenMultiSelectHint: true }),
     }),
     {
-      name: 'settings',
+      name: STORAGE_KEYS.SETTINGS,
       storage: createJSONStorage(() => mmkvStorage),
     }
   )

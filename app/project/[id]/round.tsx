@@ -1,7 +1,9 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import * as Haptics from 'expo-haptics'
 import {
   Alert,
-  FlatList,
+  KeyboardAvoidingView,
+  Platform,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -9,6 +11,8 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
+import { Swipeable } from 'react-native-gesture-handler'
 import { Feather } from '@expo/vector-icons'
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -16,7 +20,8 @@ import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
 import { usePatternStore } from '../../../src/stores/usePatternStore'
 import { useTemplateStore } from '../../../src/stores/useTemplateStore'
-import { CraftType, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
+import { useChartStore } from '../../../src/stores/useChartStore'
+import { CraftType, CustomStitchPattern, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
 import GroupEditor, { GroupEditorResult } from '../../../src/components/GroupEditor'
 import {
@@ -47,6 +52,10 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
   return (
     <>
       <View style={styles.countEditorOverlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.countEditorKAV}
+        >
         <View style={styles.countEditorBox}>
           <Text style={styles.countEditorTitle}>{title}</Text>
 
@@ -105,6 +114,7 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
             </TouchableOpacity>
           </View>
         </View>
+        </KeyboardAvoidingView>
       </View>
 
       {/* Nested StitchPicker for changing type */}
@@ -127,33 +137,38 @@ interface PatternItemRowProps {
   item: PatternItem
   isFirst: boolean
   isLast: boolean
-  onMoveUp: () => void
-  onMoveDown: () => void
+  drag: () => void
+  isActive: boolean
+  isDragging: boolean
   onEdit: () => void
   onDelete: () => void
 }
 
-function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, onDelete }: PatternItemRowProps) {
+function PatternItemRow({ item, drag, isActive, isDragging, onEdit, onDelete }: PatternItemRowProps) {
   const { t } = useTranslation()
-  const reorderControls = (
-    <View style={styles.reorderControls}>
+
+  function renderRightActions() {
+    return (
       <TouchableOpacity
-        onPress={onMoveUp}
-        disabled={isFirst}
-        accessibilityLabel={t('editor.moveUpLabel')}
+        style={styles.swipeDeleteButton}
+        onPress={onDelete}
+        accessibilityLabel={t('common.delete')}
         accessibilityRole="button"
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
       >
-        <Feather name="chevron-up" size={20} color={isFirst ? '#d1d5db' : '#6b7280'} />
+        <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
       </TouchableOpacity>
+    )
+  }
+
+  const actionButtons = (
+    <View style={styles.itemActions}>
       <TouchableOpacity
-        onPress={onMoveDown}
-        disabled={isLast}
-        accessibilityLabel={t('editor.moveDownLabel')}
+        onPress={onEdit}
+        accessibilityLabel={t('round.editStitchTitle')}
         accessibilityRole="button"
-        hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
       >
-        <Feather name="chevron-down" size={20} color={isLast ? '#d1d5db' : '#6b7280'} />
+        <Feather name="edit-2" size={15} color="#9ca3af" />
       </TouchableOpacity>
     </View>
   )
@@ -162,37 +177,33 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
     const stitch = item.data
     const label = getStitchLabel(stitch)
     return (
-      <View style={styles.itemRow}>
-        <View style={styles.itemInfo}>
-          <Text style={styles.itemLabel}>{label}</Text>
+      <Swipeable
+        renderRightActions={renderRightActions}
+        enabled={!isDragging}
+        friction={2}
+        overshootRight={false}
+      >
+        <View style={[styles.itemRow, isActive && styles.itemRowActive]}>
+          {/* Left: drag handle */}
           <TouchableOpacity
-            onPress={onEdit}
+            onLongPress={drag}
+            delayLongPress={150}
+            accessibilityLabel={t('round.dragHandle')}
             hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-            accessibilityLabel={t('round.editStitchTitle')}
+            style={styles.dragHandle}
           >
-            <Text style={styles.itemCount}>×{stitch.count}</Text>
+            <Feather name="menu" size={18} color="#9ca3af" />
           </TouchableOpacity>
+          {/* Middle: label×count */}
+          <TouchableOpacity style={styles.itemInfo} onPress={onEdit} activeOpacity={0.7}>
+            <Text style={styles.itemLabel}>
+              {label}<Text style={styles.itemCountInline}>×{stitch.count}</Text>
+            </Text>
+          </TouchableOpacity>
+          {/* Right: actions */}
+          {actionButtons}
         </View>
-        <View style={styles.itemActions}>
-          {reorderControls}
-          <TouchableOpacity
-            onPress={onEdit}
-            accessibilityLabel={t('round.editStitchTitle')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="edit-2" size={16} color="#6b7280" />
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onDelete}
-            accessibilityLabel={t('round.deleteStitchTitle')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="trash-2" size={16} color="#6b7280" />
-          </TouchableOpacity>
-        </View>
-      </View>
+      </Swipeable>
     )
   }
 
@@ -206,30 +217,31 @@ function PatternItemRow({ item, isFirst, isLast, onMoveUp, onMoveDown, onEdit, o
       ? i18n.t('common.groupSummary', { name: group.name, stitches: stitchSummary, count: group.repeatCount })
       : i18n.t('common.groupSummaryEmpty', { name: group.name, count: group.repeatCount })
     return (
-      <View style={styles.itemRow}>
-        <View style={styles.itemInfo}>
-          <Text style={styles.itemLabel}>{groupLabel}</Text>
-        </View>
-        <View style={styles.itemActions}>
-          {reorderControls}
+      <Swipeable
+        renderRightActions={renderRightActions}
+        enabled={!isDragging}
+        friction={2}
+        overshootRight={false}
+      >
+        <View style={[styles.itemRow, isActive && styles.itemRowActive]}>
+          {/* Left: drag handle */}
           <TouchableOpacity
-            onPress={onEdit}
-            accessibilityLabel={t('round.editStitchTitle')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            onLongPress={drag}
+            delayLongPress={150}
+            accessibilityLabel={t('round.dragHandle')}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+            style={styles.dragHandle}
           >
-            <Feather name="edit-2" size={16} color="#6b7280" />
+            <Feather name="menu" size={18} color="#9ca3af" />
           </TouchableOpacity>
-          <TouchableOpacity
-            onPress={onDelete}
-            accessibilityLabel={t('round.deleteGroupTitle')}
-            accessibilityRole="button"
-            hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          >
-            <Feather name="trash-2" size={16} color="#6b7280" />
+          {/* Middle: group label */}
+          <TouchableOpacity style={styles.itemInfo} onPress={onEdit} activeOpacity={0.7}>
+            <Text style={styles.itemLabel}>{groupLabel}</Text>
           </TouchableOpacity>
+          {/* Right: actions */}
+          {actionButtons}
         </View>
-      </View>
+      </Swipeable>
     )
   }
 
@@ -248,21 +260,36 @@ export default function RoundEditScreen() {
   const router = useRouter()
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
+  const updateRound = useChartStore((s) => s.updateRound)
+  // Selector to get round notes at hook level (needed to initialize notesText state)
+  const initialNotes = useProjectStore((s) => {
+    const p = s.getProjectById(id ?? '')
+    const c = p?.charts.find((ch) => ch.id === (chartId ?? ''))
+    return c?.rounds.find((r) => r.id === (roundId ?? ''))?.notes ?? ''
+  })
   const addStitchToRound = usePatternStore((s) => s.addStitchToRound)
   const updateStitch = usePatternStore((s) => s.updateStitch)
   const deleteStitch = usePatternStore((s) => s.deleteStitch)
   const deleteGroup = usePatternStore((s) => s.deleteGroup)
   const addGroup = usePatternStore((s) => s.addGroup)
   const updateGroup = usePatternStore((s) => s.updateGroup)
-  const movePatternItemUp = usePatternStore((s) => s.movePatternItemUp)
-  const movePatternItemDown = usePatternStore((s) => s.movePatternItemDown)
+  const reorderPatternItems = usePatternStore((s) => s.reorderPatternItems)
   const addTemplate = useTemplateStore((s) => s.addTemplate)
 
+  const [isDragging, setIsDragging] = useState(false)
   const [showStitchPicker, setShowStitchPicker] = useState(false)
   const [showGroupEditor, setShowGroupEditor] = useState(false)
   const [editingItem, setEditingItem] = useState<PatternItem | null>(null)
   const [editingGroup, setEditingGroup] = useState<PatternItem | null>(null)
   const [pendingAddType, setPendingAddType] = useState<StitchType | null>(null)
+  const [pendingCustomStitch, setPendingCustomStitch] = useState<CustomStitchPattern | null>(null)
+  const [notesText, setNotesText] = useState(initialNotes)
+  // Sync notesText when navigating to a different round
+  const prevRoundIdRef = useRef(roundId)
+  if (prevRoundIdRef.current !== roundId) {
+    prevRoundIdRef.current = roundId
+    setNotesText(initialNotes)
+  }
 
   // Project / chart / round guards
   if (!project) {
@@ -314,14 +341,27 @@ export default function RoundEditScreen() {
   const existingGroupCount = sortedItems.filter((item) => item.type === PatternItemType.GROUP).length
   const defaultGroupName = t('round.defaultGroupName', { n: existingGroupCount + 1 })
 
-  function handleStitchSelected(stitchType: StitchType) {
+  function handleStitchSelected(stitchType: StitchType, customStitch?: CustomStitchPattern) {
     setShowStitchPicker(false)
-    setPendingAddType(stitchType)
+    // Delay opening StitchEditor until pageSheet dismiss animation finishes (~300ms on iOS)
+    setTimeout(() => {
+      setPendingCustomStitch(customStitch ?? null)
+      setPendingAddType(stitchType)
+    }, 350)
   }
 
   function handleAddConfirm(stitchType: StitchType, count: number) {
-    addStitchToRound(project!.id, chart!.id, round!.id, stitchType, count)
+    addStitchToRound(
+      project!.id,
+      chart!.id,
+      round!.id,
+      stitchType,
+      count,
+      pendingCustomStitch?.name,
+      pendingCustomStitch?.abbr
+    )
     setPendingAddType(null)
+    setPendingCustomStitch(null)
   }
 
   function handleEditStitch(item: PatternItem) {
@@ -411,6 +451,25 @@ export default function RoundEditScreen() {
         </Text>
       </View>
 
+      {/* Notes input */}
+      <View style={styles.notesBar}>
+        <TextInput
+          style={styles.notesInput}
+          value={notesText}
+          onChangeText={setNotesText}
+          placeholder={t('round.notesPlaceholder')}
+          placeholderTextColor="#d1d5db"
+          returnKeyType="done"
+          onBlur={() => {
+            const text = notesText.trim()
+            const current = round.notes ?? ''
+            if (text !== current) {
+              updateRound(project!.id, chart!.id, round!.id, { notes: text || undefined })
+            }
+          }}
+        />
+      </View>
+
       {/* Pattern items list */}
       {sortedItems.length === 0 ? (
         <View style={styles.emptyState}>
@@ -418,32 +477,49 @@ export default function RoundEditScreen() {
           <Text style={styles.emptyStateHint}>{t('round.emptyHint')}</Text>
         </View>
       ) : (
-        <FlatList
+        <DraggableFlatList
           data={sortedItems}
           keyExtractor={(item: PatternItem) => item.id}
           contentContainerStyle={styles.listContent}
-          renderItem={({ item, index }: { item: PatternItem; index: number }) => (
-            <PatternItemRow
-              item={item}
-              isFirst={index === 0}
-              isLast={index === sortedItems.length - 1}
-              onMoveUp={() => movePatternItemUp(project!.id, chart!.id, round!.id, item.id)}
-              onMoveDown={() => movePatternItemDown(project!.id, chart!.id, round!.id, item.id)}
-              onEdit={() => {
-                if (item.type === PatternItemType.GROUP) {
-                  handleEditGroup(item)
-                } else {
-                  handleEditStitch(item)
-                }
-              }}
-              onDelete={() => handleDeleteItem(item)}
-            />
-          )}
+          renderItem={({ item, drag, isActive, getIndex }: RenderItemParams<PatternItem>) => {
+            const index = getIndex() ?? 0
+            return (
+              <PatternItemRow
+                item={item}
+                isFirst={index === 0}
+                isLast={index === sortedItems.length - 1}
+                drag={drag}
+                isActive={isActive}
+                isDragging={isDragging}
+                onEdit={() => {
+                  if (item.type === PatternItemType.GROUP) {
+                    handleEditGroup(item)
+                  } else {
+                    handleEditStitch(item)
+                  }
+                }}
+                onDelete={() => handleDeleteItem(item)}
+              />
+            )
+          }}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
+          onDragBegin={() => {
+            setIsDragging(true)
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium)
+          }}
+          onDragEnd={({ data }) => {
+            setIsDragging(false)
+            reorderPatternItems(
+              project!.id,
+              chart!.id,
+              round!.id,
+              data.map((item) => item.id)
+            )
+          }}
         />
       )}
 
-      {/* Footer: Add stitch / Add group buttons */}
+      {/* Footer: Add stitch / Add group / Done buttons */}
       <View style={styles.footer}>
         <View style={styles.footerButtons}>
           <TouchableOpacity
@@ -466,6 +542,13 @@ export default function RoundEditScreen() {
             <Text style={styles.addButtonText}>{t('round.addStitch')}</Text>
           </TouchableOpacity>
         </View>
+        <TouchableOpacity
+          style={styles.doneButton}
+          onPress={() => router.back()}
+          accessibilityRole="button"
+        >
+          <Text style={styles.doneButtonText}>{t('round.done')}</Text>
+        </TouchableOpacity>
       </View>
 
       {/* StitchPicker modal */}
@@ -511,6 +594,7 @@ export default function RoundEditScreen() {
         onConfirm={handleGroupConfirm}
         onCancel={handleGroupEditorCancel}
       />
+
     </SafeAreaView>
   )
 }
@@ -543,6 +627,20 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
 
+  // Notes bar
+  notesBar: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+  },
+  notesInput: {
+    fontSize: 13,
+    color: '#6b7280',
+    paddingVertical: 4,
+  },
+
   // List
   listContent: {
     paddingVertical: 12,
@@ -557,61 +655,62 @@ const styles = StyleSheet.create({
   // Pattern item row
   itemRow: {
     flexDirection: 'row',
-    alignItems: 'flex-start',
+    alignItems: 'center',
     backgroundColor: '#fff',
     borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 10,
     borderWidth: 1,
     borderColor: '#e5e7eb',
     marginBottom: 6,
+    gap: 8,
+  },
+  itemRowActive: {
+    opacity: 0.85,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 8,
+    elevation: 6,
+  },
+  swipeDeleteButton: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 10,
+    marginBottom: 6,
+  },
+  swipeDeleteText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  dragHandle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexShrink: 0,
   },
   itemInfo: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 10,
+    justifyContent: 'center',
   },
   itemLabel: {
     fontSize: 15,
     color: '#1f2937',
     fontWeight: '500',
-    flex: 1,
+    lineHeight: 20,
   },
-  itemCount: {
+  itemCountInline: {
     fontSize: 14,
-    color: '#D97398',
-    fontWeight: '600',
-    minWidth: 36,
-    textAlign: 'right',
+    color: '#6b7280',
+    fontWeight: '400',
   },
   itemActions: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 14,
-    marginLeft: 12,
-    paddingTop: 2,
-  },
-  reorderControls: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    gap: 4,
-  },
-
-  // Group stitch info
-  groupInfo: {
-    flex: 1,
-    gap: 4,
-  },
-  groupTitleRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 10,
-  },
-  groupPreview: {
-    fontSize: 12,
-    color: '#9ca3af',
-    lineHeight: 16,
+    gap: 12,
+    flexShrink: 0,
   },
 
   // Empty state
@@ -671,6 +770,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '700',
   },
+  doneButton: {
+    marginTop: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 24,
+    borderRadius: 8,
+    backgroundColor: '#f3f4f6',  // light gray
+    alignItems: 'center',
+  },
+  doneButtonText: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#9ca3af',  // muted gray text
+  },
 
   // Fallback
   backButton: {
@@ -700,6 +812,9 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     backgroundColor: 'rgba(0,0,0,0.4)',
+  },
+  countEditorKAV: {
+    flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import {
+  Alert,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -22,6 +23,8 @@ interface CustomStitchModalProps {
   defaultCraftType?: CraftType
   /** Pass an existing stitch to open in edit mode */
   editStitch?: CustomStitchPattern
+  /** Called with the newly created stitch (create mode only) */
+  onCreated?: (stitch: CustomStitchPattern) => void
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -31,10 +34,12 @@ export default function CustomStitchModal({
   onClose,
   defaultCraftType = 'crochet',
   editStitch,
+  onCreated,
 }: CustomStitchModalProps) {
   const { t } = useTranslation()
   const addCustomStitch = useCustomStitchStore((s) => s.addCustomStitch)
   const updateCustomStitch = useCustomStitchStore((s) => s.updateCustomStitch)
+  const customStitches = useCustomStitchStore((s) => s.customStitches)
 
   const isEditMode = editStitch !== undefined
 
@@ -73,22 +78,32 @@ export default function CustomStitchModal({
       return
     }
 
+    // Check for duplicate name (skip check against the stitch being edited)
+    const isDuplicate = customStitches.some(
+      (s) => s.name.toLowerCase() === trimmedName.toLowerCase() && s.id !== editStitch?.id
+    )
+    if (isDuplicate) {
+      Alert.alert(t('customStitch.duplicateTitle'), t('customStitch.duplicateMessage'))
+      return
+    }
+
     if (isEditMode && editStitch) {
       updateCustomStitch(editStitch.id, {
         name: trimmedName,
         abbr: abbr.trim() || trimmedName,
         englishName: englishName.trim() || trimmedName,
       })
+      onClose()
     } else {
-      addCustomStitch({
+      const newStitch = addCustomStitch({
         name: trimmedName,
         abbr: abbr.trim() || trimmedName,
         englishName: englishName.trim() || trimmedName,
         craftType,
       })
+      onClose()
+      onCreated?.(newStitch)
     }
-
-    onClose()
   }
 
   const canConfirm = name.trim().length > 0

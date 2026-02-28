@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { Feather } from '@expo/vector-icons'
 import { Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { logScreenView } from '../src/services'
@@ -200,7 +201,7 @@ export default function PatternElementsScreen() {
             accessibilityLabel={item.name}
             accessibilityRole="button"
           >
-            <Text style={styles.actionBtnIcon}>✏️</Text>
+            <Feather name="edit-2" size={16} color="#9ca3af" />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.actionBtn}
@@ -208,7 +209,7 @@ export default function PatternElementsScreen() {
             accessibilityLabel={item.name}
             accessibilityRole="button"
           >
-            <Text style={styles.actionBtnIcon}>🗑️</Text>
+            <Feather name="trash-2" size={16} color="#9ca3af" />
           </TouchableOpacity>
         </View>
       </View>
@@ -455,20 +456,20 @@ const styles = StyleSheet.create({
     paddingVertical: 2,
   },
   badgeCrochet: {
-    backgroundColor: '#fce7f0',
+    backgroundColor: '#f3f4f6',
   },
   badgeKnitting: {
-    backgroundColor: '#e0f2fe',
+    backgroundColor: '#f3f4f6',
   },
   craftBadgeText: {
     fontSize: 12,
     fontWeight: '600',
   },
   badgeCrochetText: {
-    color: '#C4527F',
+    color: '#6b7280',
   },
   badgeKnittingText: {
-    color: '#0284c7',
+    color: '#6b7280',
   },
 
   // Row action buttons
@@ -483,10 +484,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderRadius: 8,
   },
-  actionBtnIcon: {
-    fontSize: 18,
-  },
-
   // Separator
   separator: {
     height: StyleSheet.hairlineWidth,

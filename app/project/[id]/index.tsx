@@ -38,13 +38,13 @@ function CraftTypeBadge({ craftType }: { craftType: 'crochet' | 'knitting' }) {
     <View
       style={[
         styles.craftBadge,
-        { backgroundColor: isCrochet ? '#dbeafe' : '#dcfce7' },
+        { backgroundColor: '#f3f4f6' },
       ]}
     >
       <Text
         style={[
           styles.craftBadgeText,
-          { color: isCrochet ? '#1d4ed8' : '#15803d' },
+          { color: '#6b7280' },
         ]}
       >
         {isCrochet ? t('common.crochet') : t('common.knitting')}
@@ -376,7 +376,7 @@ export default function ProjectDetailScreen() {
       {viewingPhoto && (
         <PhotoViewer
           photos={project.photos}
-          initialIndex={project.photos.findIndex(p => p.id === viewingPhoto?.id) ?? 0}
+          initialIndex={project.photos.findIndex((p) => p.id === viewingPhoto?.id) ?? 0}
           visible={true}
           onClose={() => setViewingPhoto(null)}
         />

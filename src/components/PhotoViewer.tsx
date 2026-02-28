@@ -145,7 +145,7 @@ const styles = StyleSheet.create({
   },
   typeBadge: {
     position: 'absolute',
-    bottom: 40,
+    bottom: 80,
     alignSelf: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.55)',
     borderRadius: 12,

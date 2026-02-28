@@ -97,6 +97,22 @@ interface PatternState {
     roundId: string,
     itemId: string
   ) => void
+
+  /** 依指定 ID 順序重新排列段落內的針法/群組項目 */
+  reorderPatternItems: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    orderedIds: string[]
+  ) => void
+
+  /** 複製針法/群組項目並插入其後 */
+  duplicatePatternItem: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    itemId: string
+  ) => void
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -157,5 +173,13 @@ export const usePatternStore = create<PatternState>()(() => ({
 
   movePatternItemDown: (projectId, chartId, roundId, itemId) => {
     useChartStore.getState().movePatternItemDown(projectId, chartId, roundId, itemId)
+  },
+
+  reorderPatternItems: (projectId, chartId, roundId, orderedIds) => {
+    useChartStore.getState().reorderPatternItems(projectId, chartId, roundId, orderedIds)
+  },
+
+  duplicatePatternItem: (projectId, chartId, roundId, itemId) => {
+    useChartStore.getState().duplicatePatternItem(projectId, chartId, roundId, itemId)
   },
 }))

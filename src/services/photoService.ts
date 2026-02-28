@@ -35,7 +35,7 @@ export async function savePhoto(
 
     const result = await ImageManipulator.manipulateAsync(
       uri,
-      [{ resize: { width: MAX_DIMENSION, height: MAX_DIMENSION } }],
+      [{ resize: { width: MAX_DIMENSION } }],
       { compress: quality, format: ImageManipulator.SaveFormat.JPEG }
     )
 

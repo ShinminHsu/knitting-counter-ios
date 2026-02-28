@@ -70,7 +70,7 @@ export default function PhotoGallery({
           delayLongPress={400}
           activeOpacity={0.85}
         >
-          <Image source={{ uri: photo.uri }} style={styles.image} resizeMode="cover" />
+          <Image source={{ uri: photo.uri }} style={styles.image} resizeMode="contain" />
 
           {/* Cover indicator */}
           {photo.isCover && (
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     overflow: 'hidden',
     position: 'relative',
+    backgroundColor: '#f3f4f6',
   },
   image: {
     width: THUMBNAIL_SIZE,
