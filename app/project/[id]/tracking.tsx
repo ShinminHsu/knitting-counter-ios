@@ -234,14 +234,15 @@ const blockStyles = StyleSheet.create({
   // 每個 block 是一個直向欄位，橫向並排
   row: {
     alignItems: 'flex-start',
-    marginRight: 20,
+    marginRight: 16,
+    marginBottom: 14,
   },
   // Label：文字標籤，無 icon
   label: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: '500',
     color: '#374151',
-    marginBottom: 10,
+    marginBottom: 6,
   },
   labelActive: {
     color: '#D97398',
@@ -640,7 +641,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 6,
+    marginBottom: 10,
   },
   cardHeaderRight: {
     flexDirection: 'row',
@@ -666,17 +667,17 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: '#6b7280',
     lineHeight: 19,
-    marginBottom: 4,
+    marginBottom: 8,
   },
   notesText: {
     fontSize: 12,
     color: '#9ca3af',
     fontStyle: 'italic',
-    marginBottom: 4,
+    marginBottom: 8,
   },
   // blocks 容器：wrap 排列，超過螢幕寬度自動換行
   blocksContainer: {
-    marginTop: 12,
+    marginTop: 16,
     paddingHorizontal: 4,
     paddingVertical: 4,
   },
@@ -684,6 +685,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
+    width: '100%',
   },
   emptyRoundText: {
     fontSize: 14,
