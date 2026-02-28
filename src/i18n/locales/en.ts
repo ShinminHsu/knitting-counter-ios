@@ -18,6 +18,7 @@ const en = {
     groupSummaryEmpty: '[{{name}}] × {{count}}',
     groupRepTitle: '[{{name}}: {{stitches}}] - Rep. {{n}}',
     groupRepTitleEmpty: '[{{name}}] - Rep. {{n}}',
+    deleteRound: 'Delete round',
   },
 
   // ─── Stitch names ────────────────────────────────────────────────────────────
@@ -158,6 +159,13 @@ const en = {
     duplicateRound: 'Duplicate round',
     duplicateCopiesTitle: 'Duplicate round',
     duplicateCopiesMessage: 'How many copies?',
+    selectRoundLabel: 'Select round {{index}}',
+    deselectRoundLabel: 'Deselect round {{index}}',
+    multiSelectHint: 'Long-press a round to select multiple',
+    copySelected: 'Copy',
+    deleteSelected: 'Delete',
+    deleteSelectedTitle: 'Delete Rounds',
+    deleteSelectedMessage: 'Delete {{count}} selected round(s)? This cannot be undone.',
   },
 
   // ─── Progress Tracking ───────────────────────────────────────────────────────
@@ -386,6 +394,8 @@ const en = {
     duplicateCopiesTitle: 'Duplicate stitch',
     duplicateCopiesMessage: 'How many copies?',
     notesPlaceholder: 'Add round notes (optional)',
+    done: 'Done',
+    dragHandle: 'Drag to reorder',
   },
 
   splash: {

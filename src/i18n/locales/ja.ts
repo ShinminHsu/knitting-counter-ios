@@ -18,6 +18,7 @@ const ja = {
     groupSummaryEmpty: '【{{name}}】 × {{count}}',
     groupRepTitle: '【{{name}}：{{stitches}}】 - 第 {{n}} 回',
     groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 回',
+    deleteRound: '段を削除',
   },
 
   // ─── 編み目名 ────────────────────────────────────────────────────────────────
@@ -158,6 +159,13 @@ const ja = {
     duplicateRound: '段を複製',
     duplicateCopiesTitle: '段を複製',
     duplicateCopiesMessage: '何回複製しますか？',
+    selectRoundLabel: '{{index}} 段目を選択',
+    deselectRoundLabel: '{{index}} 段目の選択を解除',
+    multiSelectHint: '段を長押しで複数選択',
+    copySelected: 'コピー',
+    deleteSelected: '削除',
+    deleteSelectedTitle: '段を削除',
+    deleteSelectedMessage: '選択した {{count}} つの段を削除しますか？この操作は取り消せません。',
   },
 
   // ─── 進捗記録 ─────────────────────────────────────────────────────────────────
@@ -386,6 +394,8 @@ const ja = {
     duplicateCopiesTitle: '編み目を複製',
     duplicateCopiesMessage: '何回複製しますか？',
     notesPlaceholder: '段備考を追加（任意）',
+    done: '完了',
+    dragHandle: 'ドラッグして並べ替え',
   },
 
   splash: {

@@ -34,4 +34,5 @@ export const STORAGE_KEYS = {
   TEMPLATES: 'templates',
   LANGUAGE: 'language',
   STITCH_DISPLAY_MODE: 'stitchDisplayMode',
+  SETTINGS: 'settings',
 } as const

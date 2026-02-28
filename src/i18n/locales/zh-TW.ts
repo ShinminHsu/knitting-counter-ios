@@ -18,6 +18,7 @@ const zhTW = {
     groupSummaryEmpty: '【{{name}}】 × {{count}}',
     groupRepTitle: '【{{name}}：{{stitches}}】 - 第 {{n}} 次',
     groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 次',
+    deleteRound: '刪除段落',
   },
 
   // ─── 針法名稱 ────────────────────────────────────────────────────────────────
@@ -158,6 +159,13 @@ const zhTW = {
     duplicateRound: '複製段落',
     duplicateCopiesTitle: '複製段落',
     duplicateCopiesMessage: '要複製幾次？',
+    selectRoundLabel: '選取第 {{index}} 段',
+    deselectRoundLabel: '取消選取第 {{index}} 段',
+    multiSelectHint: '長按段落可多選',
+    copySelected: '複製',
+    deleteSelected: '刪除',
+    deleteSelectedTitle: '刪除段落',
+    deleteSelectedMessage: '確定要刪除已選取的 {{count}} 個段落嗎？此操作無法復原。',
   },
 
   // ─── 進度追蹤 ────────────────────────────────────────────────────────────────
@@ -386,6 +394,8 @@ const zhTW = {
     duplicateCopiesTitle: '複製針法',
     duplicateCopiesMessage: '要複製幾次？',
     notesPlaceholder: '加入段落備註（選填）',
+    done: '完成',
+    dragHandle: '拖曳以重新排序',
   },
 
   splash: {

@@ -85,6 +85,14 @@ interface ChartState {
     roundId: string,
     itemId: string
   ) => void
+
+  /** 依提供的 ID 順序重新排列段落內的針法項目（Req 7.3） */
+  reorderPatternItems: (
+    projectId: string,
+    chartId: string,
+    roundId: string,
+    orderedIds: string[]
+  ) => void
 }
 
 // ─── 內部 Helper：取得圖表 ──────────────────────────────────────────────────────
@@ -194,7 +202,7 @@ export const useChartStore = create<ChartState>()(() => ({
     }
 
     const rounds = [...chart.rounds]
-    rounds.splice(idx + 1, 0, duplicate)
+    rounds.push(duplicate)
     const updatedRounds = rounds.map((r, i) => ({ ...r, roundNumber: i }))
     useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
     return duplicate
@@ -301,8 +309,24 @@ export const useChartStore = create<ChartState>()(() => ({
         createdAt: new Date().toISOString(),
         data: JSON.parse(JSON.stringify(original.data)),
       }
-      items.splice(idx + 1, 0, duplicate)
+      items.push(duplicate)
       return { ...r, patternItems: items.map((item, i) => ({ ...item, order: i })) }
+    })
+    useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
+  },
+
+  reorderPatternItems: (projectId, chartId, roundId, orderedIds) => {
+    const chart = getChart(projectId, chartId)
+    if (!chart) return
+    const updatedRounds = chart.rounds.map((r) => {
+      if (r.id !== roundId) return r
+      const reordered = orderedIds
+        .map((id, idx) => {
+          const item = r.patternItems.find((i) => i.id === id)
+          return item ? { ...item, order: idx } : null
+        })
+        .filter(Boolean) as PatternItem[]
+      return { ...r, patternItems: reordered }
     })
     useProjectStore.getState().updateChart(projectId, chartId, { rounds: updatedRounds })
   },

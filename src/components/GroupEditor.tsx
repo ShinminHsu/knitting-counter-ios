@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import {
+  KeyboardAvoidingView,
   Modal,
+  Platform,
   ScrollView,
   StyleSheet,
   Switch,
@@ -11,7 +13,7 @@ import {
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useTranslation } from 'react-i18next'
-import { CraftType, StitchInfo, StitchType } from '../types'
+import { CraftType, CustomStitchPattern, StitchInfo, StitchType } from '../types'
 import { generateId } from '../utils/helpers'
 import { getStitchLabel } from '../utils/patternHelpers'
 import StitchPicker from './StitchPicker'
@@ -48,9 +50,10 @@ interface StitchRowProps {
   onMoveDown: () => void
   onChangeCount: (count: number) => void
   onDelete: () => void
+  onEdit: () => void
 }
 
-function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCount, onDelete }: StitchRowProps) {
+function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCount, onDelete, onEdit }: StitchRowProps) {
   const { t } = useTranslation()
   const label = getStitchLabel(stitch)
 
@@ -112,6 +115,15 @@ function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCoun
           <Feather name="plus" size={16} color="#6b7280" />
         </TouchableOpacity>
         <TouchableOpacity
+          onPress={onEdit}
+          accessibilityLabel={t('editor.editStitchLabel')}
+          accessibilityRole="button"
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          style={styles.editBtn}
+        >
+          <Feather name="edit-2" size={16} color="#6b7280" />
+        </TouchableOpacity>
+        <TouchableOpacity
           onPress={onDelete}
           accessibilityLabel={t('round.deleteStitchTitle')}
           accessibilityRole="button"
@@ -145,6 +157,7 @@ export default function GroupEditor({
   const [repeatCount, setRepeatCount] = useState(1)
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [showStitchPicker, setShowStitchPicker] = useState(false)
+  const [editingStitchIndex, setEditingStitchIndex] = useState<number | null>(null)
 
   // Sync state when modal opens
   useEffect(() => {
@@ -160,13 +173,35 @@ export default function GroupEditor({
     onCancel()
   }
 
-  function handleStitchSelected(stitchType: StitchType) {
-    const newStitch: StitchInfo = {
-      id: generateId(),
-      type: stitchType,
-      count: 1,
+  function handleStitchSelected(stitchType: StitchType, customPattern?: CustomStitchPattern) {
+    if (editingStitchIndex !== null) {
+      // Edit mode: update the stitch in place, preserving count and position
+      setStitches((prev) =>
+        prev.map((s, idx) =>
+          idx === editingStitchIndex
+            ? {
+                ...s,
+                type: stitchType,
+                customName: customPattern?.name,
+                customAbbr: customPattern?.abbr,
+              }
+            : s
+        )
+      )
+      setEditingStitchIndex(null)
+    } else {
+      // Add mode: create a new stitch and append it
+      const newStitch: StitchInfo = {
+        id: generateId(),
+        type: stitchType,
+        count: 1,
+        ...(customPattern && {
+          customName: customPattern.name,
+          customAbbr: customPattern.abbr,
+        }),
+      }
+      setStitches((prev) => [...prev, newStitch])
     }
-    setStitches((prev) => [...prev, newStitch])
     setShowStitchPicker(false)
   }
 
@@ -217,7 +252,10 @@ export default function GroupEditor({
       presentationStyle="pageSheet"
       onRequestClose={handleCancel}
     >
-      <View style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={styles.container}
+      >
         {/* Header */}
         <View style={styles.header}>
           <TouchableOpacity
@@ -316,6 +354,7 @@ export default function GroupEditor({
                     onMoveDown={() => handleMoveStitch(stitch.id, 'down')}
                     onChangeCount={(count) => handleUpdateCount(stitch.id, count)}
                     onDelete={() => handleDeleteStitch(stitch.id)}
+                    onEdit={() => setEditingStitchIndex(index)}
                   />
                 ))}
               </View>
@@ -357,14 +396,17 @@ export default function GroupEditor({
             </View>
           )}
         </ScrollView>
-      </View>
+      </KeyboardAvoidingView>
 
       {/* StitchPicker modal */}
       <StitchPicker
-        visible={showStitchPicker}
+        visible={showStitchPicker || editingStitchIndex !== null}
         craftType={craftType}
         onSelect={handleStitchSelected}
-        onClose={() => setShowStitchPicker(false)}
+        onClose={() => {
+          setShowStitchPicker(false)
+          setEditingStitchIndex(null)
+        }}
       />
     </Modal>
   )
@@ -529,6 +571,13 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingVertical: 3,
     paddingHorizontal: 6,
+  },
+  editBtn: {
+    marginLeft: 4,
+    width: 32,
+    height: 32,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   deleteBtn: {
     marginLeft: 4,
