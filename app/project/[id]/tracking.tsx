@@ -173,10 +173,6 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
-  const SvgIcon = block.stitchType
-    ? (CROCHET_SVG_MAP[block.stitchType] ?? KNIT_SVG_MAP[block.stitchType])
-    : undefined
-
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -185,27 +181,19 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label row：icon（若有）+ 文字 */}
-      <View style={blockStyles.labelRow}>
-        {SvgIcon && (
-          <SvgIcon
-            width={18}
-            height={18}
-            style={isCompleted ? blockStyles.labelIconCompleted : undefined}
-          />
-        )}
-        <Text
-          style={[
-            blockStyles.label,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-        >
-          {block.label}
-        </Text>
-      </View>
+      {/* Label：只顯示文字，不顯示 icon */}
+      <Text
+        style={[
+          blockStyles.label,
+          isActive && blockStyles.labelActive,
+          isCompleted && blockStyles.labelCompleted,
+        ]}
+        numberOfLines={1}
+      >
+        {block.label}
+      </Text>
 
-      {/* 符號區：flex-wrap，每個符號獨立上色，無底色 */}
+      {/* 符號區：單行排列，不換行 */}
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
@@ -243,29 +231,17 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 }
 
 const blockStyles = StyleSheet.create({
+  // 每個 block 是一個直向欄位，橫向並排
   row: {
-    marginBottom: 14,
+    alignItems: 'flex-start',
+    marginRight: 20,
   },
-  // Label row：icon + 文字水平排列
-  labelRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 10,
-    gap: 6,
-  },
-  labelIcon: {
-    width: 18,
-    height: 18,
-    opacity: 0.85,
-  },
-  labelIconCompleted: {
-    opacity: 0.35,
-  },
-  // Label：無背景
+  // Label：文字標籤，無 icon
   label: {
     fontSize: 12,
     fontWeight: '500',
     color: '#374151',
+    marginBottom: 10,
   },
   labelActive: {
     color: '#D97398',
@@ -275,12 +251,10 @@ const blockStyles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#9ca3af',
   },
-  // 符號區：flex-wrap，無背景色
+  // 符號區：單行，不換行
   symbolsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
-    columnGap: 14,
-    rowGap: 10,
+    gap: 10,
   },
   symbol: {
     fontSize: 15,
@@ -296,13 +270,6 @@ const blockStyles = StyleSheet.create({
   },
   symbolUpcoming: {
     color: '#374151',   // 深灰：未完成
-  },
-  symbolIcon: {
-    width: 24,
-    height: 24,
-  },
-  symbolIconCurrent: {
-    tintColor: '#D97398',
   },
 })
 
@@ -519,11 +486,12 @@ export default function ProgressTrackingScreen() {
           <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
         ) : null}
 
-        {/* Blocks：ScrollView 內，不蓋住下方按鈕 */}
+        {/* Blocks：橫向 ScrollView，每個 block 並排顯示 */}
         <ScrollView
+          horizontal
           style={styles.blocksScroll}
           contentContainerStyle={styles.blocksContent}
-          showsVerticalScrollIndicator={false}
+          showsHorizontalScrollIndicator={false}
         >
           {blocks.length > 0 ? (
             blocks.map((block) => (
@@ -708,13 +676,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
     marginBottom: 4,
   },
-  // ScrollView 內部：blocks 可垂直滾動，不蓋住底部按鈕
+  // ScrollView 內部：blocks 橫向並排
   blocksScroll: {
     flex: 1,
     marginTop: 12,
   },
   blocksContent: {
-    paddingBottom: 8,
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    paddingHorizontal: 4,
+    paddingVertical: 4,
   },
   emptyRoundText: {
     fontSize: 14,
