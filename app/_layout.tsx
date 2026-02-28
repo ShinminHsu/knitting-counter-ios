@@ -1,3 +1,4 @@
+import 'react-native-gesture-handler';
 import '../global.css';
 import '../src/i18n';
 
@@ -5,6 +6,7 @@ import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +39,7 @@ export default function RootLayout() {
   }
 
   return (
-    <>
+    <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
@@ -56,7 +58,7 @@ export default function RootLayout() {
         <Stack.Screen name="pattern-elements" options={{ title: t('patternElements.title') }} />
         <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
       </Stack>
-    </>
+    </GestureHandlerRootView>
   );
 }
 
