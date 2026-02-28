@@ -771,17 +771,17 @@ const styles = StyleSheet.create({
     fontWeight: '700',
   },
   doneButton: {
-    marginTop: 8,
-    paddingVertical: 10,
-    paddingHorizontal: 24,
-    borderRadius: 8,
-    backgroundColor: '#f3f4f6',  // light gray
+    marginTop: 12,
+    backgroundColor: '#4b5563',
+    borderRadius: 14,
+    paddingVertical: 14,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   doneButtonText: {
-    fontSize: 15,
-    fontWeight: '500',
-    color: '#9ca3af',  // muted gray text
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#fff',
   },
 
   // Fallback

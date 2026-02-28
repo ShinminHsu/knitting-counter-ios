@@ -12,6 +12,8 @@ import {
   View,
 } from 'react-native'
 import { Feather } from '@expo/vector-icons'
+import { Swipeable } from 'react-native-gesture-handler'
+import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
 import { useTranslation } from 'react-i18next'
 import { CraftType, CustomStitchPattern, StitchInfo, StitchType } from '../types'
 import { generateId } from '../utils/helpers'
@@ -44,47 +46,35 @@ interface GroupEditorProps {
 
 interface StitchRowProps {
   stitch: StitchInfo
-  isFirst: boolean
-  isLast: boolean
-  onMoveUp: () => void
-  onMoveDown: () => void
+  drag: () => void
+  onPress: () => void
   onChangeCount: (count: number) => void
-  onDelete: () => void
-  onEdit: () => void
 }
 
-function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCount, onDelete, onEdit }: StitchRowProps) {
+function StitchRow({ stitch, drag, onPress, onChangeCount }: StitchRowProps) {
   const { t } = useTranslation()
   const label = getStitchLabel(stitch)
 
   return (
     <View style={styles.stitchRow}>
-      {/* Move up/down arrows */}
-      <View style={styles.moveButtons}>
-        <TouchableOpacity
-          onPress={onMoveUp}
-          disabled={isFirst}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          accessibilityLabel={t('editor.moveUpLabel')}
-        >
-          <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#6b7280'} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onMoveDown}
-          disabled={isLast}
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-          accessibilityLabel={t('editor.moveDownLabel')}
-        >
-          <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#6b7280'} />
-        </TouchableOpacity>
-      </View>
+      {/* Drag handle */}
+      <TouchableOpacity
+        onLongPress={drag}
+        delayLongPress={150}
+        accessibilityLabel={t('round.dragHandle')}
+        style={styles.dragHandle}
+      >
+        <Feather name="menu" size={18} color="#9ca3af" />
+      </TouchableOpacity>
 
-      {/* Label */}
-      <Text style={styles.stitchRowLabel} numberOfLines={1}>
-        {label}
-      </Text>
+      {/* Label — tapping opens edit */}
+      <TouchableOpacity style={styles.stitchRowLabelBtn} onPress={onPress} activeOpacity={0.7}>
+        <Text style={styles.stitchRowLabel} numberOfLines={1}>
+          {label}
+        </Text>
+      </TouchableOpacity>
 
-      {/* Count + delete */}
+      {/* Count controls */}
       <View style={styles.stitchRowRight}>
         <TouchableOpacity
           style={styles.countBtn}
@@ -114,24 +104,6 @@ function StitchRow({ stitch, isFirst, isLast, onMoveUp, onMoveDown, onChangeCoun
         >
           <Feather name="plus" size={16} color="#6b7280" />
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onEdit}
-          accessibilityLabel={t('editor.editStitchLabel')}
-          accessibilityRole="button"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.editBtn}
-        >
-          <Feather name="edit-2" size={16} color="#6b7280" />
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={onDelete}
-          accessibilityLabel={t('round.deleteStitchTitle')}
-          accessibilityRole="button"
-          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          style={styles.deleteBtn}
-        >
-          <Feather name="trash-2" size={16} color="#6b7280" />
-        </TouchableOpacity>
       </View>
     </View>
   )
@@ -158,6 +130,7 @@ export default function GroupEditor({
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [showStitchPicker, setShowStitchPicker] = useState(false)
   const [editingStitchIndex, setEditingStitchIndex] = useState<number | null>(null)
+  const [isDragging, setIsDragging] = useState(false)
 
   // Sync state when modal opens
   useEffect(() => {
@@ -211,20 +184,12 @@ export default function GroupEditor({
     )
   }
 
-  function handleMoveStitch(stitchId: string, direction: 'up' | 'down') {
-    setStitches((prev) => {
-      const idx = prev.findIndex((s) => s.id === stitchId)
-      if (idx < 0) return prev
-      const swapIdx = direction === 'up' ? idx - 1 : idx + 1
-      if (swapIdx < 0 || swapIdx >= prev.length) return prev
-      const next = [...prev]
-      ;[next[idx], next[swapIdx]] = [next[swapIdx], next[idx]]
-      return next
-    })
-  }
-
   function handleDeleteStitch(stitchId: string) {
     setStitches((prev) => prev.filter((s) => s.id !== stitchId))
+  }
+
+  function handleReorderStitches(newData: StitchInfo[]) {
+    setStitches(newData)
   }
 
   function handleConfirm() {
@@ -344,19 +309,33 @@ export default function GroupEditor({
               </View>
             ) : (
               <View style={styles.stitchesList}>
-                {stitches.map((stitch, index) => (
-                  <StitchRow
-                    key={stitch.id}
-                    stitch={stitch}
-                    isFirst={index === 0}
-                    isLast={index === stitches.length - 1}
-                    onMoveUp={() => handleMoveStitch(stitch.id, 'up')}
-                    onMoveDown={() => handleMoveStitch(stitch.id, 'down')}
-                    onChangeCount={(count) => handleUpdateCount(stitch.id, count)}
-                    onDelete={() => handleDeleteStitch(stitch.id)}
-                    onEdit={() => setEditingStitchIndex(index)}
-                  />
-                ))}
+                <DraggableFlatList
+                  data={stitches}
+                  keyExtractor={(item) => item.id}
+                  onDragBegin={() => setIsDragging(true)}
+                  onDragEnd={({ data }) => { setIsDragging(false); handleReorderStitches(data) }}
+                  scrollEnabled={false}
+                  renderItem={({ item, drag }: RenderItemParams<StitchInfo>) => (
+                    <Swipeable
+                      enabled={!isDragging}
+                      renderRightActions={() => (
+                        <TouchableOpacity
+                          style={styles.swipeDelete}
+                          onPress={() => handleDeleteStitch(item.id)}
+                        >
+                          <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+                        </TouchableOpacity>
+                      )}
+                    >
+                      <StitchRow
+                        stitch={item}
+                        drag={drag}
+                        onPress={() => setEditingStitchIndex(stitches.indexOf(item))}
+                        onChangeCount={(count) => handleUpdateCount(item.id, count)}
+                      />
+                    </Swipeable>
+                  )}
+                />
               </View>
             )}
 
@@ -541,15 +520,18 @@ const styles = StyleSheet.create({
     borderBottomWidth: StyleSheet.hairlineWidth,
     borderBottomColor: '#e5e7eb',
     gap: 8,
+    backgroundColor: '#fff',
   },
-  moveButtons: {
-    flexDirection: 'column',
+  dragHandle: {
+    width: 36,
     alignItems: 'center',
-    gap: 2,
+    justifyContent: 'center',
     flexShrink: 0,
   },
-  stitchRowLabel: {
+  stitchRowLabelBtn: {
     flex: 1,
+  },
+  stitchRowLabel: {
     fontSize: 15,
     color: '#1f2937',
     fontWeight: '500',
@@ -572,19 +554,19 @@ const styles = StyleSheet.create({
     paddingVertical: 3,
     paddingHorizontal: 6,
   },
-  editBtn: {
-    marginLeft: 4,
-    width: 32,
-    height: 32,
+
+  // Swipe to delete
+  swipeDelete: {
+    backgroundColor: '#ef4444',
     justifyContent: 'center',
-    alignItems: 'center',
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    marginLeft: 8,
   },
-  deleteBtn: {
-    marginLeft: 4,
-    width: 32,
-    height: 32,
-    justifyContent: 'center',
-    alignItems: 'center',
+  swipeDeleteText: {
+    color: '#fff',
+    fontWeight: '600',
+    fontSize: 14,
   },
 
   // Empty stitches state
