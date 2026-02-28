@@ -153,6 +153,14 @@ const ja = {
     moveDownLabel: '段を下に移動',
     deleteRoundLabel: '段を削除',
     editRoundLabel: '{{index}} 段目、タップして編み目を編集',
+    swipeDeleteLabel: '段を削除',
+    selectRoundLabel: '{{index}} 段目を選択',
+    multiSelectHint: '段を長押しして複数選択',
+    batchDeleteTitle: '選択した段を削除',
+    batchDeleteMessage: '選択した {{count}} 段を削除しますか？この操作は取り消せません。',
+    batchCopy: 'コピー',
+    batchDelete: '削除',
+    batchCancel: 'キャンセル',
   },
 
   // ─── 進捗記録 ─────────────────────────────────────────────────────────────────

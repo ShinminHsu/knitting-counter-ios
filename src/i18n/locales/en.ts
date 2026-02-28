@@ -153,6 +153,14 @@ const en = {
     moveDownLabel: 'Move round down',
     deleteRoundLabel: 'Delete round',
     editRoundLabel: 'Round {{index}}, tap to edit stitches',
+    swipeDeleteLabel: 'Delete round',
+    selectRoundLabel: 'Select round {{index}}',
+    multiSelectHint: 'Long-press a round to select multiple',
+    batchDeleteTitle: 'Delete Selected Rounds',
+    batchDeleteMessage: 'Delete {{count}} selected rounds? This cannot be undone.',
+    batchCopy: 'Copy',
+    batchDelete: 'Delete',
+    batchCancel: 'Cancel',
   },
 
   // ─── Progress Tracking ───────────────────────────────────────────────────────

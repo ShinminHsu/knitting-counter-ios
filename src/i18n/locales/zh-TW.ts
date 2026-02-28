@@ -153,6 +153,14 @@ const zhTW = {
     moveDownLabel: '下移段落',
     deleteRoundLabel: '刪除段落',
     editRoundLabel: '第 {{index}} 段，點擊編輯針法',
+    swipeDeleteLabel: '刪除段落',
+    selectRoundLabel: '選取第 {{index}} 段',
+    multiSelectHint: '長按段落可多選',
+    batchDeleteTitle: '刪除選取段落',
+    batchDeleteMessage: '確定要刪除已選取的 {{count}} 段嗎？此操作無法復原。',
+    batchCopy: '複製',
+    batchDelete: '刪除',
+    batchCancel: '取消',
   },
 
   // ─── 進度追蹤 ────────────────────────────────────────────────────────────────

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -9,12 +9,14 @@ import {
   Alert,
   StyleSheet,
 } from 'react-native'
+import { Swipeable } from 'react-native-gesture-handler'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
 import { useChartStore } from '../../../src/stores/useChartStore'
+import { useSettingsStore } from '../../../src/stores/useSettingsStore'
 import { logScreenView } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { PatternItem, PatternItemType, Round } from '../../../src/types'
@@ -78,6 +80,11 @@ interface RoundRowProps {
   onMoveDown: () => void
   onDelete: () => void
   onPress: () => void
+  onLongPress: () => void
+  isSelecting: boolean
+  isSelected: boolean
+  swipeEnabled: boolean
+  onSwipeDelete: () => void
 }
 
 function RoundRow({
@@ -89,8 +96,14 @@ function RoundRow({
   onMoveDown,
   onDelete,
   onPress,
+  onLongPress,
+  isSelecting,
+  isSelected,
+  swipeEnabled,
+  onSwipeDelete,
 }: RoundRowProps) {
   const { t } = useTranslation()
+  const swipeableRef = useRef<Swipeable>(null)
   const totalStitches = calcRoundTotalStitches(round.patternItems)
   const hasItems = round.patternItems.length > 0
 
@@ -100,69 +113,99 @@ function RoundRow({
     .map((item) => buildItemSummary(item))
     .filter(Boolean)
 
+  function renderRightActions() {
+    return (
+      <TouchableOpacity
+        style={styles.swipeDeleteButton}
+        onPress={() => {
+          swipeableRef.current?.close()
+          onSwipeDelete()
+        }}
+        accessibilityLabel={t('editor.swipeDeleteLabel')}
+        accessibilityRole="button"
+      >
+        <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+      </TouchableOpacity>
+    )
+  }
+
   return (
-    <TouchableOpacity
-      style={styles.roundRow}
-      onPress={onPress}
-      activeOpacity={0.75}
-      accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
-      accessibilityRole="button"
+    <Swipeable
+      ref={swipeableRef}
+      renderRightActions={renderRightActions}
+      enabled={swipeEnabled}
+      overshootRight={false}
     >
-      {/* Left: round label + content */}
-      <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
-
-      <View style={styles.roundInfo}>
-        <View style={styles.roundTitleRow}>
-          <Text style={styles.roundStitchCount}>
-            {hasItems ? t('editor.stitchCount', { count: totalStitches }) : t('editor.noStitches')}
-          </Text>
-        </View>
-
-        {hasItems && (
-          <Text style={styles.roundSubtitle} numberOfLines={3}>
-            {itemSummaries.join('、')}
-          </Text>
+      <TouchableOpacity
+        style={[styles.roundRow, isSelected && styles.roundRowSelected]}
+        onPress={onPress}
+        onLongPress={onLongPress}
+        delayLongPress={250}
+        activeOpacity={0.75}
+        accessibilityLabel={
+          isSelecting
+            ? t('editor.selectRoundLabel', { index: index + 1 })
+            : t('editor.editRoundLabel', { index: index + 1 })
+        }
+        accessibilityRole={isSelecting ? 'checkbox' : 'button'}
+        accessibilityState={isSelecting ? { checked: isSelected } : undefined}
+      >
+        {/* Checkbox indicator when in select mode */}
+        {isSelecting && (
+          <View style={[styles.checkbox, isSelected && styles.checkboxSelected]}>
+            {isSelected && <Feather name="check" size={12} color="#fff" />}
+          </View>
         )}
 
-        {round.notes ? (
-          <Text style={styles.roundNotes} numberOfLines={1}>
-            {t('editor.roundNotes', { notes: round.notes })}
-          </Text>
-        ) : null}
-      </View>
+        {/* Left: round label + content */}
+        <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
 
-      {/* Right: reorder + delete controls */}
-      <View style={styles.roundControls}>
-        <TouchableOpacity
-          onPress={onMoveUp}
-          disabled={isFirst}
-          accessibilityLabel={t('editor.moveUpLabel')}
-          accessibilityRole="button"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Feather name="chevron-up" size={20} color={isFirst ? '#d1d5db' : '#6b7280'} />
-        </TouchableOpacity>
+        <View style={styles.roundInfo}>
+          <View style={styles.roundTitleRow}>
+            <Text style={styles.roundStitchCount}>
+              {hasItems ? t('editor.stitchCount', { count: totalStitches }) : t('editor.noStitches')}
+            </Text>
+          </View>
 
-        <TouchableOpacity
-          onPress={onMoveDown}
-          disabled={isLast}
-          accessibilityLabel={t('editor.moveDownLabel')}
-          accessibilityRole="button"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Feather name="chevron-down" size={20} color={isLast ? '#d1d5db' : '#6b7280'} />
-        </TouchableOpacity>
+          {hasItems && (
+            <Text style={styles.roundSubtitle} numberOfLines={3}>
+              {itemSummaries.join('、')}
+            </Text>
+          )}
 
-        <TouchableOpacity
-          onPress={onDelete}
-          accessibilityLabel={t('editor.deleteRoundLabel')}
-          accessibilityRole="button"
-          hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-        >
-          <Feather name="trash-2" size={16} color="#6b7280" />
-        </TouchableOpacity>
-      </View>
-    </TouchableOpacity>
+          {round.notes ? (
+            <Text style={styles.roundNotes} numberOfLines={1}>
+              {t('editor.roundNotes', { notes: round.notes })}
+            </Text>
+          ) : null}
+        </View>
+
+        {/* Right: reorder controls (hidden in select mode) */}
+        {!isSelecting && (
+          <View style={styles.roundControls}>
+            <TouchableOpacity
+              onPress={onMoveUp}
+              disabled={isFirst}
+              accessibilityLabel={t('editor.moveUpLabel')}
+              accessibilityRole="button"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Feather name="chevron-up" size={20} color={isFirst ? '#d1d5db' : '#6b7280'} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={onMoveDown}
+              disabled={isLast}
+              accessibilityLabel={t('editor.moveDownLabel')}
+              accessibilityRole="button"
+              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
+            >
+              <Feather name="chevron-down" size={20} color={isLast ? '#d1d5db' : '#6b7280'} />
+            </TouchableOpacity>
+          </View>
+        )}
+      </TouchableOpacity>
+    </Swipeable>
   )
 }
 
@@ -178,8 +221,14 @@ export default function PatternEditorScreen() {
   const deleteRound = useChartStore((s) => s.deleteRound)
   const moveRoundUp = useChartStore((s) => s.moveRoundUp)
   const moveRoundDown = useChartStore((s) => s.moveRoundDown)
+  const duplicateRound = useChartStore((s) => s.duplicateRound)
+
+  const hasSeenMultiSelectHint = useSettingsStore((s) => s.hasSeenMultiSelectHint)
+  const markMultiSelectHintSeen = useSettingsStore((s) => s.markMultiSelectHintSeen)
 
   const [showEditChart, setShowEditChart] = useState(false)
+  const [isSelecting, setIsSelecting] = useState(false)
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -226,8 +275,12 @@ export default function PatternEditorScreen() {
     const newRound = addRound(project!.id, activeChart.id, insertAfterIndex)
     if (!newRound) {
       Alert.alert(t('common.error'), t('editor.addRoundError'))
+      return
     }
-    // Full round editing logic will be implemented in a later task
+    router.push({
+      pathname: '/project/[id]/round',
+      params: { id: project!.id, chartId: activeChart!.id, roundId: newRound.id },
+    })
   }
 
   function handleDeleteRound(roundId: string, roundIndex: number) {
@@ -251,6 +304,73 @@ export default function PatternEditorScreen() {
 
   function handleMoveRoundDown(roundId: string) {
     moveRoundDown(project!.id, activeChart!.id, roundId)
+  }
+
+  function handleLongPress(roundId: string) {
+    if (!isSelecting) {
+      markMultiSelectHintSeen()
+      setIsSelecting(true)
+    }
+    setSelectedIds((prev) => {
+      const next = new Set(prev)
+      next.add(roundId)
+      return next
+    })
+  }
+
+  function handleRowPress(round: Round) {
+    if (isSelecting) {
+      setSelectedIds((prev) => {
+        const next = new Set(prev)
+        if (next.has(round.id)) {
+          next.delete(round.id)
+        } else {
+          next.add(round.id)
+        }
+        return next
+      })
+    } else {
+      router.push({
+        pathname: '/project/[id]/round',
+        params: { id: project!.id, chartId: activeChart!.id, roundId: round.id },
+      })
+    }
+  }
+
+  function handleBatchDelete() {
+    const count = selectedIds.size
+    if (count === 0) return
+    Alert.alert(
+      t('editor.batchDeleteTitle'),
+      t('editor.batchDeleteMessage', { count }),
+      [
+        { text: t('common.cancel'), style: 'cancel' },
+        {
+          text: t('common.delete'),
+          style: 'destructive',
+          onPress: () => {
+            selectedIds.forEach((roundId) => {
+              deleteRound(project!.id, activeChart!.id, roundId)
+            })
+            setIsSelecting(false)
+            setSelectedIds(new Set())
+          },
+        },
+      ]
+    )
+  }
+
+  function handleBatchCopy() {
+    selectedIds.forEach((roundId) => {
+      duplicateRound(project!.id, activeChart!.id, roundId)
+    })
+    setIsSelecting(false)
+    setSelectedIds(new Set())
+  }
+
+  function handleCancelSelect() {
+    setIsSelecting(false)
+    setSelectedIds(new Set())
   }
 
   return (
@@ -291,50 +411,89 @@ export default function PatternEditorScreen() {
           </View>
         </ScrollView>
       ) : (
-        <FlatList
-          data={rounds}
-          keyExtractor={(item: Round) => item.id}
-          contentContainerStyle={styles.listContent}
-          renderItem={({ item, index }: { item: Round; index: number }) => (
-            <RoundRow
-              round={item}
-              index={index}
-              isFirst={index === 0}
-              isLast={index === rounds.length - 1}
-              onMoveUp={() => handleMoveRoundUp(item.id)}
-              onMoveDown={() => handleMoveRoundDown(item.id)}
-              onDelete={() => handleDeleteRound(item.id, index)}
-              onPress={() =>
-                router.push({
-                  pathname: '/project/[id]/round',
-                  params: { id: project!.id, chartId: activeChart!.id, roundId: item.id },
-                })
-              }
-            />
-          )}
-          ItemSeparatorComponent={({ leadingItem }: { leadingItem: Round }) => {
-            const leadingIndex = rounds.indexOf(leadingItem)
-            return (
-              <InsertSeparator
-                onInsert={() => handleAddRound(leadingIndex)}
-                label={t('editor.insertAfter', { index: leadingIndex + 1 })}
+        <>
+          <FlatList
+            data={rounds}
+            keyExtractor={(item: Round) => item.id}
+            contentContainerStyle={styles.listContent}
+            renderItem={({ item, index }: { item: Round; index: number }) => (
+              <RoundRow
+                round={item}
+                index={index}
+                isFirst={index === 0}
+                isLast={index === rounds.length - 1}
+                onMoveUp={() => handleMoveRoundUp(item.id)}
+                onMoveDown={() => handleMoveRoundDown(item.id)}
+                onDelete={() => handleDeleteRound(item.id, index)}
+                onPress={() => handleRowPress(item)}
+                onLongPress={() => handleLongPress(item.id)}
+                isSelecting={isSelecting}
+                isSelected={selectedIds.has(item.id)}
+                swipeEnabled={!isSelecting}
+                onSwipeDelete={() => handleDeleteRound(item.id, index)}
               />
-            )
-          }}
-        />
+            )}
+            ItemSeparatorComponent={({ leadingItem }: { leadingItem: Round }) => {
+              const leadingIndex = rounds.indexOf(leadingItem)
+              return (
+                <InsertSeparator
+                  onInsert={() => handleAddRound(leadingIndex)}
+                  label={t('editor.insertAfter', { index: leadingIndex + 1 })}
+                />
+              )
+            }}
+          />
+          {/* Multi-select hint text — shown once until user activates multi-select */}
+          {!isSelecting && !hasSeenMultiSelectHint && (
+            <Text style={styles.multiSelectHint}>{t('editor.multiSelectHint')}</Text>
+          )}
+        </>
       )}
 
-      {/* ── Add round button (pinned to bottom) ─────────────────────────────── */}
-      <View style={styles.footer}>
-        <TouchableOpacity
-          style={styles.addRoundButton}
-          onPress={() => handleAddRound()}
-          accessibilityLabel={t('editor.addRound')}
-          accessibilityRole="button"
-        >
-          <Text style={styles.addRoundButtonText}>{t('editor.addRound')}</Text>
-        </TouchableOpacity>
-      </View>
+      {/* ── Footer: multi-select toolbar or add button ───────────────────────── */}
+      {isSelecting ? (
+        <View style={styles.selectToolbar}>
+          <TouchableOpacity
+            style={styles.toolbarButton}
+            onPress={handleCancelSelect}
+            accessibilityLabel={t('editor.batchCancel')}
+            accessibilityRole="button"
+          >
+            <Text style={styles.toolbarButtonText}>{t('editor.batchCancel')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.toolbarButton, styles.toolbarCopyButton]}
+            onPress={handleBatchCopy}
+            disabled={selectedIds.size === 0}
+            accessibilityLabel={t('editor.batchCopy')}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.toolbarButtonText, styles.toolbarCopyText]}>{t('editor.batchCopy')}</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity
+            style={[styles.toolbarButton, styles.toolbarDeleteButton]}
+            onPress={handleBatchDelete}
+            disabled={selectedIds.size === 0}
+            accessibilityLabel={t('editor.batchDelete')}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.toolbarButtonText, styles.toolbarDeleteText]}>{t('editor.batchDelete')}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={styles.footer}>
+          <TouchableOpacity
+            style={styles.addRoundButton}
+            onPress={() => handleAddRound()}
+            accessibilityLabel={t('editor.addRound')}
+            accessibilityRole="button"
+          >
+            <Text style={styles.addRoundButtonText}>{t('editor.addRound')}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <EditChartModal
         visible={showEditChart}
@@ -420,6 +579,10 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: '#e5e7eb',
   },
+  roundRowSelected: {
+    borderColor: '#D97398',
+    backgroundColor: '#fdf2f6',
+  },
   roundBadgeText: {
     fontSize: 13,
     fontWeight: '700',
@@ -453,13 +616,54 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
 
-  // Round controls (reorder + delete)
+  // Round controls (reorder)
   roundControls: {
     flexDirection: 'column',
     alignItems: 'center',
     gap: 6,
     flexShrink: 0,
     paddingTop: 2,
+  },
+
+  // Checkbox for multi-select
+  checkbox: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: '#D97398',
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexShrink: 0,
+    marginTop: 1,
+  },
+  checkboxSelected: {
+    backgroundColor: '#D97398',
+  },
+
+  // Swipe delete action
+  swipeDeleteButton: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    marginVertical: 0,
+    borderRadius: 10,
+    marginLeft: 6,
+  },
+  swipeDeleteText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+
+  // Multi-select hint text
+  multiSelectHint: {
+    textAlign: 'center',
+    fontSize: 12,
+    color: '#9ca3af',
+    paddingVertical: 6,
+    paddingHorizontal: 16,
   },
 
   // Empty state
@@ -504,6 +708,41 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+
+  // Multi-select toolbar
+  selectToolbar: {
+    flexDirection: 'row',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    backgroundColor: '#fff',
+    borderTopWidth: 1,
+    borderTopColor: '#e5e7eb',
+    gap: 10,
+  },
+  toolbarButton: {
+    flex: 1,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    backgroundColor: '#f3f4f6',
+  },
+  toolbarButtonText: {
+    fontSize: 15,
+    fontWeight: '600',
+    color: '#374151',
+  },
+  toolbarCopyButton: {
+    backgroundColor: '#eff6ff',
+  },
+  toolbarCopyText: {
+    color: '#3b82f6',
+  },
+  toolbarDeleteButton: {
+    backgroundColor: '#fef2f2',
+  },
+  toolbarDeleteText: {
+    color: '#ef4444',
   },
 
   // Fallback buttons
