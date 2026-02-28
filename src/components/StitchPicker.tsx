@@ -199,7 +199,7 @@ export default function StitchPicker({
           ) : (
             <Text style={styles.stitchSymbol}>{symbol}</Text>
           )}
-          <Text style={styles.stitchLabel}>{info.label}</Text>
+          <Text style={styles.stitchLabel}>{t(`stitch.name.${item.stitchType}`, { defaultValue: info.label })}</Text>
           <Text style={styles.stitchAbbr}>{info.abbr}</Text>
         </TouchableOpacity>
       )

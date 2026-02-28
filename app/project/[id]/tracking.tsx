@@ -29,7 +29,7 @@ import {
   StitchTypeInfo,
 } from '../../../src/types'
 import {
-  getStitchLabel,
+  getLocalizedStitchName,
   getStitchAbbr,
 } from '../../../src/utils/patternHelpers'
 import { CROCHET_SVG_MAP, KNIT_SVG_MAP } from '../../../src/constants/stitchIcons'
@@ -126,7 +126,7 @@ function expandToBlocks(round: Round): StitchBlock[] {
         }
 
         const sep = i18n.t('common.stitchListSep')
-        const innerSummary = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
+        const innerSummary = group.stitches.map((s) => `${getLocalizedStitchName(s, i18n.t)} ${s.count}`).join(sep)
         const groupLabel = innerSummary
           ? i18n.t('common.groupRepTitle', { name: group.name, stitches: innerSummary, n: r + 1 })
           : i18n.t('common.groupRepTitleEmpty', { name: group.name, n: r + 1 })
@@ -150,11 +150,11 @@ function getRoundDescriptionText(round: Round): string {
     .map((item) => {
       if (item.type === PatternItemType.STITCH) {
         const stitch = item.data as StitchInfo
-        return `${getStitchLabel(stitch)} × ${stitch.count}`
+        return `${getLocalizedStitchName(stitch, i18n.t)} × ${stitch.count}`
       } else {
         const group = item.data as StitchGroup
         const sep = i18n.t('common.stitchListSep')
-        const inner = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
+        const inner = group.stitches.map((s) => `${getLocalizedStitchName(s, i18n.t)} ${s.count}`).join(sep)
         return i18n.t('common.groupSummary', { name: group.name, stitches: inner, count: group.repeatCount })
       }
     })

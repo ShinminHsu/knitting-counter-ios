@@ -89,3 +89,17 @@ export function getStitchLabel(stitch: StitchInfo): string {
   }
   return StitchTypeInfo[stitch.type].label
 }
+
+/**
+ * 取得針法的本地化名稱（支援 i18n）
+ * 自訂針法使用 customName，內建針法使用 t('stitch.name.xxx')，fallback 為 label
+ */
+export function getLocalizedStitchName(
+  stitch: StitchInfo,
+  t: (key: string, options?: { defaultValue: string }) => string
+): string {
+  if (stitch.type === StitchType.CUSTOM) {
+    return stitch.customName ?? '自訂'
+  }
+  return t(`stitch.name.${stitch.type}`, { defaultValue: StitchTypeInfo[stitch.type].label })
+}
