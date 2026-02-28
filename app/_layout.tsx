@@ -11,7 +11,7 @@ import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
 import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { initializeAds } from '../src/services';
+import { initializeAds, loadInterstitialAd } from '../src/services';
 
 function BackHeaderButton({ label, tintColor }: { label?: string; tintColor?: string }) {
   const router = useRouter()
@@ -48,8 +48,19 @@ export default function RootLayout() {
   const [showLottie, setShowLottie] = useState(true)
 
   useEffect(() => {
-    initializeAds()
+    // ATT + AdMob init must complete in sequence, but must not block app startup
+    // Splash hides immediately; ATT dialog appears on top of the app UI
     SplashScreen.hideAsync()
+
+    const setupAds = async () => {
+      // Step 1: Request ATT permission (shows iOS dialog on first launch)
+      // Step 2: Initialize AdMob (runs after ATT resolves, regardless of outcome)
+      await initializeAds()
+      // Step 3: Preload interstitial ad in the background (non-blocking)
+      loadInterstitialAd()
+    }
+
+    setupAds()
   }, [])
 
   if (showLottie) {

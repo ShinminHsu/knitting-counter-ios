@@ -17,7 +17,7 @@ import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
 import { useChartStore } from '../../../src/stores/useChartStore'
 import { useSettingsStore } from '../../../src/stores/useSettingsStore'
-import { logScreenView } from '../../../src/services'
+import { logScreenView, logRoundAdded } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { PatternItem, PatternItemType, Round } from '../../../src/types'
 import EditChartModal from '../../../src/components/EditChartModal'
@@ -276,6 +276,7 @@ export default function PatternEditorScreen() {
     if (!activeChart) return
     const newRound = addRound(project!.id, activeChart.id, insertAfterIndex)
     if (newRound) {
+      logRoundAdded()
       router.push(
         `/project/${project!.id}/round?chartId=${activeChart!.id}&roundId=${newRound.id}`
       )

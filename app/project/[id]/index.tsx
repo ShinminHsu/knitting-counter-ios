@@ -20,6 +20,7 @@ import AddChartModal from '../../../src/components/AddChartModal'
 import PhotoGallery from '../../../src/components/PhotoGallery'
 import PhotoViewer from '../../../src/components/PhotoViewer'
 import { showConfirmDialog } from '../../../src/components/ConfirmDialog'
+import AdBanner from '../../../src/components/AdBanner'
 import { formatDate } from '../../../src/utils/helpers'
 import {
   savePhoto,
@@ -352,9 +353,10 @@ export default function ProjectDetailScreen() {
           )}
         </View>
 
-        {/* ── TODO: AdBanner at the bottom ─────────────────────────────────── */}
-
       </ScrollView>
+
+      {/* Ad banner at bottom — Req 11.3 */}
+      <AdBanner />
 
       <EditProjectModal
         visible={showEditProject}

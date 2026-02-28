@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { StitchGroup, StitchGroupTemplate, StitchInfo } from '../types'
 import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
+import { logTemplateUsed } from '../services/analyticsService'
 
 // ─── 內部工具 ─────────────────────────────────────────────────────────────────
 
@@ -108,6 +109,7 @@ export const useTemplateStore = create<TemplateState>()(
               : t
           ),
         }))
+        logTemplateUsed()
       },
     }),
     {
