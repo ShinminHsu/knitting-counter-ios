@@ -1,8 +1,11 @@
+import { useRef, useState } from 'react'
 import {
   Dimensions,
+  FlatList,
   Image,
   Modal,
-  ScrollView,
+  NativeScrollEvent,
+  NativeSyntheticEvent,
   StatusBar,
   StyleSheet,
   Text,
@@ -14,7 +17,8 @@ import { ProjectPhoto } from '../types'
 // ─── Props ────────────────────────────────────────────────────────────────────
 
 interface PhotoViewerProps {
-  photo: ProjectPhoto
+  photos: ProjectPhoto[]
+  initialIndex: number
   visible: boolean
   onClose: () => void
 }
@@ -23,7 +27,17 @@ interface PhotoViewerProps {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('screen')
 
-export default function PhotoViewer({ photo, visible, onClose }: PhotoViewerProps) {
+export default function PhotoViewer({ photos, initialIndex, visible, onClose }: PhotoViewerProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex)
+  const flatListRef = useRef<FlatList<ProjectPhoto>>(null)
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.x / screenWidth)
+    setCurrentIndex(index)
+  }
+
+  const currentPhoto = photos[currentIndex]
+
   return (
     <Modal
       visible={visible}
@@ -34,22 +48,31 @@ export default function PhotoViewer({ photo, visible, onClose }: PhotoViewerProp
     >
       <StatusBar hidden />
       <View style={styles.container}>
-        {/* Zoomable image */}
-        <ScrollView
-          maximumZoomScale={4}
-          minimumZoomScale={1}
+        {/* Horizontally swipeable photo list */}
+        <FlatList
+          ref={flatListRef}
+          data={photos}
+          keyExtractor={(item) => item.id}
+          horizontal
+          pagingEnabled
           showsHorizontalScrollIndicator={false}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.scrollContent}
-          centerContent={true}
-          bouncesZoom={true}
-        >
-          <Image
-            source={{ uri: photo.uri }}
-            style={styles.image}
-            resizeMode="contain"
-          />
-        </ScrollView>
+          initialScrollIndex={initialIndex}
+          getItemLayout={(_, index) => ({
+            length: screenWidth,
+            offset: screenWidth * index,
+            index,
+          })}
+          onMomentumScrollEnd={handleScroll}
+          renderItem={({ item }) => (
+            <View style={styles.page}>
+              <Image
+                source={{ uri: item.uri }}
+                style={styles.image}
+                resizeMode="contain"
+              />
+            </View>
+          )}
+        />
 
         {/* Close button */}
         <TouchableOpacity
@@ -62,14 +85,23 @@ export default function PhotoViewer({ photo, visible, onClose }: PhotoViewerProp
         </TouchableOpacity>
 
         {/* Photo type badge */}
-        {photo.type === 'reference' && (
+        {currentPhoto?.type === 'reference' && (
           <View style={styles.typeBadge}>
             <Text style={styles.typeBadgeText}>參考圖</Text>
           </View>
         )}
-        {photo.type === 'progress' && (
+        {currentPhoto?.type === 'progress' && (
           <View style={styles.typeBadge}>
             <Text style={styles.typeBadgeText}>進度記錄</Text>
+          </View>
+        )}
+
+        {/* Page indicator (only shown when there are multiple photos) */}
+        {photos.length > 1 && (
+          <View style={styles.pageIndicator}>
+            <Text style={styles.pageIndicatorText}>
+              {currentIndex + 1} / {photos.length}
+            </Text>
           </View>
         )}
       </View>
@@ -84,7 +116,7 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#000',
   },
-  scrollContent: {
+  page: {
     width: screenWidth,
     height: screenHeight,
     alignItems: 'center',
@@ -121,6 +153,20 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
   },
   typeBadgeText: {
+    color: '#fff',
+    fontSize: 13,
+    fontWeight: '500',
+  },
+  pageIndicator: {
+    position: 'absolute',
+    top: 56,
+    alignSelf: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.45)',
+    borderRadius: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  pageIndicatorText: {
     color: '#fff',
     fontSize: 13,
     fontWeight: '500',

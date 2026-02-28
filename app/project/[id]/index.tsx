@@ -375,7 +375,8 @@ export default function ProjectDetailScreen() {
 
       {viewingPhoto && (
         <PhotoViewer
-          photo={viewingPhoto}
+          photos={project.photos}
+          initialIndex={project.photos.findIndex(p => p.id === viewingPhoto?.id) ?? 0}
           visible={true}
           onClose={() => setViewingPhoto(null)}
         />
