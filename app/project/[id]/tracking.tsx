@@ -125,11 +125,7 @@ function expandToBlocks(round: Round): StitchBlock[] {
           }
         }
 
-        const sep = i18n.t('common.stitchListSep')
-        const innerSummary = group.stitches.map((s) => `${getLocalizedStitchName(s, i18n.t)} ${s.count}`).join(sep)
-        const groupLabel = innerSummary
-          ? i18n.t('common.groupRepTitle', { name: group.name, stitches: innerSummary, n: r + 1 })
-          : i18n.t('common.groupRepTitleEmpty', { name: group.name, n: r + 1 })
+        const groupLabel = `${group.name} - ${r + 1}`
         blocks.push({
           key: `${item.id}-r${r}`,
           label: groupLabel,
