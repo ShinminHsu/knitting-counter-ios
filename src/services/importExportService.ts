@@ -10,11 +10,23 @@ import { generateId, nowISO } from '../utils/helpers'
  * Export a project to JSON and share via iOS Share Sheet (Req 8.1)
  * @param project The project to export
  * @param includePhotos Whether to include photo data (Req 8.5) - default false
+ * @param includeProgress Whether to include tracking progress (currentRound/currentStitch) - default true
  */
 export async function exportProject(
   project: Project,
-  includePhotos: boolean = false
+  includePhotos: boolean = false,
+  includeProgress: boolean = true
 ): Promise<void> {
+  // When exporting pattern only, reset all chart progress fields
+  const charts = includeProgress
+    ? project.charts
+    : project.charts.map((chart) => ({
+        ...chart,
+        currentRound: 0,
+        currentStitch: 0,
+        isCompleted: false,
+      }))
+
   const projectData: Omit<Project, 'photos' | 'sessions'> = {
     id: project.id,
     name: project.name,
@@ -22,17 +34,17 @@ export async function exportProject(
     roundStartNumber: project.roundStartNumber,
     source: project.source,
     notes: project.notes,
-    charts: project.charts,
+    charts,
     currentChartId: project.currentChartId,
     createdAt: project.createdAt,
     updatedAt: project.updatedAt,
-    isCompleted: project.isCompleted,
-    interstitialShown: project.interstitialShown,
+    isCompleted: includeProgress ? project.isCompleted : false,
+    interstitialShown: false,
   }
 
   const exportData: ProjectExportData = {
     version: '1.0',
-    exportType: ExportType.FULL_PROJECT,
+    exportType: includeProgress ? ExportType.FULL_PROJECT : ExportType.PATTERN_ONLY,
     exportDate: nowISO(),
     project: projectData,
     photos: includePhotos ? project.photos : undefined,

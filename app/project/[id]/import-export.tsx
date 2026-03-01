@@ -48,14 +48,14 @@ export default function ImportExportScreen() {
 
   // ── Export ──────────────────────────────────────────────────────────────────
 
-  async function doExport(includePhotos: boolean) {
+  async function doExport(includePhotos: boolean, includeProgress: boolean) {
     if (!project) {
       Alert.alert(t('common.error'), t('importExport.notFound'))
       return
     }
     setIsExporting(true)
     try {
-      await exportProject(project, includePhotos)
+      await exportProject(project, includePhotos, includeProgress)
       await logExport()
     } catch (err) {
       const message = err instanceof Error ? err.message : t('importExport.exportUnknownError')
@@ -65,37 +65,46 @@ export default function ImportExportScreen() {
     }
   }
 
+  function askPhotos(includeProgress: boolean) {
+    if (!project) return
+    const hasPhotos = project.photos && project.photos.length > 0
+    if (hasPhotos) {
+      Alert.alert(
+        t('importExport.includePhotosTitle'),
+        t('importExport.includePhotosMessage'),
+        [
+          { text: t('importExport.includePhotos'), onPress: () => doExport(true, includeProgress) },
+          { text: t('importExport.excludePhotos'), onPress: () => doExport(false, includeProgress) },
+          { text: t('common.cancel'), style: 'cancel' },
+        ]
+      )
+    } else {
+      doExport(false, includeProgress)
+    }
+  }
+
   function handleExport() {
     if (!project) {
       Alert.alert(t('common.error'), t('importExport.notFound'))
       return
     }
 
-    const hasPhotos = project.photos && project.photos.length > 0
-
-    if (hasPhotos) {
-      // Req 8.5: ask whether to include photos
-      Alert.alert(
-        t('importExport.includePhotosTitle'),
-        t('importExport.includePhotosMessage'),
-        [
-          {
-            text: t('importExport.includePhotos'),
-            onPress: () => doExport(true),
-          },
-          {
-            text: t('importExport.excludePhotos'),
-            onPress: () => doExport(false),
-          },
-          {
-            text: t('common.cancel'),
-            style: 'cancel',
-          },
-        ]
-      )
-    } else {
-      doExport(false)
-    }
+    // Step 1: Ask whether to include progress
+    Alert.alert(
+      t('importExport.exportModeTitle'),
+      t('importExport.exportModeMessage'),
+      [
+        {
+          text: t('importExport.exportWithProgress'),
+          onPress: () => askPhotos(true),
+        },
+        {
+          text: t('importExport.exportPatternOnly'),
+          onPress: () => askPhotos(false),
+        },
+        { text: t('common.cancel'), style: 'cancel' },
+      ]
+    )
   }
 
   // ── Import ──────────────────────────────────────────────────────────────────
