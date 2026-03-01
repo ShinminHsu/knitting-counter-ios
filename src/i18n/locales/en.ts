@@ -195,6 +195,10 @@ const en = {
     completeRound: 'Complete Round {{number}}',
     toggleAbbrMode: 'Switch to abbreviations',
     toggleIconMode: 'Switch to icons',
+    prevRound: 'Previous round',
+    nextRound: 'Next round',
+    previewMode: 'Preview',
+    returnToCurrent: 'Return to Current Progress',
   },
 
   // ─── Import / Export ─────────────────────────────────────────────────────────
@@ -245,8 +249,11 @@ const en = {
     emptyCustomTitle: 'No Custom Stitches',
     emptyCustomHint: 'Tap "+ Add Custom Stitch" to create your own stitch.',
     emptyTemplatesTitle: 'No Templates',
-    emptyTemplatesHint: 'Save a stitch group as a template in the round editor to manage it here.',
+    emptyTemplatesHint: 'Tap "+ Add Template" below, or save a stitch group as a template in the round editor.',
     addCustom: '+ Add Custom Stitch',
+    addTemplate: '+ Add Template',
+    addTemplateTitle: 'Add Template',
+    addTemplateCraftPrompt: 'Select the craft type for this template',
     deleteCustomTitle: 'Delete Custom Stitch',
     deleteCustomMessage: 'Delete "{{name}}"? This cannot be undone.',
     deleteTemplateTitle: 'Delete Template',
@@ -341,6 +348,9 @@ const en = {
     saveAsTemplate: 'Save as Template',
     saveAsTemplateHint: 'Save as "{{name}}" for easy reuse later',
     defaultGroupName: 'Group',
+    loadFromTemplate: 'Load from Template',
+    templateMeta: '{{count}} stitches · ×{{repeat}}',
+    noTemplates: 'No templates yet. Add one in Stitch Library.',
   },
 
   customStitch: {

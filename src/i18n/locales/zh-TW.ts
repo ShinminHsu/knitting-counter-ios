@@ -195,6 +195,10 @@ const zhTW = {
     completeRound: '完成第 {{number}} 圈',
     toggleAbbrMode: '切換為縮寫',
     toggleIconMode: '切換為圖示',
+    prevRound: '上一圈',
+    nextRound: '下一圈',
+    previewMode: '預覽',
+    returnToCurrent: '返回目前進度',
   },
 
   // ─── 匯入匯出 ────────────────────────────────────────────────────────────────
@@ -245,8 +249,11 @@ const zhTW = {
     emptyCustomTitle: '尚無自訂針法',
     emptyCustomHint: '點擊下方「＋ 新增自訂針法」按鈕，建立你的自訂針法。',
     emptyTemplatesTitle: '尚無樣板',
-    emptyTemplatesHint: '在圈段編輯器中儲存針法群組為樣板後，即可在此管理。',
+    emptyTemplatesHint: '點擊下方「新增樣板」，或在圈段編輯器中儲存針法群組為樣板。',
     addCustom: '＋ 新增自訂針法',
+    addTemplate: '＋ 新增樣板',
+    addTemplateTitle: '新增樣板',
+    addTemplateCraftPrompt: '請選擇此樣板的針法類型',
     deleteCustomTitle: '刪除自訂針法',
     deleteCustomMessage: '確定要刪除「{{name}}」嗎？此操作無法復原。',
     deleteTemplateTitle: '刪除樣板',
@@ -341,6 +348,9 @@ const zhTW = {
     saveAsTemplate: '儲存為樣板',
     saveAsTemplateHint: '以群組名稱「{{name}}」儲存，方便日後重複使用',
     defaultGroupName: '群組',
+    loadFromTemplate: '從樣板載入',
+    templateMeta: '{{count}} 個針法 · ×{{repeat}}',
+    noTemplates: '尚無樣板，可在「針法庫」中新增',
   },
 
   customStitch: {

@@ -16,8 +16,9 @@ import { logScreenView } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { useCustomStitchStore } from '../src/stores/useCustomStitchStore'
 import { useTemplateStore } from '../src/stores/useTemplateStore'
-import { CustomStitchPattern, StitchGroupTemplate, StitchTypeInfo } from '../src/types'
+import { CraftType, CustomStitchPattern, StitchGroupTemplate, StitchTypeInfo } from '../src/types'
 import CustomStitchModal from '../src/components/CustomStitchModal'
+import GroupEditor, { GroupEditorResult } from '../src/components/GroupEditor'
 
 type TabKey = 'custom' | 'template'
 
@@ -34,8 +35,15 @@ export default function PatternElementsScreen() {
   const customStitches = useCustomStitchStore((s) => s.customStitches)
   const deleteCustomStitch = useCustomStitchStore((s) => s.deleteCustomStitch)
 
+  const [editingTemplate, setEditingTemplate] = useState<StitchGroupTemplate | undefined>(undefined)
+  const [templateEditorVisible, setTemplateEditorVisible] = useState(false)
+  const [newTemplateCraftType, setNewTemplateCraftType] = useState<CraftType | undefined>(undefined)
+  const [addTemplateVisible, setAddTemplateVisible] = useState(false)
+
   const templates = useTemplateStore((s) => s.templates)
   const deleteTemplate = useTemplateStore((s) => s.deleteTemplate)
+  const updateTemplate = useTemplateStore((s) => s.updateTemplate)
+  const addTemplate = useTemplateStore((s) => s.addTemplate)
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -91,6 +99,70 @@ export default function PatternElementsScreen() {
     setEditingStitch(undefined)
   }
 
+  function handleEditTemplatePress(template: StitchGroupTemplate) {
+    setEditingTemplate(template)
+    setTemplateEditorVisible(true)
+  }
+
+  function handleAddTemplatePress() {
+    // Ask craft type before opening editor
+    Alert.alert(
+      t('patternElements.addTemplateTitle'),
+      t('patternElements.addTemplateCraftPrompt'),
+      [
+        {
+          text: t('common.crochet'),
+          onPress: () => {
+            setNewTemplateCraftType('crochet')
+            setAddTemplateVisible(true)
+          },
+        },
+        {
+          text: t('common.knitting'),
+          onPress: () => {
+            setNewTemplateCraftType('knitting')
+            setAddTemplateVisible(true)
+          },
+        },
+        { text: t('common.cancel'), style: 'cancel' },
+      ]
+    )
+  }
+
+  function handleAddTemplateConfirm(result: GroupEditorResult) {
+    addTemplate({
+      name: result.name,
+      stitches: result.stitches,
+      repeatCount: result.repeatCount,
+      craftType: newTemplateCraftType,
+    })
+    setAddTemplateVisible(false)
+    setNewTemplateCraftType(undefined)
+  }
+
+  function handleAddTemplateCancel() {
+    setAddTemplateVisible(false)
+    setNewTemplateCraftType(undefined)
+  }
+
+  function handleTemplateEditorConfirm(result: GroupEditorResult) {
+    if (editingTemplate) {
+      updateTemplate(editingTemplate.id, {
+        name: result.name,
+        stitches: result.stitches,
+        repeatCount: result.repeatCount,
+        craftType: editingTemplate.craftType,
+      })
+    }
+    setTemplateEditorVisible(false)
+    setEditingTemplate(undefined)
+  }
+
+  function handleTemplateEditorCancel() {
+    setTemplateEditorVisible(false)
+    setEditingTemplate(undefined)
+  }
+
   function handleDeleteTemplatePress(template: StitchGroupTemplate) {
     Alert.alert(
       t('patternElements.deleteTemplateTitle'),
@@ -128,13 +200,7 @@ export default function PatternElementsScreen() {
         : t('patternElements.noRepeat')
 
     return (
-      <TouchableOpacity
-        style={styles.templateRow}
-        onLongPress={() => handleDeleteTemplatePress(item)}
-        accessibilityLabel={item.name}
-        delayLongPress={400}
-        activeOpacity={0.7}
-      >
+      <View style={styles.templateRow}>
         <View style={styles.templateInfo}>
           <View style={styles.templateNameRow}>
             <Text style={styles.templateName} numberOfLines={1}>
@@ -155,7 +221,26 @@ export default function PatternElementsScreen() {
           )}
           <Text style={styles.templateMeta}>{repeatLabel}</Text>
         </View>
-      </TouchableOpacity>
+
+        <View style={styles.stitchActions}>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => handleEditTemplatePress(item)}
+            accessibilityLabel={item.name}
+            accessibilityRole="button"
+          >
+            <Feather name="edit-2" size={16} color="#9ca3af" />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => handleDeleteTemplatePress(item)}
+            accessibilityLabel={item.name}
+            accessibilityRole="button"
+          >
+            <Feather name="trash-2" size={16} color="#9ca3af" />
+          </TouchableOpacity>
+        </View>
+      </View>
     )
   }
 
@@ -329,25 +414,46 @@ export default function PatternElementsScreen() {
         </>
       )}
 
-      {/* ── Footer: add button (only shown on custom tab) ───────────────────── */}
-      {activeTab === 'custom' && (
-        <View style={styles.footer}>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={handleAddPress}
-            accessibilityLabel={t('patternElements.addCustom')}
-            accessibilityRole="button"
-          >
-            <Text style={styles.addButtonText}>{t('patternElements.addCustom')}</Text>
-          </TouchableOpacity>
-        </View>
-      )}
+      {/* ── Footer: add button ───────────────────────────────────────────────── */}
+      <View style={styles.footer}>
+        <TouchableOpacity
+          style={styles.addButton}
+          onPress={activeTab === 'custom' ? handleAddPress : handleAddTemplatePress}
+          accessibilityLabel={activeTab === 'custom' ? t('patternElements.addCustom') : t('patternElements.addTemplate')}
+          accessibilityRole="button"
+        >
+          <Text style={styles.addButtonText}>
+            {activeTab === 'custom' ? t('patternElements.addCustom') : t('patternElements.addTemplate')}
+          </Text>
+        </TouchableOpacity>
+      </View>
 
       {/* ── CustomStitchModal (create / edit) ───────────────────────────────── */}
       <CustomStitchModal
         visible={modalVisible}
         onClose={handleModalClose}
         editStitch={editingStitch}
+      />
+
+      {/* ── GroupEditor (edit template) ──────────────────────────────────────── */}
+      {editingTemplate && (
+        <GroupEditor
+          visible={templateEditorVisible}
+          craftType={editingTemplate.craftType ?? 'crochet'}
+          initialName={editingTemplate.name}
+          initialStitches={editingTemplate.stitches}
+          initialRepeatCount={editingTemplate.repeatCount}
+          onConfirm={handleTemplateEditorConfirm}
+          onCancel={handleTemplateEditorCancel}
+        />
+      )}
+
+      {/* ── GroupEditor (add new template) ───────────────────────────────────── */}
+      <GroupEditor
+        visible={addTemplateVisible}
+        craftType={newTemplateCraftType ?? 'crochet'}
+        onConfirm={handleAddTemplateConfirm}
+        onCancel={handleAddTemplateCancel}
       />
     </SafeAreaView>
   )
@@ -511,14 +617,17 @@ const styles = StyleSheet.create({
 
   // Template row
   templateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingVertical: 14,
     minHeight: 72,
-    justifyContent: 'center',
   },
   templateInfo: {
+    flex: 1,
     gap: 4,
+    marginRight: 8,
   },
   templateNameRow: {
     flexDirection: 'row',

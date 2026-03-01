@@ -112,6 +112,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     alignItems: 'center',
     justifyContent: 'center',
+    marginLeft: 4,
   },
   homeBtn: {
     width: 36,
@@ -120,6 +121,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#f3f4f6',
     alignItems: 'center',
     justifyContent: 'center',
+    marginRight: 4,
   },
   splash: {
     flex: 1,

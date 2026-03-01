@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -233,7 +233,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 const blockStyles = StyleSheet.create({
   // 每個 block 是一個直向欄位，橫向並排
   row: {
-    alignItems: 'flex-start',
+    alignItems: 'center',
     marginRight: 16,
     marginBottom: 14,
   },
@@ -288,6 +288,11 @@ export default function ProgressTrackingScreen() {
   const [showIcons, setShowIcons] = useState<boolean>(
     () => mmkv.getString(STORAGE_KEYS.STITCH_DISPLAY_MODE) === 'icon'
   )
+  // null = 正常追蹤模式；number = 預覽指定圈（index）
+  const [previewRoundIndex, setPreviewRoundIndex] = useState<number | null>(null)
+
+  const blocksScrollRef = useRef<ScrollView>(null)
+  const blockYPositions = useRef<Map<string, number>>(new Map())
 
   function handleToggleDisplayMode() {
     const next = !showIcons
@@ -339,7 +344,13 @@ export default function ProgressTrackingScreen() {
   const roundStartNumber = activeChart.roundStartNumber ?? project.roundStartNumber
   const { currentRound, currentStitch, rounds } = activeChart
   const totalRounds = rounds.length
-  const currentRoundData = rounds[currentRound] ?? null
+
+  const isPreviewMode = previewRoundIndex !== null
+  const displayedRoundIndex = isPreviewMode ? previewRoundIndex : currentRound
+  const currentRoundData = rounds[displayedRoundIndex] ?? null
+
+  // In preview mode, we always show as if we're at position 0 (beginning of round)
+  const displayStitch = isPreviewMode ? 0 : currentStitch
 
   const totalStitches = currentRoundData ? totalStitchesInRound(currentRoundData) : 0
   const blocks = useMemo(
@@ -351,11 +362,34 @@ export default function ProgressTrackingScreen() {
     [currentRoundData]
   )
 
-  const displayRoundNumber = currentRound + roundStartNumber
+  const displayRoundNumber = displayedRoundIndex + roundStartNumber
   const displayLastRoundNumber = totalRounds - 1 + roundStartNumber
 
   const isLiveRound = !activeChart.isCompleted && totalRounds > 0
   const isLastRound = currentRound === totalRounds - 1
+
+  // ── Auto-scroll to active block ───────────────────────────────────────────────
+
+  useEffect(() => {
+    // When displayed round changes, clear stale positions and reset scroll
+    blockYPositions.current.clear()
+    blocksScrollRef.current?.scrollTo({ y: 0, animated: false })
+  }, [displayedRoundIndex])
+
+  useEffect(() => {
+    if (isPreviewMode) return // No auto-scroll in preview mode
+    const activeBlock = blocks.find((b) => getBlockStatus(b, currentStitch) === 'active')
+    if (!activeBlock) return
+    const y = blockYPositions.current.get(activeBlock.key)
+    if (y === undefined) return
+    // Scroll so active block has ~2 rows (~120px) of context above it
+    blocksScrollRef.current?.scrollTo({ y: Math.max(0, y - 120), animated: true })
+  }, [currentStitch, blocks, isPreviewMode])
+
+  // Reset preview mode when chart changes
+  useEffect(() => {
+    setPreviewRoundIndex(null)
+  }, [selectedChartId])
 
   // ── Action handlers ──────────────────────────────────────────────────────────
 
@@ -415,13 +449,22 @@ export default function ProgressTrackingScreen() {
   }
 
   function handleBlockTap(block: StitchBlock) {
-    if (!id) return
+    if (!id || isPreviewMode) return // 預覽模式不可互動
     if (block.endPos <= currentStitch) return // 已完成，無效（Req 4.14）
     if (block.endPos >= totalStitches) {
       handleCompleteRound()
     } else {
       useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, block.endPos)
     }
+  }
+
+  function handlePreviewRound(index: number) {
+    if (index < 0 || index >= totalRounds) return
+    setPreviewRoundIndex(index)
+  }
+
+  function handleExitPreview() {
+    setPreviewRoundIndex(null)
   }
 
   // ── Render ───────────────────────────────────────────────────────────────────
@@ -458,11 +501,42 @@ export default function ProgressTrackingScreen() {
       )}
 
       {/* ── Pattern card（flex: 1，內部可垂直滾動）────────────────────────── */}
-      <View style={styles.patternCard}>
+      <View style={[styles.patternCard, isPreviewMode && styles.patternCardPreview]}>
         {/* Header */}
         <View style={styles.cardHeader}>
-          <Text style={styles.cardTitle}>{t('tracking.roundTitle', { number: displayRoundNumber })}</Text>
+          <View style={styles.cardHeaderLeft}>
+            {/* Preview prev arrow */}
+            <TouchableOpacity
+              onPress={() => handlePreviewRound(displayedRoundIndex - 1)}
+              disabled={displayedRoundIndex <= 0}
+              style={[styles.previewArrow, displayedRoundIndex <= 0 && styles.previewArrowDisabled]}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityLabel={t('tracking.prevRound')}
+              accessibilityRole="button"
+            >
+              <Ionicons name="chevron-back" size={18} color={displayedRoundIndex <= 0 ? '#d1d5db' : '#6b7280'} />
+            </TouchableOpacity>
+            <Text style={[styles.cardTitle, isPreviewMode && styles.cardTitlePreview]}>
+              {t('tracking.roundTitle', { number: displayRoundNumber })}
+            </Text>
+            {/* Preview next arrow */}
+            <TouchableOpacity
+              onPress={() => handlePreviewRound(displayedRoundIndex + 1)}
+              disabled={displayedRoundIndex >= totalRounds - 1}
+              style={[styles.previewArrow, displayedRoundIndex >= totalRounds - 1 && styles.previewArrowDisabled]}
+              hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+              accessibilityLabel={t('tracking.nextRound')}
+              accessibilityRole="button"
+            >
+              <Ionicons name="chevron-forward" size={18} color={displayedRoundIndex >= totalRounds - 1 ? '#d1d5db' : '#6b7280'} />
+            </TouchableOpacity>
+          </View>
           <View style={styles.cardHeaderRight}>
+            {isPreviewMode && (
+              <View style={styles.previewBadge}>
+                <Text style={styles.previewBadgeText}>{t('tracking.previewMode')}</Text>
+              </View>
+            )}
             <Text style={styles.roundBadge}>{t('tracking.roundBadge', { total: displayLastRoundNumber })}</Text>
             <TouchableOpacity
               onPress={handleToggleDisplayMode}
@@ -491,6 +565,7 @@ export default function ProgressTrackingScreen() {
 
         {/* Blocks：wrap 排列，超出高度可垂直滾動 */}
         <ScrollView
+          ref={blocksScrollRef}
           style={styles.blocksContainer}
           contentContainerStyle={styles.blocksContent}
           showsVerticalScrollIndicator={false}
@@ -498,13 +573,19 @@ export default function ProgressTrackingScreen() {
         >
           {blocks.length > 0 ? (
             blocks.map((block) => (
-              <StitchBlockRow
+              <View
                 key={block.key}
-                block={block}
-                currentStitch={currentStitch}
-                showIcons={showIcons}
-                onPress={() => handleBlockTap(block)}
-              />
+                onLayout={(e) => {
+                  blockYPositions.current.set(block.key, e.nativeEvent.layout.y)
+                }}
+              >
+                <StitchBlockRow
+                  block={block}
+                  currentStitch={displayStitch}
+                  showIcons={showIcons}
+                  onPress={() => handleBlockTap(block)}
+                />
+              </View>
             ))
           ) : (
             <Text style={styles.emptyRoundText}>{t('tracking.emptyRound')}</Text>
@@ -514,59 +595,73 @@ export default function ProgressTrackingScreen() {
 
       {/* ── Bottom controls（固定在底部）────────────────────────────────────── */}
       <View style={styles.bottomControls}>
-
-        {/* Row 1: ← 上一針 | 0/21 | 下一針 → */}
-        <View style={styles.mainRow}>
+        {isPreviewMode ? (
+          /* Preview mode: show only "return to current" button */
           <TouchableOpacity
-            style={styles.prevButton}
-            onPress={handlePreviousStitch}
-            accessibilityLabel={t('tracking.prevLabel')}
+            style={styles.returnToCurrentButton}
+            onPress={handleExitPreview}
+            accessibilityLabel={t('tracking.returnToCurrent')}
             accessibilityRole="button"
           >
-            <Text style={styles.prevButtonText}>{t('tracking.prevStitch')}</Text>
+            <Ionicons name="return-down-back-outline" size={18} color="#fff" style={{ marginRight: 6 }} />
+            <Text style={styles.returnToCurrentText}>{t('tracking.returnToCurrent')}</Text>
           </TouchableOpacity>
+        ) : (
+          <>
+            {/* Row 1: ← 上一針 | 0/21 | 下一針 → */}
+            <View style={styles.mainRow}>
+              <TouchableOpacity
+                style={styles.prevButton}
+                onPress={handlePreviousStitch}
+                accessibilityLabel={t('tracking.prevLabel')}
+                accessibilityRole="button"
+              >
+                <Text style={styles.prevButtonText}>{t('tracking.prevStitch')}</Text>
+              </TouchableOpacity>
 
-          <View style={styles.counter}>
-            <Text style={styles.counterCurrent}>{currentStitch}</Text>
-            <Text style={styles.counterTotal}>/{totalStitches}</Text>
-          </View>
+              <View style={styles.counter}>
+                <Text style={styles.counterCurrent}>{currentStitch}</Text>
+                <Text style={styles.counterTotal}>/{totalStitches}</Text>
+              </View>
 
-          <TouchableOpacity
-            style={styles.nextButton}
-            onPress={handleNextStitch}
-            accessibilityLabel={t('tracking.nextLabel')}
-            accessibilityRole="button"
-          >
-            <Text style={styles.nextButtonText}>{t('tracking.nextStitch')}</Text>
-          </TouchableOpacity>
-        </View>
+              <TouchableOpacity
+                style={styles.nextButton}
+                onPress={handleNextStitch}
+                accessibilityLabel={t('tracking.nextLabel')}
+                accessibilityRole="button"
+              >
+                <Text style={styles.nextButtonText}>{t('tracking.nextStitch')}</Text>
+              </TouchableOpacity>
+            </View>
 
-        {/* Row 2: 重新開始此圈 | 完成第 N 圈 */}
-        <View style={styles.secondaryRow}>
-          <TouchableOpacity
-            style={styles.resetButton}
-            onPress={handleResetRound}
-            accessibilityLabel={t('tracking.resetRound')}
-            accessibilityRole="button"
-          >
-            <Text style={styles.resetButtonText}>{t('tracking.resetRound')}</Text>
-          </TouchableOpacity>
+            {/* Row 2: 重新開始此圈 | 完成第 N 圈 */}
+            <View style={styles.secondaryRow}>
+              <TouchableOpacity
+                style={styles.resetButton}
+                onPress={handleResetRound}
+                accessibilityLabel={t('tracking.resetRound')}
+                accessibilityRole="button"
+              >
+                <Text style={styles.resetButtonText}>{t('tracking.resetRound')}</Text>
+              </TouchableOpacity>
 
-          {isLiveRound ? (
-            <TouchableOpacity
-              style={styles.completeRoundButton}
-              onPress={handleCompleteRound}
-              accessibilityLabel={isLastRound ? t('tracking.completeChart') : t('tracking.completeRound', { number: displayRoundNumber })}
-              accessibilityRole="button"
-            >
-              <Text style={styles.completeRoundButtonText}>
-                {isLastRound ? t('tracking.completeChart') : t('tracking.completeRound', { number: displayRoundNumber })}
-              </Text>
-            </TouchableOpacity>
-          ) : (
-            <View style={styles.completeRoundPlaceholder} />
-          )}
-        </View>
+              {isLiveRound ? (
+                <TouchableOpacity
+                  style={styles.completeRoundButton}
+                  onPress={handleCompleteRound}
+                  accessibilityLabel={isLastRound ? t('tracking.completeChart') : t('tracking.completeRound', { number: displayRoundNumber })}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.completeRoundButtonText}>
+                    {isLastRound ? t('tracking.completeChart') : t('tracking.completeRound', { number: displayRoundNumber })}
+                  </Text>
+                </TouchableOpacity>
+              ) : (
+                <View style={styles.completeRoundPlaceholder} />
+              )}
+            </View>
+          </>
+        )}
       </View>
 
       {/* No AdBanner on tracking screen (Req 11.4) */}
@@ -628,6 +723,11 @@ const styles = StyleSheet.create({
   },
 
   // ── Pattern card ─────────────────────────────────────────────────────────────
+  patternCardPreview: {
+    borderWidth: 1.5,
+    borderColor: '#D97398',
+    borderStyle: 'dashed',
+  },
   patternCard: {
     flex: 1,
     margin: 16,
@@ -646,16 +746,46 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
     marginBottom: 14,
+    gap: 8,
+  },
+  cardHeaderLeft: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    flex: 1,
+    minWidth: 0,
   },
   cardHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
+    flexShrink: 0,
   },
   cardTitle: {
     fontSize: 17,
     fontWeight: '700',
     color: '#1f2937',
+    flexShrink: 1,
+  },
+  cardTitlePreview: {
+    color: '#D97398',
+  },
+  previewArrow: {
+    padding: 2,
+  },
+  previewArrowDisabled: {
+    opacity: 0.3,
+  },
+  previewBadge: {
+    backgroundColor: '#fce7f0',
+    borderRadius: 6,
+    paddingHorizontal: 7,
+    paddingVertical: 2,
+  },
+  previewBadgeText: {
+    fontSize: 11,
+    fontWeight: '600',
+    color: '#D97398',
   },
   roundBadge: {
     fontSize: 13,
@@ -688,6 +818,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
+    justifyContent: 'center',
     paddingVertical: 4,
     paddingHorizontal: 4,
   },
@@ -787,6 +918,19 @@ const styles = StyleSheet.create({
   },
   completeRoundPlaceholder: {
     flex: 3,
+  },
+  returnToCurrentButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#D97398',
+    borderRadius: 14,
+    paddingVertical: 18,
+  },
+  returnToCurrentText: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#fff',
   },
 
   // Fallback UI

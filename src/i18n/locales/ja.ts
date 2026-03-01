@@ -195,6 +195,10 @@ const ja = {
     completeRound: '{{number}} 段目を完了',
     toggleAbbrMode: '略語に切り替え',
     toggleIconMode: 'アイコンに切り替え',
+    prevRound: '前の段',
+    nextRound: '次の段',
+    previewMode: 'プレビュー',
+    returnToCurrent: '現在の進捗に戻る',
   },
 
   // ─── インポート / エクスポート ────────────────────────────────────────────────
@@ -247,6 +251,9 @@ const ja = {
     emptyTemplatesTitle: 'テンプレートがありません',
     emptyTemplatesHint: '段エディタで編み目グループをテンプレートとして保存すると、ここで管理できます。',
     addCustom: '＋ カスタム編み目を追加',
+    addTemplate: '＋ テンプレートを追加',
+    addTemplateTitle: 'テンプレートを追加',
+    addTemplateCraftPrompt: 'このテンプレートの編み種類を選択してください',
     deleteCustomTitle: 'カスタム編み目を削除',
     deleteCustomMessage: '「{{name}}」を削除しますか？この操作は取り消せません。',
     deleteTemplateTitle: 'テンプレートを削除',
@@ -341,6 +348,9 @@ const ja = {
     saveAsTemplate: 'テンプレートとして保存',
     saveAsTemplateHint: '「{{name}}」として保存して後で再利用',
     defaultGroupName: 'グループ',
+    loadFromTemplate: 'テンプレートから読込',
+    templateMeta: '{{count}} 編み目 · ×{{repeat}}',
+    noTemplates: 'テンプレートなし。編み目ライブラリで追加できます。',
   },
 
   customStitch: {
