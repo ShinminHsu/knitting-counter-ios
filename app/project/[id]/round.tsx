@@ -336,6 +336,7 @@ export default function RoundEditScreen() {
   const sortedItems = round.patternItems.slice().sort((a, b) => a.order - b.order)
   const totalStitches = calcRoundTotalStitches(round.patternItems)
   const roundIndex = chart.rounds.findIndex((r) => r.id === roundId)
+  const roundStartNumber = chart.roundStartNumber ?? project.roundStartNumber ?? 1
 
   // Default group name based on existing group count
   const existingGroupCount = sortedItems.filter((item) => item.type === PatternItemType.GROUP).length
@@ -442,12 +443,12 @@ export default function RoundEditScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: t('round.title', { index: roundIndex + 1 }) }} />
+      <Stack.Screen options={{ title: t('round.title', { index: roundIndex + roundStartNumber }) }} />
 
       {/* Summary bar */}
       <View style={styles.summaryBar}>
         <Text style={styles.summaryText}>
-          {t('round.summary', { index: roundIndex + 1, count: totalStitches })}
+          {t('round.summary', { index: roundIndex + roundStartNumber, count: totalStitches })}
         </Text>
       </View>
 
