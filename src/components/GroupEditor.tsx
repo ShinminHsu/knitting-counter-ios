@@ -19,6 +19,7 @@ import { CraftType, CustomStitchPattern, StitchInfo, StitchType } from '../types
 import { generateId } from '../utils/helpers'
 import { getStitchLabel } from '../utils/patternHelpers'
 import StitchPicker from './StitchPicker'
+import { useTemplateStore } from '../stores/useTemplateStore'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -123,6 +124,11 @@ export default function GroupEditor({
 }: GroupEditorProps) {
   const { t } = useTranslation()
   const isEditMode = initialName !== undefined
+  const allTemplates = useTemplateStore((s) => s.templates)
+  // 只顯示符合目前 craftType 的樣板（未設定 craftType 的舊資料視為相容）
+  const templates = allTemplates.filter(
+    (tpl) => tpl.craftType === undefined || tpl.craftType === craftType
+  )
 
   const [groupName, setGroupName] = useState('')
   const [stitches, setStitches] = useState<StitchInfo[]>([])
@@ -190,6 +196,14 @@ export default function GroupEditor({
 
   function handleReorderStitches(newData: StitchInfo[]) {
     setStitches(newData)
+  }
+
+  function handleLoadTemplate(template: { name: string; stitches: StitchInfo[]; repeatCount: number }) {
+    if (!groupName) {
+      setGroupName(template.name)
+    }
+    setStitches(template.stitches.map((s) => ({ ...s, id: generateId() })))
+    setRepeatCount(template.repeatCount)
   }
 
   function handleConfirm() {
@@ -298,6 +312,38 @@ export default function GroupEditor({
               </TouchableOpacity>
             </View>
           </View>
+
+          {/* Load from template (create mode only) */}
+          {!isEditMode && (
+            <View style={styles.section}>
+              <Text style={styles.sectionLabel}>{t('groupEditor.loadFromTemplate')}</Text>
+              {templates.length === 0 ? (
+                <View style={styles.templateEmpty}>
+                  <Text style={styles.templateEmptyText}>{t('groupEditor.noTemplates')}</Text>
+                </View>
+              ) : (
+                <View style={styles.templateList}>
+                  {templates.map((tpl) => (
+                    <TouchableOpacity
+                      key={tpl.id}
+                      style={styles.templateRow}
+                      onPress={() => handleLoadTemplate(tpl)}
+                      accessibilityRole="button"
+                      accessibilityLabel={tpl.name}
+                    >
+                      <View style={styles.templateRowInfo}>
+                        <Text style={styles.templateRowName} numberOfLines={1}>{tpl.name}</Text>
+                        <Text style={styles.templateRowMeta}>
+                          {t('groupEditor.templateMeta', { count: tpl.stitches.length, repeat: tpl.repeatCount })}
+                        </Text>
+                      </View>
+                      <Feather name="chevron-right" size={16} color="#d1d5db" />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          )}
 
           {/* Stitches in group */}
           <View style={styles.section}>
@@ -417,6 +463,7 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   headerBtn: {
+    flex: 1,
     minWidth: 44,
     paddingVertical: 4,
   },
@@ -608,6 +655,51 @@ const styles = StyleSheet.create({
     fontSize: 15,
     color: '#D97398',
     fontWeight: '600',
+  },
+
+  // Template empty state
+  templateEmpty: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    paddingVertical: 16,
+    alignItems: 'center',
+  },
+  templateEmptyText: {
+    fontSize: 13,
+    color: '#9ca3af',
+  },
+
+  // Template browser
+  templateList: {
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#e5e7eb',
+    overflow: 'hidden',
+  },
+  templateRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+    gap: 8,
+  },
+  templateRowInfo: {
+    flex: 1,
+  },
+  templateRowName: {
+    fontSize: 15,
+    fontWeight: '500',
+    color: '#1f2937',
+  },
+  templateRowMeta: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginTop: 2,
   },
 
   // Template toggle

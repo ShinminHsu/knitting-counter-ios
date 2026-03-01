@@ -311,6 +311,8 @@ export interface StitchGroupTemplate {
   stitches: StitchInfo[]
   repeatCount: number
   category?: string
+  /** 適用的編織類型，未設定時預設顯示鉤針針法 */
+  craftType?: CraftType
   /** ISO string */
   createdAt: string
   /** ISO string */

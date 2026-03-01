@@ -424,6 +424,7 @@ export default function RoundEditScreen() {
           name: result.name,
           stitches: result.stitches,
           repeatCount: result.repeatCount,
+          craftType: project!.craftType,
         })
       }
     }

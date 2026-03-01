@@ -290,6 +290,7 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   headerBtn: {
+    flex: 1,
     minWidth: 44,
     minHeight: 44,
     justifyContent: 'center',

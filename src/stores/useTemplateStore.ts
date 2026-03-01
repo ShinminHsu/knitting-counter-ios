@@ -18,13 +18,13 @@ interface TemplateState {
   /** 新增樣板（Req 5.3） */
   addTemplate: (
     params: Pick<StitchGroupTemplate, 'name' | 'stitches' | 'repeatCount'> &
-      Partial<Pick<StitchGroupTemplate, 'description' | 'category'>>
+      Partial<Pick<StitchGroupTemplate, 'description' | 'category' | 'craftType'>>
   ) => StitchGroupTemplate
 
   /** 更新樣板 */
   updateTemplate: (
     id: string,
-    updates: Partial<Pick<StitchGroupTemplate, 'name' | 'description' | 'stitches' | 'repeatCount' | 'category'>>
+    updates: Partial<Pick<StitchGroupTemplate, 'name' | 'description' | 'stitches' | 'repeatCount' | 'category' | 'craftType'>>
   ) => void
 
   /** 刪除樣板 */
@@ -58,6 +58,7 @@ export const useTemplateStore = create<TemplateState>()(
           repeatCount: params.repeatCount,
           ...(params.description !== undefined && { description: params.description }),
           ...(params.category !== undefined && { category: params.category }),
+          ...(params.craftType !== undefined && { craftType: params.craftType }),
           createdAt: new Date().toISOString(),
           useCount: 0,
         }

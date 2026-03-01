@@ -235,6 +235,7 @@ const styles = StyleSheet.create({
     color: '#1f2937',
   },
   cancelButton: {
+    flex: 1,
     minWidth: 44,
     minHeight: 44,
     justifyContent: 'center',
@@ -245,6 +246,7 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
   submitButton: {
+    flex: 1,
     minWidth: 44,
     minHeight: 44,
     justifyContent: 'center',
