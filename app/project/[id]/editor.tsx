@@ -76,14 +76,10 @@ interface RoundRowProps {
   round: Round
   index: number
   roundStartNumber: number
-  isFirst: boolean
-  isLast: boolean
   isSelecting: boolean
   isSelected: boolean
   isActive: boolean
   drag: () => void
-  onMoveUp: () => void
-  onMoveDown: () => void
   onPress: () => void
   onLongPress: () => void
 }
@@ -92,14 +88,10 @@ function RoundRow({
   round,
   index,
   roundStartNumber,
-  isFirst,
-  isLast,
   isSelecting,
   isSelected,
   isActive,
   drag,
-  onMoveUp,
-  onMoveDown,
   onPress,
   onLongPress,
 }: RoundRowProps) {
@@ -139,8 +131,8 @@ function RoundRow({
         accessibilityLabel={t('editor.editRoundLabel', { index: index + roundStartNumber })}
         accessibilityRole="button"
       >
-        {/* Far left: checkbox (select mode) or ↑↓ arrows (normal mode) */}
-        {isSelecting ? (
+        {/* Far left: checkbox (select mode only) */}
+        {isSelecting && (
           <TouchableOpacity
             style={styles.checkboxContainer}
             onPress={onPress}
@@ -159,27 +151,6 @@ function RoundRow({
               )}
             </View>
           </TouchableOpacity>
-        ) : (
-          <View style={styles.roundArrowsCol}>
-            <TouchableOpacity
-              onPress={onMoveUp}
-              disabled={isFirst}
-              accessibilityLabel={t('editor.moveUpLabel')}
-              accessibilityRole="button"
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            >
-              <Feather name="chevron-up" size={18} color={isFirst ? '#d1d5db' : '#9ca3af'} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={onMoveDown}
-              disabled={isLast}
-              accessibilityLabel={t('editor.moveDownLabel')}
-              accessibilityRole="button"
-              hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
-            >
-              <Feather name="chevron-down" size={18} color={isLast ? '#d1d5db' : '#9ca3af'} />
-            </TouchableOpacity>
-          </View>
         )}
 
         {/* Middle: R badge on top, summary below, notes below */}
@@ -214,8 +185,6 @@ export default function PatternEditorScreen() {
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const addRound = useChartStore((s) => s.addRound)
   const deleteRound = useChartStore((s) => s.deleteRound)
-  const moveRoundUp = useChartStore((s) => s.moveRoundUp)
-  const moveRoundDown = useChartStore((s) => s.moveRoundDown)
   const duplicateRound = useChartStore((s) => s.duplicateRound)
   const reorderRounds = useChartStore((s) => s.reorderRounds)
 
@@ -266,6 +235,7 @@ export default function PatternEditorScreen() {
   }
 
   const rounds = activeChart.rounds
+  const roundStartNumber = activeChart.roundStartNumber ?? project.roundStartNumber ?? 1
 
   function handleAddRound(insertAfterIndex?: number) {
     if (!activeChart) return
@@ -284,7 +254,7 @@ export default function PatternEditorScreen() {
   function handleDeleteRound(roundId: string, roundIndex: number) {
     Alert.alert(
       t('editor.deleteRoundTitle'),
-      t('editor.deleteRoundMessage', { index: roundIndex + (project?.roundStartNumber ?? 1) }),
+      t('editor.deleteRoundMessage', { index: roundIndex + roundStartNumber }),
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
@@ -294,14 +264,6 @@ export default function PatternEditorScreen() {
         },
       ]
     )
-  }
-
-  function handleMoveRoundUp(roundId: string) {
-    moveRoundUp(project!.id, activeChart!.id, roundId)
-  }
-
-  function handleMoveRoundDown(roundId: string) {
-    moveRoundDown(project!.id, activeChart!.id, roundId)
   }
 
   function handleLongPress(roundId: string) {
@@ -455,15 +417,11 @@ export default function PatternEditorScreen() {
                 <RoundRow
                   round={item}
                   index={index}
-                  roundStartNumber={project.roundStartNumber ?? 1}
-                  isFirst={index === 0}
-                  isLast={index === rounds.length - 1}
+                  roundStartNumber={roundStartNumber}
                   isSelecting={isSelecting}
                   isSelected={selectedIds.has(item.id)}
                   isActive={isActive}
                   drag={drag}
-                  onMoveUp={() => handleMoveRoundUp(item.id)}
-                  onMoveDown={() => handleMoveRoundDown(item.id)}
                   onLongPress={() => handleLongPress(item.id)}
                   onPress={() => handleRowPress(item)}
                 />
@@ -475,7 +433,7 @@ export default function PatternEditorScreen() {
             return (
               <InsertSeparator
                 onInsert={() => handleAddRound(leadingIndex)}
-                label={t('editor.insertAfter', { index: leadingIndex + (project.roundStartNumber ?? 1) })}
+                label={t('editor.insertAfter', { index: leadingIndex + roundStartNumber })}
               />
             )
           }}
@@ -644,14 +602,6 @@ const styles = StyleSheet.create({
     gap: 8,
     borderWidth: 1,
     borderColor: '#e5e7eb',
-  },
-
-  // Far left: ↑↓ arrows — vertically centered
-  roundArrowsCol: {
-    flexShrink: 0,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: 2,
   },
 
   // Far left: checkbox (select mode)
