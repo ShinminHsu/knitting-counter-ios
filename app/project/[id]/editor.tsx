@@ -327,11 +327,14 @@ export default function PatternEditorScreen() {
       (countStr) => {
         const count = parseInt(countStr ?? '1', 10)
         if (!isNaN(count) && count > 0) {
-          selectedIds.forEach((roundId) => {
-            for (let i = 0; i < count; i++) {
+          const orderedIds = rounds
+            .map((r) => r.id)
+            .filter((id) => selectedIds.has(id))
+          for (let i = 0; i < count; i++) {
+            orderedIds.forEach((roundId) => {
               duplicateRound(project!.id, activeChart!.id, roundId)
-            }
-          })
+            })
+          }
           setIsSelecting(false)
           setSelectedIds(new Set())
         }
