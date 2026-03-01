@@ -75,6 +75,7 @@ function InsertSeparator({ onInsert, label }: InsertSeparatorProps) {
 interface RoundRowProps {
   round: Round
   index: number
+  roundStartNumber: number
   isFirst: boolean
   isLast: boolean
   isSelecting: boolean
@@ -90,6 +91,7 @@ interface RoundRowProps {
 function RoundRow({
   round,
   index,
+  roundStartNumber,
   isFirst,
   isLast,
   isSelecting,
@@ -103,10 +105,11 @@ function RoundRow({
 }: RoundRowProps) {
   const { t } = useTranslation()
   const swipeableRef = useRef<Swipeable>(null)
-  const totalStitches = calcRoundTotalStitches(round.patternItems)
-  const hasItems = round.patternItems.length > 0
+  const patternItems = round.patternItems ?? []
+  const totalStitches = calcRoundTotalStitches(patternItems)
+  const hasItems = patternItems.length > 0
 
-  const itemSummaries = round.patternItems
+  const itemSummaries = patternItems
     .slice()
     .sort((a, b) => a.order - b.order)
     .map((item) => buildItemSummary(item))
@@ -133,7 +136,7 @@ function RoundRow({
         onLongPress={onLongPress}
         delayLongPress={250}
         activeOpacity={0.75}
-        accessibilityLabel={t('editor.editRoundLabel', { index: index + 1 })}
+        accessibilityLabel={t('editor.editRoundLabel', { index: index + roundStartNumber })}
         accessibilityRole="button"
       >
         {/* Far left: checkbox (select mode) or ↑↓ arrows (normal mode) */}
@@ -144,8 +147,8 @@ function RoundRow({
             accessibilityRole="checkbox"
             accessibilityLabel={
               isSelected
-                ? t('editor.deselectRoundLabel', { index: index + 1 })
-                : t('editor.selectRoundLabel', { index: index + 1 })
+                ? t('editor.deselectRoundLabel', { index: index + roundStartNumber })
+                : t('editor.selectRoundLabel', { index: index + roundStartNumber })
             }
             accessibilityState={{ checked: isSelected }}
             hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}
@@ -181,7 +184,7 @@ function RoundRow({
 
         {/* Middle: R badge on top, summary below, notes below */}
         <View style={styles.roundInfo}>
-          <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + 1 })}</Text>
+          <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + roundStartNumber })}</Text>
           <Text style={styles.roundSummaryText} numberOfLines={3}>
             {hasItems ? itemSummaries.join('、') : t('editor.noStitches')}
           </Text>
@@ -281,7 +284,7 @@ export default function PatternEditorScreen() {
   function handleDeleteRound(roundId: string, roundIndex: number) {
     Alert.alert(
       t('editor.deleteRoundTitle'),
-      t('editor.deleteRoundMessage', { index: roundIndex + 1 }),
+      t('editor.deleteRoundMessage', { index: roundIndex + (project?.roundStartNumber ?? 1) }),
       [
         { text: t('common.cancel'), style: 'cancel' },
         {
@@ -356,11 +359,25 @@ export default function PatternEditorScreen() {
   }
 
   function handleBatchCopy() {
-    selectedIds.forEach((roundId) => {
-      duplicateRound(project!.id, activeChart!.id, roundId)
-    })
-    setIsSelecting(false)
-    setSelectedIds(new Set())
+    Alert.prompt(
+      t('editor.duplicateCopiesTitle'),
+      t('editor.duplicateCopiesMessage'),
+      (countStr) => {
+        const count = parseInt(countStr ?? '1', 10)
+        if (!isNaN(count) && count > 0) {
+          selectedIds.forEach((roundId) => {
+            for (let i = 0; i < count; i++) {
+              duplicateRound(project!.id, activeChart!.id, roundId)
+            }
+          })
+          setIsSelecting(false)
+          setSelectedIds(new Set())
+        }
+      },
+      'plain-text',
+      '1',
+      'number-pad',
+    )
   }
 
   function handleCancelSelect() {
@@ -407,6 +424,7 @@ export default function PatternEditorScreen() {
         </ScrollView>
       ) : (
         <DraggableFlatList
+          containerStyle={{ flex: 1 }}
           data={rounds}
           keyExtractor={(item: Round) => item.id}
           contentContainerStyle={styles.listContent}
@@ -437,6 +455,7 @@ export default function PatternEditorScreen() {
                 <RoundRow
                   round={item}
                   index={index}
+                  roundStartNumber={project.roundStartNumber ?? 1}
                   isFirst={index === 0}
                   isLast={index === rounds.length - 1}
                   isSelecting={isSelecting}
@@ -456,7 +475,7 @@ export default function PatternEditorScreen() {
             return (
               <InsertSeparator
                 onInsert={() => handleAddRound(leadingIndex)}
-                label={t('editor.insertAfter', { index: leadingIndex + 1 })}
+                label={t('editor.insertAfter', { index: leadingIndex + (project.roundStartNumber ?? 1) })}
               />
             )
           }}

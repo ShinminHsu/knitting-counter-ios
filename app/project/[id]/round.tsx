@@ -478,6 +478,7 @@ export default function RoundEditScreen() {
         </View>
       ) : (
         <DraggableFlatList
+          containerStyle={{ flex: 1 }}
           data={sortedItems}
           keyExtractor={(item: PatternItem) => item.id}
           contentContainerStyle={styles.listContent}
