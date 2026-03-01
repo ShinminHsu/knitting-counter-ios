@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Alert,
   FlatList,
@@ -9,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { Swipeable } from 'react-native-gesture-handler'
 import { Feather } from '@expo/vector-icons'
 import { Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -203,54 +204,57 @@ export default function PatternElementsScreen() {
       : null
 
     return (
-      <View style={styles.templateRow}>
-        <View style={styles.templateInfo}>
-          <View style={styles.templateNameRow}>
-            <Text style={styles.templateName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            {craftLabel && (
-              <View style={[styles.craftBadge, item.craftType === 'crochet' ? styles.badgeCrochet : styles.badgeKnitting]}>
-                <Text style={[styles.craftBadgeText, item.craftType === 'crochet' ? styles.badgeCrochetText : styles.badgeKnittingText]}>
-                  {craftLabel}
-                </Text>
-              </View>
+      <Swipeable
+        renderRightActions={() => (
+          <TouchableOpacity
+            style={styles.swipeDeleteBtn}
+            onPress={() => handleDeleteTemplatePress(item)}
+            accessibilityLabel={t('common.delete')}
+            accessibilityRole="button"
+          >
+            <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+          </TouchableOpacity>
+        )}
+      >
+        <View style={styles.templateRow}>
+          <View style={styles.templateInfo}>
+            <View style={styles.templateNameRow}>
+              <Text style={styles.templateName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              {craftLabel && (
+                <View style={[styles.craftBadge, item.craftType === 'crochet' ? styles.badgeCrochet : styles.badgeKnitting]}>
+                  <Text style={[styles.craftBadgeText, item.craftType === 'crochet' ? styles.badgeCrochetText : styles.badgeKnittingText]}>
+                    {craftLabel}
+                  </Text>
+                </View>
+              )}
+              {item.useCount > 0 && (
+                <View style={styles.useBadge}>
+                  <Text style={styles.useBadgeText}>
+                    {t('patternElements.useCount', { count: item.useCount })}
+                  </Text>
+                </View>
+              )}
+            </View>
+            {preview.length > 0 && (
+              <Text style={styles.templatePreview} numberOfLines={2}>
+                {preview}
+              </Text>
             )}
-            {item.useCount > 0 && (
-              <View style={styles.useBadge}>
-                <Text style={styles.useBadgeText}>
-                  {t('patternElements.useCount', { count: item.useCount })}
-                </Text>
-              </View>
-            )}
+            <Text style={styles.templateMeta}>{repeatLabel}</Text>
           </View>
-          {preview.length > 0 && (
-            <Text style={styles.templatePreview} numberOfLines={2}>
-              {preview}
-            </Text>
-          )}
-          <Text style={styles.templateMeta}>{repeatLabel}</Text>
-        </View>
 
-        <View style={styles.stitchActions}>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => handleEditTemplatePress(item)}
-            accessibilityLabel={item.name}
+            accessibilityLabel={t('common.edit')}
             accessibilityRole="button"
           >
             <Feather name="edit-2" size={16} color="#9ca3af" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => handleDeleteTemplatePress(item)}
-            accessibilityLabel={item.name}
-            accessibilityRole="button"
-          >
-            <Feather name="trash-2" size={16} color="#9ca3af" />
-          </TouchableOpacity>
         </View>
-      </View>
+      </Swipeable>
     )
   }
 
@@ -272,42 +276,45 @@ export default function PatternElementsScreen() {
     const subtitle = subtitleParts.join('  ·  ')
 
     return (
-      <View style={styles.stitchRow}>
-        <View style={styles.stitchInfo}>
-          <View style={styles.stitchNameRow}>
-            <Text style={styles.stitchName} numberOfLines={1}>
-              {item.name}
-            </Text>
-            <View style={[styles.craftBadge, craftBadgeStyle]}>
-              <Text style={[styles.craftBadgeText, craftTextStyle]}>{craftLabel}</Text>
+      <Swipeable
+        renderRightActions={() => (
+          <TouchableOpacity
+            style={styles.swipeDeleteBtn}
+            onPress={() => handleDeletePress(item)}
+            accessibilityLabel={t('common.delete')}
+            accessibilityRole="button"
+          >
+            <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+          </TouchableOpacity>
+        )}
+      >
+        <View style={styles.stitchRow}>
+          <View style={styles.stitchInfo}>
+            <View style={styles.stitchNameRow}>
+              <Text style={styles.stitchName} numberOfLines={1}>
+                {item.name}
+              </Text>
+              <View style={[styles.craftBadge, craftBadgeStyle]}>
+                <Text style={[styles.craftBadgeText, craftTextStyle]}>{craftLabel}</Text>
+              </View>
             </View>
+            {subtitle.length > 0 && (
+              <Text style={styles.stitchSubtitle} numberOfLines={1}>
+                {subtitle}
+              </Text>
+            )}
           </View>
-          {subtitle.length > 0 && (
-            <Text style={styles.stitchSubtitle} numberOfLines={1}>
-              {subtitle}
-            </Text>
-          )}
-        </View>
 
-        <View style={styles.stitchActions}>
           <TouchableOpacity
             style={styles.actionBtn}
             onPress={() => handleEditPress(item)}
-            accessibilityLabel={item.name}
+            accessibilityLabel={t('common.edit')}
             accessibilityRole="button"
           >
             <Feather name="edit-2" size={16} color="#9ca3af" />
           </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.actionBtn}
-            onPress={() => handleDeletePress(item)}
-            accessibilityLabel={item.name}
-            accessibilityRole="button"
-          >
-            <Feather name="trash-2" size={16} color="#9ca3af" />
-          </TouchableOpacity>
         </View>
-      </View>
+      </Swipeable>
     )
   }
 
@@ -588,11 +595,22 @@ const styles = StyleSheet.create({
     color: '#6b7280',
   },
 
-  // Row action buttons
-  stitchActions: {
-    flexDirection: 'row',
-    gap: 4,
+  // Swipe to delete
+  swipeDeleteBtn: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 10,
+    marginLeft: 8,
   },
+  swipeDeleteText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+
+  // Row action buttons
   actionBtn: {
     width: 40,
     height: 40,

@@ -8,6 +8,7 @@ import {
   StyleSheet,
   Alert,
 } from 'react-native'
+import { Swipeable } from 'react-native-gesture-handler'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -72,26 +73,29 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
       : 0
 
   return (
+    <Swipeable
+      renderRightActions={() => (
+        <TouchableOpacity
+          style={styles.swipeDeleteBtn}
+          onPress={onDelete}
+          accessibilityLabel={t('projectDetail.deleteChart', { name: chart.name })}
+          accessibilityRole="button"
+        >
+          <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+        </TouchableOpacity>
+      )}
+    >
     <View style={styles.chartCard}>
       {/* Chart name row */}
       <View style={styles.chartCardHeader}>
         <Text style={styles.chartCardName} numberOfLines={1}>
           {chart.name}
         </Text>
-        <View style={styles.chartCardHeaderRight}>
-          {chart.isCompleted && (
-            <View style={styles.completedBadge}>
-              <Text style={styles.completedBadgeText}>{t('projectDetail.chartCompleted')}</Text>
-            </View>
-          )}
-          <TouchableOpacity
-            onPress={onDelete}
-            accessibilityLabel={t('projectDetail.deleteChart', { name: chart.name })}
-            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-          >
-            <Feather name="trash-2" size={15} color="#6b7280" />
-          </TouchableOpacity>
-        </View>
+        {chart.isCompleted && (
+          <View style={styles.completedBadge}>
+            <Text style={styles.completedBadgeText}>{t('projectDetail.chartCompleted')}</Text>
+          </View>
+        )}
       </View>
 
       {/* Notes */}
@@ -131,6 +135,7 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
         </TouchableOpacity>
       </View>
     </View>
+    </Swipeable>
   )
 }
 
@@ -507,6 +512,19 @@ const styles = StyleSheet.create({
   chartList: {
     gap: 10,
   },
+  swipeDeleteBtn: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 12,
+    marginLeft: 8,
+  },
+  swipeDeleteText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
+  },
   chartCard: {
     backgroundColor: '#fff',
     borderRadius: 12,
@@ -516,11 +534,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   chartCardHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  chartCardHeaderRight: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: 8,
