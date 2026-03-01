@@ -124,7 +124,11 @@ export default function GroupEditor({
 }: GroupEditorProps) {
   const { t } = useTranslation()
   const isEditMode = initialName !== undefined
-  const templates = useTemplateStore((s) => s.templates)
+  const allTemplates = useTemplateStore((s) => s.templates)
+  // 只顯示符合目前 craftType 的樣板（未設定 craftType 的舊資料視為相容）
+  const templates = allTemplates.filter(
+    (tpl) => tpl.craftType === undefined || tpl.craftType === craftType
+  )
 
   const [groupName, setGroupName] = useState('')
   const [stitches, setStitches] = useState<StitchInfo[]>([])

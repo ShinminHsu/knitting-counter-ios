@@ -818,7 +818,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
-    justifyContent: 'center',
+    justifyContent: 'flex-start',
     paddingVertical: 4,
     paddingHorizontal: 4,
   },

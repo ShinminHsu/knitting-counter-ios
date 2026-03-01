@@ -198,6 +198,9 @@ export default function PatternElementsScreen() {
       item.repeatCount > 1
         ? t('patternElements.repeatCount', { count: item.repeatCount })
         : t('patternElements.noRepeat')
+    const craftLabel = item.craftType
+      ? (item.craftType === 'crochet' ? t('common.crochet') : t('common.knitting'))
+      : null
 
     return (
       <View style={styles.templateRow}>
@@ -206,6 +209,13 @@ export default function PatternElementsScreen() {
             <Text style={styles.templateName} numberOfLines={1}>
               {item.name}
             </Text>
+            {craftLabel && (
+              <View style={[styles.craftBadge, item.craftType === 'crochet' ? styles.badgeCrochet : styles.badgeKnitting]}>
+                <Text style={[styles.craftBadgeText, item.craftType === 'crochet' ? styles.badgeCrochetText : styles.badgeKnittingText]}>
+                  {craftLabel}
+                </Text>
+              </View>
+            )}
             {item.useCount > 0 && (
               <View style={styles.useBadge}>
                 <Text style={styles.useBadgeText}>
