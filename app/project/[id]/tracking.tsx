@@ -10,7 +10,7 @@ import {
   StyleSheet,
   ScrollView,
 } from 'react-native'
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../../src/i18n'
 import { useKeepAwake } from 'expo-keep-awake'
@@ -21,6 +21,7 @@ import { useProjectStore, useProgressStore } from '../../../src/stores'
 import { logScreenView, logTrackingStarted, logChartCompleted } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import CompletionModal from '../../../src/components/CompletionModal'
+import ScreenHeader from '../../../src/components/ScreenHeader'
 import {
   PatternItemType,
   Round,
@@ -490,9 +491,9 @@ export default function ProgressTrackingScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen
-        options={project.charts.length > 1 ? {
-          headerTitle: () => (
+      <ScreenHeader
+        centerElement={
+          project.charts.length > 1 ? (
             <TouchableOpacity
               onPress={handleShowChartPicker}
               style={styles.headerTitleBtn}
@@ -502,10 +503,10 @@ export default function ProgressTrackingScreen() {
               <Text style={styles.headerTitleText} numberOfLines={1}>{activeChart.name}</Text>
               <Ionicons name="chevron-down" size={14} color="#6b7280" />
             </TouchableOpacity>
-          ),
-        } : {
-          title: activeChart.name,
-        }}
+          ) : (
+            <Text style={styles.headerTitleText} numberOfLines={1}>{activeChart.name}</Text>
+          )
+        }
       />
 
 

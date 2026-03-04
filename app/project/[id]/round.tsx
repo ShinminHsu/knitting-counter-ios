@@ -14,7 +14,7 @@ import {
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
 import { Swipeable } from 'react-native-gesture-handler'
 import { Feather } from '@expo/vector-icons'
-import { Stack, useLocalSearchParams, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
@@ -25,6 +25,7 @@ import { CraftType, CustomStitchPattern, PatternItem, PatternItemType, StitchGro
 import StitchPicker from '../../../src/components/StitchPicker'
 import GroupEditor, { GroupEditorResult } from '../../../src/components/GroupEditor'
 import AdBanner from '../../../src/components/AdBanner'
+import ScreenHeader from '../../../src/components/ScreenHeader'
 import {
   getStitchLabel,
   isStitchInfo,
@@ -516,7 +517,7 @@ export default function RoundEditScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: t('round.title', { index: roundIndex + roundStartNumber }) }} />
+      <ScreenHeader title={t('round.title', { index: roundIndex + roundStartNumber })} />
 
       {/* Summary bar */}
       <View style={styles.summaryBar}>

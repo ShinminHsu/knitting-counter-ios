@@ -6,9 +6,9 @@ import {
   ScrollView,
   StyleSheet,
 } from 'react-native'
-import { Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { logScreenView } from '../src/services'
+import ScreenHeader from '../src/components/ScreenHeader'
 import { SCREEN_NAMES } from '../src/constants'
 
 // ─── GuideScreen ──────────────────────────────────────────────────────────────
@@ -23,8 +23,7 @@ export default function GuideScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Dynamic header title */}
-      <Stack.Screen options={{ title: t('guide.title') }} />
+      <ScreenHeader title={t('guide.title')} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* ── Section 1 ─────────────────────────────────────────────────────── */}

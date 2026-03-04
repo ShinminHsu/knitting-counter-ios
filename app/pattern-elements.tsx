@@ -11,8 +11,8 @@ import {
 } from 'react-native'
 import { Swipeable } from 'react-native-gesture-handler'
 import { Feather } from '@expo/vector-icons'
-import { Stack } from 'expo-router'
 import { useTranslation } from 'react-i18next'
+import ScreenHeader from '../src/components/ScreenHeader'
 import { logScreenView } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { useCustomStitchStore } from '../src/stores/useCustomStitchStore'
@@ -320,8 +320,7 @@ export default function PatternElementsScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Dynamic header title */}
-      <Stack.Screen options={{ title: t('patternElements.title') }} />
+      <ScreenHeader title={t('patternElements.title')} />
 
       {/* ── Tab selector ────────────────────────────────────────────────────── */}
       <View style={styles.tabBar}>
