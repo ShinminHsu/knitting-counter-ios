@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   Alert,
+  Linking,
 } from 'react-native'
 import { Swipeable } from 'react-native-gesture-handler'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
@@ -296,7 +297,13 @@ export default function ProjectDetailScreen() {
           {project.source ? (
             <View style={styles.metaRow}>
               <Text style={[styles.metaLabel, { width: metaLabelWidth }]}>{t('projectDetail.metaSource')}</Text>
-              <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
+              {/^https?:\/\//.test(project.source) ? (
+                <TouchableOpacity onPress={() => Linking.openURL(project.source!)} style={{ flex: 1 }}>
+                  <Text style={[styles.metaValue, styles.metaLink]} numberOfLines={2}>{project.source}</Text>
+                </TouchableOpacity>
+              ) : (
+                <Text style={styles.metaValue} numberOfLines={2}>{project.source}</Text>
+              )}
             </View>
           ) : null}
           {project.notes ? (
@@ -478,6 +485,10 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#374151',
     lineHeight: 20,
+  },
+  metaLink: {
+    color: '#D97398',
+    textDecorationLine: 'underline',
   },
 
   // Section

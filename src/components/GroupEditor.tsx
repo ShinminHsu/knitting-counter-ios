@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   KeyboardAvoidingView,
   Modal,
@@ -55,6 +55,26 @@ interface StitchRowProps {
 function StitchRow({ stitch, drag, onPress, onChangeCount }: StitchRowProps) {
   const { t } = useTranslation()
   const label = getStitchLabel(stitch)
+  const [countText, setCountText] = useState(String(stitch.count))
+  const isEditingRef = useRef(false)
+
+  useEffect(() => {
+    if (!isEditingRef.current) {
+      setCountText(String(stitch.count))
+    }
+  }, [stitch.count])
+
+  function handleDecrement() {
+    const next = Math.max(1, stitch.count - 1)
+    setCountText(String(next))
+    onChangeCount(next)
+  }
+
+  function handleIncrement() {
+    const next = stitch.count + 1
+    setCountText(String(next))
+    onChangeCount(next)
+  }
 
   return (
     <View style={styles.stitchRow}>
@@ -79,7 +99,7 @@ function StitchRow({ stitch, drag, onPress, onChangeCount }: StitchRowProps) {
       <View style={styles.stitchRowRight}>
         <TouchableOpacity
           style={styles.countBtn}
-          onPress={() => onChangeCount(Math.max(1, stitch.count - 1))}
+          onPress={handleDecrement}
           accessibilityLabel={t('round.decreaseCount')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
@@ -87,11 +107,17 @@ function StitchRow({ stitch, drag, onPress, onChangeCount }: StitchRowProps) {
         </TouchableOpacity>
         <TextInput
           style={styles.countInput}
-          value={String(stitch.count)}
+          value={countText}
+          onFocus={() => { isEditingRef.current = true }}
+          onBlur={() => {
+            isEditingRef.current = false
+            const n = parseInt(countText, 10)
+            if (isNaN(n) || n < 1) setCountText(String(stitch.count))
+          }}
           onChangeText={(text) => {
+            setCountText(text)
             const n = parseInt(text, 10)
             if (!isNaN(n) && n >= 1) onChangeCount(n)
-            else if (text === '') onChangeCount(1)
           }}
           keyboardType="number-pad"
           selectTextOnFocus
@@ -99,7 +125,7 @@ function StitchRow({ stitch, drag, onPress, onChangeCount }: StitchRowProps) {
         />
         <TouchableOpacity
           style={styles.countBtn}
-          onPress={() => onChangeCount(stitch.count + 1)}
+          onPress={handleIncrement}
           accessibilityLabel={t('round.increaseCount')}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
@@ -133,8 +159,10 @@ export default function GroupEditor({
   const [groupName, setGroupName] = useState('')
   const [stitches, setStitches] = useState<StitchInfo[]>([])
   const [repeatCount, setRepeatCount] = useState(1)
+  const [repeatCountText, setRepeatCountText] = useState('1')
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [showStitchPicker, setShowStitchPicker] = useState(false)
+  const [showTemplatePicker, setShowTemplatePicker] = useState(false)
   const [editingStitchIndex, setEditingStitchIndex] = useState<number | null>(null)
   const [isDragging, setIsDragging] = useState(false)
 
@@ -143,7 +171,9 @@ export default function GroupEditor({
     if (visible) {
       setGroupName(initialName ?? defaultName ?? '')
       setStitches(initialStitches ? initialStitches.map((s) => ({ ...s })) : [])
-      setRepeatCount(initialRepeatCount ?? 1)
+      const initRepeat = initialRepeatCount ?? 1
+      setRepeatCount(initRepeat)
+      setRepeatCountText(String(initRepeat))
       setSaveAsTemplate(false)
     }
   }, [visible])
@@ -286,18 +316,26 @@ export default function GroupEditor({
             <View style={styles.repeatRow}>
               <TouchableOpacity
                 style={styles.countBtn}
-                onPress={() => setRepeatCount((c) => Math.max(1, c - 1))}
+                onPress={() => {
+                  const next = Math.max(1, repeatCount - 1)
+                  setRepeatCount(next)
+                  setRepeatCountText(String(next))
+                }}
                 accessibilityLabel={t('groupEditor.decreaseRepeat')}
               >
                 <Feather name="minus" size={20} color="#6b7280" />
               </TouchableOpacity>
               <TextInput
                 style={styles.repeatInput}
-                value={String(repeatCount)}
+                value={repeatCountText}
                 onChangeText={(text) => {
+                  setRepeatCountText(text)
                   const n = parseInt(text, 10)
                   if (!isNaN(n) && n >= 1) setRepeatCount(n)
-                  else if (text === '') setRepeatCount(1)
+                }}
+                onBlur={() => {
+                  const n = parseInt(repeatCountText, 10)
+                  if (isNaN(n) || n < 1) setRepeatCountText(String(repeatCount))
                 }}
                 keyboardType="number-pad"
                 selectTextOnFocus
@@ -305,7 +343,11 @@ export default function GroupEditor({
               />
               <TouchableOpacity
                 style={styles.countBtn}
-                onPress={() => setRepeatCount((c) => c + 1)}
+                onPress={() => {
+                  const next = repeatCount + 1
+                  setRepeatCount(next)
+                  setRepeatCountText(String(next))
+                }}
                 accessibilityLabel={t('groupEditor.increaseRepeat')}
               >
                 <Feather name="plus" size={20} color="#6b7280" />
@@ -314,34 +356,17 @@ export default function GroupEditor({
           </View>
 
           {/* Load from template (create mode only) */}
-          {!isEditMode && (
+          {!isEditMode && templates.length > 0 && (
             <View style={styles.section}>
-              <Text style={styles.sectionLabel}>{t('groupEditor.loadFromTemplate')}</Text>
-              {templates.length === 0 ? (
-                <View style={styles.templateEmpty}>
-                  <Text style={styles.templateEmptyText}>{t('groupEditor.noTemplates')}</Text>
-                </View>
-              ) : (
-                <View style={styles.templateList}>
-                  {templates.map((tpl) => (
-                    <TouchableOpacity
-                      key={tpl.id}
-                      style={styles.templateRow}
-                      onPress={() => handleLoadTemplate(tpl)}
-                      accessibilityRole="button"
-                      accessibilityLabel={tpl.name}
-                    >
-                      <View style={styles.templateRowInfo}>
-                        <Text style={styles.templateRowName} numberOfLines={1}>{tpl.name}</Text>
-                        <Text style={styles.templateRowMeta}>
-                          {t('groupEditor.templateMeta', { count: tpl.stitches.length, repeat: tpl.repeatCount })}
-                        </Text>
-                      </View>
-                      <Feather name="chevron-right" size={16} color="#d1d5db" />
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              )}
+              <TouchableOpacity
+                style={styles.loadTemplateButton}
+                onPress={() => setShowTemplatePicker(true)}
+                accessibilityRole="button"
+              >
+                <Feather name="layers" size={16} color="#D97398" />
+                <Text style={styles.loadTemplateButtonText}>{t('groupEditor.loadFromTemplate')}</Text>
+                <Feather name="chevron-right" size={16} color="#D97398" />
+              </TouchableOpacity>
             </View>
           )}
 
@@ -433,6 +458,50 @@ export default function GroupEditor({
           setEditingStitchIndex(null)
         }}
       />
+
+      {/* Template picker modal */}
+      <Modal
+        visible={showTemplatePicker}
+        animationType="slide"
+        presentationStyle="pageSheet"
+        onRequestClose={() => setShowTemplatePicker(false)}
+      >
+        <View style={styles.templatePickerContainer}>
+          <View style={styles.templatePickerHeader}>
+            <Text style={styles.templatePickerTitle}>{t('groupEditor.loadFromTemplate')}</Text>
+            <TouchableOpacity
+              style={styles.templatePickerClose}
+              onPress={() => setShowTemplatePicker(false)}
+              accessibilityRole="button"
+              accessibilityLabel={t('common.cancel')}
+            >
+              <Text style={styles.templatePickerCloseText}>{t('common.cancel')}</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView style={styles.templatePickerBody}>
+            {templates.map((tpl) => (
+              <TouchableOpacity
+                key={tpl.id}
+                style={styles.templatePickerRow}
+                onPress={() => {
+                  handleLoadTemplate(tpl)
+                  setShowTemplatePicker(false)
+                }}
+                accessibilityRole="button"
+                accessibilityLabel={tpl.name}
+              >
+                <View style={styles.templateRowInfo}>
+                  <Text style={styles.templateRowName}>{tpl.name}</Text>
+                  <Text style={styles.templateRowMeta}>
+                    {t('groupEditor.templateMeta', { count: tpl.stitches.length, repeat: tpl.repeatCount })}
+                  </Text>
+                </View>
+                <Feather name="chevron-right" size={16} color="#d1d5db" />
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+      </Modal>
     </Modal>
   )
 }
@@ -700,6 +769,69 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: '#9ca3af',
     marginTop: 2,
+  },
+
+  // Load template button
+  loadTemplateButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: '#D97398',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    gap: 8,
+  },
+  loadTemplateButtonText: {
+    flex: 1,
+    fontSize: 15,
+    color: '#D97398',
+    fontWeight: '600',
+  },
+
+  // Template picker modal
+  templatePickerContainer: {
+    flex: 1,
+    backgroundColor: '#faf5f0',
+  },
+  templatePickerHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 16,
+    paddingTop: 16,
+    paddingBottom: 12,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+    backgroundColor: '#fff',
+  },
+  templatePickerTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  templatePickerClose: {
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+  },
+  templatePickerCloseText: {
+    fontSize: 16,
+    color: '#6b7280',
+  },
+  templatePickerBody: {
+    flex: 1,
+    paddingTop: 8,
+  },
+  templatePickerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: '#e5e7eb',
+    gap: 8,
   },
 
   // Template toggle

@@ -47,7 +47,20 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
   const { t } = useTranslation()
   const [currentType, setCurrentType] = useState(stitchType)
   const [count, setCount] = useState(initialCount)
+  const [countText, setCountText] = useState(String(initialCount))
   const [showChangePicker, setShowChangePicker] = useState(false)
+
+  function handleDecrement() {
+    const next = Math.max(1, count - 1)
+    setCount(next)
+    setCountText(String(next))
+  }
+
+  function handleIncrement() {
+    const next = count + 1
+    setCount(next)
+    setCountText(String(next))
+  }
 
   return (
     <>
@@ -75,18 +88,22 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
           <View style={styles.countEditorRow}>
             <TouchableOpacity
               style={styles.countButton}
-              onPress={() => setCount((c) => Math.max(1, c - 1))}
+              onPress={handleDecrement}
               accessibilityLabel={t('round.decreaseCount')}
             >
               <Feather name="minus" size={20} color="#6b7280" />
             </TouchableOpacity>
             <TextInput
               style={styles.countInput}
-              value={String(count)}
+              value={countText}
               onChangeText={(text) => {
+                setCountText(text)
                 const n = parseInt(text, 10)
                 if (!isNaN(n) && n >= 1) setCount(n)
-                else if (text === '') setCount(1)
+              }}
+              onBlur={() => {
+                const n = parseInt(countText, 10)
+                if (isNaN(n) || n < 1) setCountText(String(count))
               }}
               keyboardType="number-pad"
               selectTextOnFocus
@@ -94,7 +111,7 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
             />
             <TouchableOpacity
               style={styles.countButton}
-              onPress={() => setCount((c) => c + 1)}
+              onPress={handleIncrement}
               accessibilityLabel={t('round.increaseCount')}
             >
               <Feather name="plus" size={20} color="#6b7280" />
@@ -108,7 +125,7 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.countActionConfirm}
-              onPress={() => onConfirm(currentType, count)}
+              onPress={() => onConfirm(currentType, Math.max(1, count))}
             >
               <Text style={styles.countActionConfirmText}>{t('common.confirm')}</Text>
             </TouchableOpacity>

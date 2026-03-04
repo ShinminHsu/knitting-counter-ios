@@ -856,19 +856,19 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   counter: {
-    flex: 1,
+    flex: 2,
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'center',
   },
   counterCurrent: {
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: '800',
     color: '#D97398',
     letterSpacing: -1,
   },
   counterTotal: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: '600',
     color: '#9ca3af',
   },
