@@ -9,6 +9,38 @@ function physicalCount(stitch: StitchInfo): number {
   return stitch.count * (StitchTypeInfo[stitch.type]?.stitchCount ?? 1)
 }
 
+/**
+ * 給定一圈的 position，回傳該 position 所在邏輯針法的 [start, end)。
+ * 用於 advanceStitch（一次跳完整個邏輯針法）與 goBackStitch（退回上一針起點）。
+ */
+function getStitchBoundsAt(round: Round, position: number): { start: number; end: number } {
+  let pos = 0
+  for (const item of round.patternItems) {
+    if (item.type === PatternItemType.STITCH) {
+      const stitch = item.data as StitchInfo
+      const sc = StitchTypeInfo[stitch.type]?.stitchCount ?? 1
+      for (let i = 0; i < stitch.count; i++) {
+        const end = pos + sc
+        if (position >= pos && position < end) return { start: pos, end }
+        pos = end
+      }
+    } else {
+      const group = item.data as StitchGroup
+      for (let r = 0; r < group.repeatCount; r++) {
+        for (const s of group.stitches) {
+          const sc = StitchTypeInfo[s.type]?.stitchCount ?? 1
+          for (let i = 0; i < s.count; i++) {
+            const end = pos + sc
+            if (position >= pos && position < end) return { start: pos, end }
+            pos = end
+          }
+        }
+      }
+    }
+  }
+  return { start: position, end: position + 1 }
+}
+
 /** 單一 PatternItem 的實際針數（含 group 展開）*/
 function itemPhysicalCount(item: { type: PatternItemType; data: StitchInfo | StitchGroup }): number {
   if (item.type === PatternItemType.STITCH) {
@@ -91,10 +123,12 @@ export const useProgressStore = create<ProgressState>()(() => ({
 
     const total = totalStitchesInRound(round)
 
-    if (currentStitch + 1 < total) {
-      // 普通前進一針
+    // 找到當前邏輯針法的結束位置，一次跳完整個針法（含 stitchCount > 1 的針法）
+    const { end: nextStitch } = getStitchBoundsAt(round, currentStitch)
+
+    if (nextStitch < total) {
       useProjectStore.getState().updateChart(projectId, chartId, {
-        currentStitch: currentStitch + 1,
+        currentStitch: nextStitch,
       })
       return 'stitch'
     }
@@ -121,9 +155,13 @@ export const useProgressStore = create<ProgressState>()(() => ({
 
     const { currentRound, currentStitch, rounds } = chart
 
-    if (currentStitch > 0) {
+    const round = rounds[currentRound]
+
+    if (currentStitch > 0 && round) {
+      // 退回到上一個邏輯針法的起始位置
+      const { start } = getStitchBoundsAt(round, currentStitch - 1)
       useProjectStore.getState().updateChart(projectId, chartId, {
-        currentStitch: currentStitch - 1,
+        currentStitch: start,
       })
       return
     }
@@ -131,9 +169,11 @@ export const useProgressStore = create<ProgressState>()(() => ({
     if (currentRound > 0) {
       const prevRound = rounds[currentRound - 1]
       const prevTotal = totalStitchesInRound(prevRound)
+      // 退到上一圈最後一個邏輯針法的起始位置
+      const { start } = getStitchBoundsAt(prevRound, Math.max(0, prevTotal - 1))
       useProjectStore.getState().updateChart(projectId, chartId, {
         currentRound: currentRound - 1,
-        currentStitch: Math.max(0, prevTotal - 1),
+        currentStitch: start,
       })
     }
     // 若已在最開頭，不做任何事

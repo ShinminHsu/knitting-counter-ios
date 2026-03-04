@@ -204,7 +204,13 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 
             if (SymSvg) {
               return (
-                <View key={i} style={{ opacity }}>
+                <View
+                  key={i}
+                  style={[
+                    { opacity },
+                    symStatus === 'current' && blockStyles.svgCurrentWrapper,
+                  ]}
+                >
                   <SymSvg width={24} height={24} />
                 </View>
               )
@@ -266,6 +272,11 @@ const blockStyles = StyleSheet.create({
   },
   symbolCurrent: {
     color: '#D97398',   // 粉紅：當前針
+  },
+  svgCurrentWrapper: {
+    backgroundColor: '#fce7f0',
+    borderRadius: 4,
+    padding: 2,
   },
   symbolCompleted: {
     color: '#d1d5db',   // 淺灰：已完成
