@@ -13,11 +13,13 @@ const CROCHET_STITCHES: StitchType[] = [
   StitchType.TREBLE,
   // 加針
   StitchType.SC_INC,
+  StitchType.SC3INC,
   StitchType.HDC_INC,
   StitchType.DC_INC,
   StitchType.TR_INC,
   // 減針
   StitchType.SC2TOG,
+  StitchType.SC3TOG,
   StitchType.HDC2TOG,
   StitchType.HDC3TOG,
   StitchType.DC2TOG,
@@ -104,6 +106,7 @@ export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
     label: '加針',
     stitches: [
       StitchType.SC_INC,
+      StitchType.SC3INC,
       StitchType.HDC_INC,
       StitchType.DC_INC,
       StitchType.TR_INC,
@@ -113,6 +116,7 @@ export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
     label: '減針',
     stitches: [
       StitchType.SC2TOG,
+      StitchType.SC3TOG,
       StitchType.HDC2TOG,
       StitchType.HDC3TOG,
       StitchType.DC2TOG,

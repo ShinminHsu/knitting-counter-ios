@@ -204,15 +204,10 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
             const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]
 
             if (SymSvg) {
+              const iconColor = symStatus === 'current' ? '#D97398' : '#000'
               return (
-                <View
-                  key={i}
-                  style={[
-                    { opacity },
-                    symStatus === 'current' && blockStyles.svgCurrentWrapper,
-                  ]}
-                >
-                  <SymSvg width={24} height={24} />
+                <View key={i} style={{ opacity }}>
+                  <SymSvg width={24} height={24} color={iconColor} />
                 </View>
               )
             }
@@ -273,11 +268,6 @@ const blockStyles = StyleSheet.create({
   },
   symbolCurrent: {
     color: '#D97398',   // 粉紅：當前針
-  },
-  svgCurrentWrapper: {
-    backgroundColor: '#fce7f0',
-    borderRadius: 4,
-    padding: 2,
   },
   symbolCompleted: {
     color: '#d1d5db',   // 淺灰：已完成

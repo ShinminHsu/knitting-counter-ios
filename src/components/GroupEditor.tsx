@@ -363,9 +363,9 @@ export default function GroupEditor({
                 onPress={() => setShowTemplatePicker(true)}
                 accessibilityRole="button"
               >
-                <Feather name="layers" size={16} color="#D97398" />
+                <Feather name="layers" size={16} color="#4b5563" />
                 <Text style={styles.loadTemplateButtonText}>{t('groupEditor.loadFromTemplate')}</Text>
-                <Feather name="chevron-right" size={16} color="#D97398" />
+                <Feather name="chevron-right" size={16} color="#4b5563" />
               </TouchableOpacity>
             </View>
           )}
@@ -778,7 +778,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 10,
     borderWidth: 1,
-    borderColor: '#D97398',
+    borderColor: '#4b5563',
     paddingHorizontal: 14,
     paddingVertical: 12,
     gap: 8,
@@ -786,7 +786,7 @@ const styles = StyleSheet.create({
   loadTemplateButtonText: {
     flex: 1,
     fontSize: 15,
-    color: '#D97398',
+    color: '#4b5563',
     fontWeight: '600',
   },
 

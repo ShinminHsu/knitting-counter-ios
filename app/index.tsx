@@ -70,11 +70,13 @@ function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
             resizeMode="cover"
           />
         ) : (
-          <Image
-            source={require('../assets/images/kniitingIcon.png')}
-            style={styles.thumbnailPlaceholder}
-            resizeMode="contain"
-          />
+          <View style={styles.thumbnailPlaceholder}>
+            <Image
+              source={require('../assets/images/kniitingIcon.png')}
+              style={styles.thumbnailIcon}
+              resizeMode="contain"
+            />
+          </View>
         )}
 
         {/* Right side info */}
@@ -298,7 +300,12 @@ const styles = StyleSheet.create({
     height: 60,
     borderRadius: 8,
     backgroundColor: '#fce7f0',
-    padding: 6,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  thumbnailIcon: {
+    width: 30,
+    height: 30,
   },
   cardInfo: {
     flex: 1,

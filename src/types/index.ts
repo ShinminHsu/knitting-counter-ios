@@ -58,12 +58,14 @@ export enum StitchType {
 
   // ── 鉤針加針 ──────────────────────────────────
   SC_INC = 'sc_inc',
+  SC3INC = 'sc3inc',
   HDC_INC = 'hdc_inc',
   DC_INC = 'dc_inc',
   TR_INC = 'tr_inc',
 
   // ── 鉤針減針 ──────────────────────────────────
   SC2TOG = 'sc2tog',
+  SC3TOG = 'sc3tog',
   HDC2TOG = 'hdc2tog',
   HDC3TOG = 'hdc3tog',
   DC2TOG = 'dc2tog',
@@ -150,12 +152,14 @@ export const StitchTypeInfo: Record<StitchType, StitchTypeDetails> = {
 
   // ── 鉤針加針 ──────────────────────────────────
   [StitchType.SC_INC]:  { label: '短針加針',   abbr: 'sc-inc',  englishName: '2 single crochets in 1 st',       stitchCount: 2 },
+  [StitchType.SC3INC]:  { label: '短針3加針',  abbr: '3sc-inc', englishName: '3 single crochets in 1 st',       stitchCount: 3 },
   [StitchType.HDC_INC]: { label: '中長針加針', abbr: 'hdc-inc', englishName: '2 half double crochets in 1 st',  stitchCount: 2 },
   [StitchType.DC_INC]:  { label: '長針加針',   abbr: 'dc-inc',  englishName: '2 double crochets in 1 st',       stitchCount: 2 },
   [StitchType.TR_INC]:  { label: '長長針加針', abbr: 'tr-inc',  englishName: '2 treble crochets in 1 st',       stitchCount: 2 },
 
   // ── 鉤針減針 ──────────────────────────────────
   [StitchType.SC2TOG]:  { label: '短針減針',       abbr: 'sc2tog',  englishName: 'single crochet 2 together',        stitchCount: 1 },
+  [StitchType.SC3TOG]:  { label: '短針3併針',      abbr: 'sc3tog',  englishName: 'single crochet 3 together',        stitchCount: 1 },
   [StitchType.HDC2TOG]: { label: '中長針2併針',    abbr: 'hdc2tog', englishName: 'half double crochet 2 together',   stitchCount: 1 },
   [StitchType.HDC3TOG]: { label: '中長針3併針',    abbr: 'hdc3tog', englishName: 'half double crochet 3 together',   stitchCount: 1 },
   [StitchType.DC2TOG]:  { label: '長針2併針',      abbr: 'dc2tog',  englishName: 'double crochet 2 together',        stitchCount: 1 },
