@@ -145,6 +145,8 @@ const zhTW = {
     emptyTitle: '尚無段落',
     emptyHint: '點擊下方「新增段落」按鈕，開始建立你的織圖段落。',
     addRound: '+ 新增段落',
+    addRoundsTitle: '新增段落',
+    addRoundsMessage: '要新增幾段？',
     insertAfter: '在第 {{index}} 段後插入新段落',
     roundBadge: 'R{{index}}',
     roundNotes: '備註：{{notes}}',
@@ -199,6 +201,8 @@ const zhTW = {
     nextRound: '下一圈',
     previewMode: '預覽',
     returnToCurrent: '返回目前進度',
+    patternDesc: '針法說明',
+    selectChart: '切換織圖',
   },
 
   // ─── 匯入匯出 ────────────────────────────────────────────────────────────────

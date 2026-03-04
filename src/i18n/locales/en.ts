@@ -145,6 +145,8 @@ const en = {
     emptyTitle: 'No Rounds Yet',
     emptyHint: 'Tap "Add Round" below to start building your pattern.',
     addRound: '+ Add Round',
+    addRoundsTitle: 'Add Rounds',
+    addRoundsMessage: 'How many rounds to add?',
     insertAfter: 'Insert round after row {{index}}',
     roundBadge: 'R{{index}}',
     roundNotes: 'Note: {{notes}}',
@@ -199,6 +201,8 @@ const en = {
     nextRound: 'Next round',
     previewMode: 'Preview',
     returnToCurrent: 'Return to Current Progress',
+    patternDesc: 'Pattern',
+    selectChart: 'Switch Chart',
   },
 
   // ─── Import / Export ─────────────────────────────────────────────────────────

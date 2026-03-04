@@ -145,6 +145,8 @@ const ja = {
     emptyTitle: '段がありません',
     emptyHint: '下の「段を追加」をタップしてパターンを作成しましょう。',
     addRound: '＋ 段を追加',
+    addRoundsTitle: '段を追加',
+    addRoundsMessage: '何段追加しますか？',
     insertAfter: '{{index}} 段目の後に挿入',
     roundBadge: 'R{{index}}',
     roundNotes: 'メモ：{{notes}}',
@@ -199,6 +201,8 @@ const ja = {
     nextRound: '次の段',
     previewMode: 'プレビュー',
     returnToCurrent: '現在の進捗に戻る',
+    patternDesc: '編み方',
+    selectChart: 'チャートを切り替え',
   },
 
   // ─── インポート / エクスポート ────────────────────────────────────────────────
