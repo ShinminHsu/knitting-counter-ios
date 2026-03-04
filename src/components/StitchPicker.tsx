@@ -28,11 +28,13 @@ const STITCH_SYMBOL: Partial<Record<StitchType, string>> = {
   [StitchType.TREBLE]:       '⊥',
   // 鉤針加針
   [StitchType.SC_INC]:       'V',
+  [StitchType.SC3INC]:       'Ψ',
   [StitchType.HDC_INC]:      'V̈',
   [StitchType.DC_INC]:       'Ṽ',
   [StitchType.TR_INC]:       'V̄',
   // 鉤針減針
   [StitchType.SC2TOG]:       'Λ',
+  [StitchType.SC3TOG]:       '⋀',
   [StitchType.HDC2TOG]:      '∧',
   [StitchType.HDC3TOG]:      '⋀',
   [StitchType.DC2TOG]:       '∧',
@@ -195,7 +197,7 @@ export default function StitchPicker({
           activeOpacity={0.6}
         >
           {SvgIcon ? (
-            <SvgIcon width={24} height={24} style={{ marginRight: 8 }} />
+            <SvgIcon width={24} height={24} color="#000" style={{ marginRight: 8 }} />
           ) : (
             <Text style={styles.stitchSymbol}>{symbol}</Text>
           )}

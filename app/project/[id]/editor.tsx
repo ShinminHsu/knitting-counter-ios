@@ -156,7 +156,7 @@ function RoundRow({
         {/* Middle: R badge on top, summary below, notes below */}
         <View style={styles.roundInfo}>
           <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + roundStartNumber })}</Text>
-          <Text style={styles.roundSummaryText} numberOfLines={3}>
+          <Text style={styles.roundSummaryText}>
             {hasItems ? itemSummaries.join('、') : t('editor.noStitches')}
           </Text>
           {round.notes ? (
@@ -247,8 +247,33 @@ export default function PatternEditorScreen() {
       )
     } else {
       Alert.alert(t('common.error'), t('editor.addRoundError'))
-      return
     }
+  }
+
+  function handleAddRoundWithPrompt() {
+    if (!activeChart) return
+    Alert.prompt(
+      t('editor.addRoundsTitle'),
+      t('editor.addRoundsMessage'),
+      (countStr) => {
+        const count = parseInt(countStr ?? '1', 10)
+        if (isNaN(count) || count < 1) return
+        let firstNewRound = null
+        for (let i = 0; i < count; i++) {
+          const newRound = addRound(project!.id, activeChart!.id)
+          if (i === 0) firstNewRound = newRound
+          if (newRound) logRoundAdded()
+        }
+        if (count === 1 && firstNewRound) {
+          router.push(
+            `/project/${project!.id}/round?chartId=${activeChart!.id}&roundId=${firstNewRound.id}`
+          )
+        }
+      },
+      'plain-text',
+      '1',
+      'number-pad',
+    )
   }
 
   function handleDeleteRound(roundId: string, roundIndex: number) {
@@ -491,7 +516,7 @@ export default function PatternEditorScreen() {
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.addRoundButton}
-            onPress={() => handleAddRound()}
+            onPress={handleAddRoundWithPrompt}
             accessibilityLabel={t('editor.addRound')}
             accessibilityRole="button"
           >

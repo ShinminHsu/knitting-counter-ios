@@ -8,6 +8,10 @@ const { transformer, resolver } = config;
 config.transformer = {
   ...transformer,
   babelTransformerPath: require.resolve("react-native-svg-transformer"),
+  svgrOptions: {
+    // Replace hardcoded black fills with currentColor so SVGs can be tinted via the color prop
+    replaceAttrValues: { '#000': 'currentColor', '#000000': 'currentColor' },
+  },
 };
 
 config.resolver = {

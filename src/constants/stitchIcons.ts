@@ -12,10 +12,10 @@ import SvgTr          from '../../assets/crochet-symbols/svg/crochet-master_tr.s
 import SvgScInc       from '../../assets/crochet-symbols/svg/crochet-master_sc-inc.svg'
 import SvgHdcInc      from '../../assets/crochet-symbols/svg/crochet-master_hdcinc.svg'
 import SvgDcInc       from '../../assets/crochet-symbols/svg/crochet-master_dcinc.svg'
-import SvgTrInc       from '../../assets/crochet-symbols/svg/crochet-master_3dc-inc.svg'
+import SvgSc3inc      from '../../assets/crochet-symbols/svg/crochet-master_sc3inc.svg'
 import SvgSc2tog      from '../../assets/crochet-symbols/svg/crochet-master_sc2tog.svg'
+import SvgSc3tog      from '../../assets/crochet-symbols/svg/crochet-master_sc3tog.svg'
 import SvgHdc2tog     from '../../assets/crochet-symbols/svg/crochet-master_hdc2tog.svg'
-import SvgHdc3tog     from '../../assets/crochet-symbols/svg/crochet-master_sc3tog.svg'
 import SvgDc2tog      from '../../assets/crochet-symbols/svg/crochet-master_dc2tog.svg'
 import SvgDc3tog      from '../../assets/crochet-symbols/svg/crochet-master_dc3tog.svg'
 import SvgDc3Cluster  from '../../assets/crochet-symbols/svg/crochet-master_3dc-cluster.svg'
@@ -33,10 +33,10 @@ export const CROCHET_SVG_MAP: Partial<Record<StitchType, ComponentType<SvgProps>
   [StitchType.SC_INC]:       SvgScInc,
   [StitchType.HDC_INC]:      SvgHdcInc,
   [StitchType.DC_INC]:       SvgDcInc,
-  [StitchType.TR_INC]:       SvgTrInc,
+  [StitchType.SC3INC]:       SvgSc3inc,
   [StitchType.SC2TOG]:       SvgSc2tog,
+  [StitchType.SC3TOG]:       SvgSc3tog,
   [StitchType.HDC2TOG]:      SvgHdc2tog,
-  [StitchType.HDC3TOG]:      SvgHdc3tog,
   [StitchType.DC2TOG]:       SvgDc2tog,
   [StitchType.DC3TOG]:       SvgDc3tog,
   [StitchType.DC3_CLUSTER]:  SvgDc3Cluster,

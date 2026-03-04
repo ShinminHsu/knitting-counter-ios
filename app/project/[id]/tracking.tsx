@@ -6,6 +6,7 @@ import {
   SafeAreaView,
   TouchableOpacity,
   Alert,
+  ActionSheetIOS,
   StyleSheet,
   ScrollView,
 } from 'react-native'
@@ -203,9 +204,10 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
             const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]
 
             if (SymSvg) {
+              const iconColor = symStatus === 'current' ? '#D97398' : '#000'
               return (
                 <View key={i} style={{ opacity }}>
-                  <SymSvg width={24} height={24} />
+                  <SymSvg width={24} height={24} color={iconColor} />
                 </View>
               )
             }
@@ -288,6 +290,7 @@ export default function ProgressTrackingScreen() {
   const [showIcons, setShowIcons] = useState<boolean>(
     () => mmkv.getString(STORAGE_KEYS.STITCH_DISPLAY_MODE) === 'icon'
   )
+  const [showDescription, setShowDescription] = useState(false)
   // null = 正常追蹤模式；number = 預覽指定圈（index）
   const [previewRoundIndex, setPreviewRoundIndex] = useState<number | null>(null)
 
@@ -467,38 +470,44 @@ export default function ProgressTrackingScreen() {
     setPreviewRoundIndex(null)
   }
 
+  function handleShowChartPicker() {
+    if (!project || project.charts.length <= 1) return
+    ActionSheetIOS.showActionSheetWithOptions(
+      {
+        title: t('tracking.selectChart'),
+        options: [...project.charts.map((c) => c.name), t('common.cancel')],
+        cancelButtonIndex: project.charts.length,
+      },
+      (index) => {
+        if (index < project.charts.length) {
+          setSelectedChartId(project.charts[index].id)
+        }
+      }
+    )
+  }
+
   // ── Render ───────────────────────────────────────────────────────────────────
 
   return (
     <SafeAreaView style={styles.container}>
-      <Stack.Screen options={{ title: activeChart.name }} />
+      <Stack.Screen
+        options={project.charts.length > 1 ? {
+          headerTitle: () => (
+            <TouchableOpacity
+              onPress={handleShowChartPicker}
+              style={styles.headerTitleBtn}
+              accessibilityRole="button"
+              accessibilityLabel={t('tracking.selectChart')}
+            >
+              <Text style={styles.headerTitleText} numberOfLines={1}>{activeChart.name}</Text>
+              <Ionicons name="chevron-down" size={14} color="#6b7280" />
+            </TouchableOpacity>
+          ),
+        } : {
+          title: activeChart.name,
+        }}
+      />
 
-      {/* ── Chart switcher（only shown when project has multiple charts）──── */}
-      {project.charts.length > 1 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.chartSwitcher}
-          contentContainerStyle={styles.chartSwitcherContent}
-        >
-          {project.charts.map((chart) => {
-            const isActive = chart.id === selectedChartId
-            return (
-              <TouchableOpacity
-                key={chart.id}
-                style={[styles.chartTab, isActive && styles.chartTabActive]}
-                onPress={() => setSelectedChartId(chart.id)}
-                accessibilityRole="tab"
-                accessibilityState={{ selected: isActive }}
-              >
-                <Text style={[styles.chartTabText, isActive && styles.chartTabTextActive]}>
-                  {chart.name}
-                </Text>
-              </TouchableOpacity>
-            )
-          })}
-        </ScrollView>
-      )}
 
       {/* ── Pattern card（flex: 1，內部可垂直滾動）────────────────────────── */}
       <View style={[styles.patternCard, isPreviewMode && styles.patternCardPreview]}>
@@ -553,9 +562,25 @@ export default function ProgressTrackingScreen() {
           </View>
         </View>
 
-        {/* Pattern description */}
+        {/* Pattern description (collapsible) */}
         {descriptionText ? (
-          <Text style={styles.descriptionText}>{descriptionText}</Text>
+          <>
+            <TouchableOpacity
+              style={styles.descToggleRow}
+              onPress={() => setShowDescription((s) => !s)}
+              accessibilityRole="button"
+            >
+              <Text style={styles.descToggleLabel}>{t('tracking.patternDesc')}</Text>
+              <Ionicons
+                name={showDescription ? 'chevron-up' : 'chevron-down'}
+                size={13}
+                color="#9ca3af"
+              />
+            </TouchableOpacity>
+            {showDescription && (
+              <Text style={styles.descriptionText}>{descriptionText}</Text>
+            )}
+          </>
         ) : null}
 
         {/* Notes */}
@@ -690,36 +715,31 @@ const styles = StyleSheet.create({
     padding: 32,
   },
 
-  // ── Chart switcher ────────────────────────────────────────────────────────────
-  chartSwitcher: {
-    flexGrow: 0,
-    flexShrink: 0,
-    marginTop: 8,
+  // ── Header title (chart dropdown) ────────────────────────────────────────────
+  headerTitleBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    maxWidth: 200,
   },
-  chartSwitcherContent: {
-    paddingHorizontal: 16,
-    gap: 8,
-  },
-  chartTab: {
-    backgroundColor: '#fff',
-    borderRadius: 20,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: '#e5e7eb',
-  },
-  chartTabActive: {
-    backgroundColor: '#D97398',
-    borderColor: '#D97398',
-  },
-  chartTabText: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: '#6b7280',
-  },
-  chartTabTextActive: {
-    color: '#fff',
+  headerTitleText: {
+    fontSize: 17,
     fontWeight: '600',
+    color: '#1f2937',
+    flexShrink: 1,
+  },
+
+  // ── Description toggle ────────────────────────────────────────────────────────
+  descToggleRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginBottom: 4,
+  },
+  descToggleLabel: {
+    fontSize: 12,
+    fontWeight: '500',
+    color: '#9ca3af',
   },
 
   // ── Pattern card ─────────────────────────────────────────────────────────────
@@ -856,19 +876,19 @@ const styles = StyleSheet.create({
     color: '#374151',
   },
   counter: {
-    flex: 1,
+    flex: 2,
     flexDirection: 'row',
     alignItems: 'baseline',
     justifyContent: 'center',
   },
   counterCurrent: {
-    fontSize: 28,
+    fontSize: 40,
     fontWeight: '800',
     color: '#D97398',
     letterSpacing: -1,
   },
   counterTotal: {
-    fontSize: 15,
+    fontSize: 20,
     fontWeight: '600',
     color: '#9ca3af',
   },

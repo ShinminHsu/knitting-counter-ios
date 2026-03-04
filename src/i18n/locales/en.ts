@@ -76,10 +76,12 @@ const en = {
       double: 'Double Crochet',
       treble: 'Treble Crochet',
       sc_inc: 'SC Increase',
+      sc3inc: '3-SC Increase',
       hdc_inc: 'HDC Increase',
       dc_inc: 'DC Increase',
       tr_inc: 'TR Increase',
       sc2tog: 'SC2tog',
+      sc3tog: 'SC3tog',
       hdc2tog: 'HDC2tog',
       hdc3tog: 'HDC3tog',
       dc2tog: 'DC2tog',
@@ -144,7 +146,9 @@ const en = {
     noStitches: 'No stitches',
     emptyTitle: 'No Rounds Yet',
     emptyHint: 'Tap "Add Round" below to start building your pattern.',
-    addRound: '+ Add Round',
+    addRound: 'Add Round',
+    addRoundsTitle: 'Add Rounds',
+    addRoundsMessage: 'How many rounds to add?',
     insertAfter: 'Insert round after row {{index}}',
     roundBadge: 'R{{index}}',
     roundNotes: 'Note: {{notes}}',
@@ -199,6 +203,8 @@ const en = {
     nextRound: 'Next round',
     previewMode: 'Preview',
     returnToCurrent: 'Return to Current Progress',
+    patternDesc: 'Pattern',
+    selectChart: 'Switch Chart',
   },
 
   // ─── Import / Export ─────────────────────────────────────────────────────────
@@ -417,6 +423,10 @@ const en = {
     notesPlaceholder: 'Add round notes (optional)',
     done: 'Done',
     dragHandle: 'Drag to reorder',
+    multiSelectHint: 'Long-press to multi-select',
+    batchDeleteTitle: 'Delete Items',
+    batchDeleteMessage: 'Delete {{count}} selected item(s)? This cannot be undone.',
+    cancelSelect: 'Cancel',
   },
 
   splash: {
