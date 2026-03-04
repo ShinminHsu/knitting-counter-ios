@@ -57,7 +57,7 @@ export default function CompletionModal({
       } else {
         onClose()
       }
-    }, 2000)
+    }, 800)
     return () => clearTimeout(timer)
   }, [visible, interstitialShown, onClose])
 
@@ -78,26 +78,6 @@ export default function CompletionModal({
             },
           ]}
         >
-          {/* Celebration emoji with bounce animation */}
-          <Animated.Text
-            style={[
-              styles.emoji,
-              {
-                transform: [
-                  {
-                    scale: scaleAnim.interpolate({
-                      inputRange: [0, 0.5, 1],
-                      outputRange: [0, 1.2, 1],
-                    }),
-                  },
-                ],
-              },
-            ]}
-          >
-            🎉
-          </Animated.Text>
-
-          <Text style={styles.title}>{t('completion.title')}</Text>
           <Text style={styles.subtitle}>{t('completion.subtitle')}</Text>
 
         </Animated.View>

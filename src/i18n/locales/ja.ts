@@ -427,6 +427,7 @@ const ja = {
     batchDeleteTitle: '編み目を削除',
     batchDeleteMessage: '{{count}} 個の項目を削除しますか？この操作は取り消せません。',
     cancelSelect: 'キャンセル',
+    copySelected: 'コピー',
   },
 
   splash: {

@@ -70,7 +70,7 @@ export default function PhotoGallery({
           delayLongPress={400}
           activeOpacity={0.85}
         >
-          <Image source={{ uri: photo.uri }} style={styles.image} resizeMode="contain" />
+          <Image source={{ uri: photo.uri }} style={styles.image} resizeMode="cover" />
 
           {/* Cover indicator */}
           {photo.isCover && (

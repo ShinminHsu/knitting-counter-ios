@@ -427,6 +427,7 @@ const zhTW = {
     batchDeleteTitle: '刪除針法',
     batchDeleteMessage: '確定要刪除 {{count}} 個項目？此操作無法復原。',
     cancelSelect: '取消',
+    copySelected: '複製',
   },
 
   splash: {

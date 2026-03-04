@@ -199,7 +199,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
-          const opacity = symStatus === 'completed' ? 0.3 : symStatus === 'current' ? 1 : 0.7
+          const opacity = symStatus === 'completed' ? 0.5 : symStatus === 'current' ? 1 : 0.7
 
           if (showIcons && symbol.stitchType) {
             const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]
@@ -236,7 +236,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 const blockStyles = StyleSheet.create({
   // 每個 block 是一個直向欄位，橫向並排
   row: {
-    alignItems: 'center',
+    alignItems: 'flex-start',
     marginRight: 16,
     marginBottom: 14,
   },
@@ -260,6 +260,7 @@ const blockStyles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 6,
+    alignItems: 'center',
   },
   symbol: {
     fontSize: 15,
@@ -369,7 +370,7 @@ export default function ProgressTrackingScreen() {
   const displayRoundNumber = displayedRoundIndex + roundStartNumber
   const displayLastRoundNumber = totalRounds - 1 + roundStartNumber
 
-  const isLiveRound = !activeChart.isCompleted && totalRounds > 0
+  const isLiveRound = totalRounds > 0
   const isLastRound = currentRound === totalRounds - 1
 
   // ── Auto-scroll to active block ───────────────────────────────────────────────
@@ -563,8 +564,8 @@ export default function ProgressTrackingScreen() {
           </View>
         </View>
 
-        {/* Pattern description (collapsible) */}
-        {descriptionText ? (
+        {/* Pattern description + notes (collapsible) */}
+        {(descriptionText || currentRoundData?.notes) ? (
           <>
             <TouchableOpacity
               style={styles.descToggleRow}
@@ -579,14 +580,16 @@ export default function ProgressTrackingScreen() {
               />
             </TouchableOpacity>
             {showDescription && (
-              <Text style={styles.descriptionText}>{descriptionText}</Text>
+              <>
+                {descriptionText ? (
+                  <Text style={styles.descriptionText}>{descriptionText}</Text>
+                ) : null}
+                {currentRoundData?.notes ? (
+                  <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
+                ) : null}
+              </>
             )}
           </>
-        ) : null}
-
-        {/* Notes */}
-        {currentRoundData?.notes ? (
-          <Text style={styles.notesText}>{t('tracking.roundNotes', { notes: currentRoundData.notes })}</Text>
         ) : null}
 
         {/* Blocks：wrap 排列，超出高度可垂直滾動 */}

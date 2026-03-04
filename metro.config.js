@@ -10,7 +10,12 @@ config.transformer = {
   babelTransformerPath: require.resolve("react-native-svg-transformer"),
   svgrOptions: {
     // Replace hardcoded black fills with currentColor so SVGs can be tinted via the color prop
-    replaceAttrValues: { '#000': 'currentColor', '#000000': 'currentColor' },
+    replaceAttrValues: { '#000': 'currentColor', '#000000': 'currentColor', 'black': 'currentColor' },
+    svgoConfig: {
+      plugins: [
+        { name: 'inlineStyles', params: { onlyMatchedOnce: false, removeMatchedSelectors: true, useMqs: [] } },
+      ],
+    },
   },
 };
 

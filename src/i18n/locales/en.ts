@@ -427,6 +427,7 @@ const en = {
     batchDeleteTitle: 'Delete Items',
     batchDeleteMessage: 'Delete {{count}} selected item(s)? This cannot be undone.',
     cancelSelect: 'Cancel',
+    copySelected: 'Copy',
   },
 
   splash: {

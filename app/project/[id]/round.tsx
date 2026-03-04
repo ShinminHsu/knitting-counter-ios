@@ -454,6 +454,47 @@ export default function RoundEditScreen() {
     setSelectedItemIds(new Set())
   }
 
+  function handleBatchCopy() {
+    Alert.prompt(
+      t('round.duplicateCopiesTitle'),
+      t('round.duplicateCopiesMessage'),
+      (countStr) => {
+        const copies = parseInt(countStr ?? '1', 10)
+        if (!isNaN(copies) && copies > 0) {
+          const orderedItems = sortedItems.filter((item) => selectedItemIds.has(item.id))
+          for (let i = 0; i < copies; i++) {
+            orderedItems.forEach((item) => {
+              if (item.type === PatternItemType.STITCH && isStitchInfo(item.data)) {
+                addStitchToRound(
+                  project!.id,
+                  chart!.id,
+                  round!.id,
+                  item.data.type,
+                  item.data.count,
+                  item.data.customName,
+                  item.data.customAbbr,
+                )
+              } else if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
+                addGroup(
+                  project!.id,
+                  chart!.id,
+                  round!.id,
+                  item.data.name,
+                  item.data.stitches,
+                  item.data.repeatCount,
+                )
+              }
+            })
+          }
+          setSelectedItemIds(new Set())
+        }
+      },
+      'plain-text',
+      '1',
+      'number-pad',
+    )
+  }
+
   function handleBatchDelete() {
     const count = selectedItemIds.size
     Alert.alert(
@@ -605,18 +646,27 @@ export default function RoundEditScreen() {
           /* Select mode toolbar */
           <View style={styles.footerButtons}>
             <TouchableOpacity
-              style={[styles.addButton, styles.addButtonSecondary]}
+              style={styles.toolbarButtonCancel}
               onPress={handleCancelSelect}
               accessibilityRole="button"
             >
-              <Text style={styles.addButtonSecondaryText}>{t('round.cancelSelect')}</Text>
+              <Text style={styles.toolbarButtonCancelText}>{t('round.cancelSelect')}</Text>
             </TouchableOpacity>
             <TouchableOpacity
-              style={[styles.addButton, styles.deleteSelectedButton]}
-              onPress={handleBatchDelete}
+              style={[styles.toolbarButtonAction, selectedItemIds.size === 0 && styles.toolbarButtonDisabled]}
+              onPress={handleBatchCopy}
+              disabled={selectedItemIds.size === 0}
               accessibilityRole="button"
             >
-              <Text style={styles.deleteSelectedButtonText}>
+              <Text style={styles.toolbarButtonActionText}>{t('round.copySelected')}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.toolbarButtonDelete, selectedItemIds.size === 0 && styles.toolbarButtonDisabled]}
+              onPress={handleBatchDelete}
+              disabled={selectedItemIds.size === 0}
+              accessibilityRole="button"
+            >
+              <Text style={styles.toolbarButtonDeleteText}>
                 {t('common.delete')} ({selectedItemIds.size})
               </Text>
             </TouchableOpacity>
@@ -804,6 +854,53 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '700',
+  },
+  toolbarButtonCancel: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    backgroundColor: '#fff',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  toolbarButtonCancelText: {
+    color: '#6b7280',
+    fontSize: 15,
+    fontWeight: '600',
+  },
+  toolbarButtonAction: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: '#6b7280',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  toolbarButtonActionText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  toolbarButtonDelete: {
+    flex: 1,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: 'center',
+    backgroundColor: '#ef4444',
+    minHeight: 44,
+    justifyContent: 'center',
+  },
+  toolbarButtonDeleteText: {
+    color: '#fff',
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  toolbarButtonDisabled: {
+    opacity: 0.4,
   },
   swipeDeleteButton: {
     backgroundColor: '#ef4444',
