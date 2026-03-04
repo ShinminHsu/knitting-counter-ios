@@ -2,43 +2,15 @@ import 'react-native-gesture-handler';
 import '../global.css';
 import '../src/i18n';
 
-import { Stack, useRouter } from 'expo-router';
+import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
-import { Feather } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { initializeAds, loadInterstitialAd } from '../src/services';
-
-function BackHeaderButton({ label, tintColor }: { label?: string; tintColor?: string }) {
-  const router = useRouter()
-  const chevronColor = '#2D2D2D'
-  return (
-    <TouchableOpacity
-      onPress={() => router.back()}
-      style={styles.backBtn}
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-    >
-      <Feather name="chevron-left" size={22} color={chevronColor} />
-    </TouchableOpacity>
-  )
-}
-
-function HomeHeaderButton() {
-  const router = useRouter()
-  return (
-    <TouchableOpacity
-      onPress={() => router.navigate('/')}
-      style={styles.homeBtn}
-      hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-    >
-      <Feather name="home" size={20} color="#6b7280" />
-    </TouchableOpacity>
-  )
-}
 
 SplashScreen.preventAutoHideAsync()
 
@@ -82,47 +54,24 @@ export default function RootLayout() {
       <StatusBar style="dark" />
       <Stack
         screenOptions={{
-          headerStyle: { backgroundColor: '#faf5f0' },
-          headerTintColor: '#D97398',
-          headerTitleStyle: { color: '#2D2D2D' },
+          headerShown: false,
           contentStyle: { backgroundColor: '#faf5f0' },
-          headerLeft: ({ canGoBack, label, tintColor }) =>
-            canGoBack ? <BackHeaderButton label={label} tintColor={tintColor} /> : null,
-          headerRight: () => <HomeHeaderButton />,
         }}
       >
-        <Stack.Screen name="index" options={{ title: t('projectList.title'), headerShown: false }} />
-        <Stack.Screen name="project/[id]/index" options={{ title: t('projectDetail.title') }} />
-        <Stack.Screen name="project/[id]/editor" options={{ title: t('editor.navTitle') }} />
-        <Stack.Screen name="project/[id]/tracking" options={{ title: t('tracking.navTitle') }} />
-        <Stack.Screen name="project/[id]/import-export" options={{ title: t('importExport.title') }} />
-        <Stack.Screen name="project/[id]/round" options={{ title: t('round.navTitle') }} />
-        <Stack.Screen name="pattern-elements" options={{ title: t('patternElements.title') }} />
-        <Stack.Screen name="settings" options={{ title: t('settings.title') }} />
+        <Stack.Screen name="index" />
+        <Stack.Screen name="project/[id]/index" />
+        <Stack.Screen name="project/[id]/editor" />
+        <Stack.Screen name="project/[id]/tracking" />
+        <Stack.Screen name="project/[id]/import-export" />
+        <Stack.Screen name="project/[id]/round" />
+        <Stack.Screen name="pattern-elements" />
+        <Stack.Screen name="settings" />
       </Stack>
     </GestureHandlerRootView>
   );
 }
 
 const styles = StyleSheet.create({
-  backBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginLeft: 4,
-  },
-  homeBtn: {
-    width: 36,
-    height: 36,
-    borderRadius: 18,
-    backgroundColor: '#f3f4f6',
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginRight: 4,
-  },
   splash: {
     flex: 1,
     backgroundColor: '#faf5f0',

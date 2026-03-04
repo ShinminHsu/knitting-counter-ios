@@ -23,6 +23,7 @@ import PhotoGallery from '../../../src/components/PhotoGallery'
 import PhotoViewer from '../../../src/components/PhotoViewer'
 import { showConfirmDialog } from '../../../src/components/ConfirmDialog'
 import AdBanner from '../../../src/components/AdBanner'
+import ScreenHeader from '../../../src/components/ScreenHeader'
 import { formatDate } from '../../../src/utils/helpers'
 import {
   savePhoto,
@@ -244,6 +245,7 @@ export default function ProjectDetailScreen() {
   if (!project) {
     return (
       <SafeAreaView style={styles.container}>
+        <ScreenHeader title={t('projectDetail.title')} />
         <View style={styles.centered}>
           <Text style={styles.emptyText}>{t('projectDetail.notFound')}</Text>
           <TouchableOpacity
@@ -259,6 +261,7 @@ export default function ProjectDetailScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <ScreenHeader title={t('projectDetail.title')} />
       <ScrollView contentContainerStyle={styles.scrollContent}>
 
         {/* ── Header: project name + craft type badge + edit button ─────────── */}

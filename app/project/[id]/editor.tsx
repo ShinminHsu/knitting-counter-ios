@@ -12,7 +12,7 @@ import { Swipeable } from 'react-native-gesture-handler'
 import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flatlist'
 import * as Haptics from 'expo-haptics'
 import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../../src/i18n'
 import { useProjectStore } from '../../../src/stores'
@@ -22,6 +22,7 @@ import { logScreenView, logRoundAdded } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { PatternItem, PatternItemType, Round } from '../../../src/types'
 import EditChartModal from '../../../src/components/EditChartModal'
+import ScreenHeader from '../../../src/components/ScreenHeader'
 import {
   calcRoundTotalStitches,
   getStitchLabel,
@@ -377,8 +378,7 @@ export default function PatternEditorScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Dynamic header title via Stack.Screen */}
-      <Stack.Screen options={{ title: activeChart.name }} />
+      <ScreenHeader title={activeChart.name} />
 
       {/* ── Chart info bar ──────────────────────────────────────────────────── */}
       <View style={styles.chartInfoBar}>

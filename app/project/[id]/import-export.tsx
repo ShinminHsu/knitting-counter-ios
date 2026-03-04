@@ -11,9 +11,10 @@ import {
   Modal,
   Pressable,
 } from 'react-native'
-import { useLocalSearchParams, Stack, useRouter } from 'expo-router'
+import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { logScreenView, logImport, logExport } from '../../../src/services'
+import ScreenHeader from '../../../src/components/ScreenHeader'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { useProjectStore } from '../../../src/stores/useProjectStore'
 import {
@@ -180,8 +181,7 @@ export default function ImportExportScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Dynamic header title */}
-      <Stack.Screen options={{ title: t('importExport.title') }} />
+      <ScreenHeader title={t('importExport.title')} />
 
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* ── Export section ──────────────────────────────────────────────────── */}
