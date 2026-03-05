@@ -640,8 +640,6 @@ export default function RoundEditScreen() {
         />
       )}
 
-      <AdBanner />
-
       {/* Footer */}
       <View style={styles.footer}>
         {isSelectMode ? (

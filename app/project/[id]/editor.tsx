@@ -15,6 +15,7 @@ import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../../../src/i18n'
+import AdBanner from '../../../src/components/AdBanner'
 import { useProjectStore } from '../../../src/stores'
 import { useChartStore } from '../../../src/stores/useChartStore'
 import { useSettingsStore } from '../../../src/stores/useSettingsStore'
@@ -524,6 +525,8 @@ export default function PatternEditorScreen() {
           </TouchableOpacity>
         </View>
       )}
+
+      <AdBanner />
 
       <EditChartModal
         visible={showEditChart}
