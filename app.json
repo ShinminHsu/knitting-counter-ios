@@ -34,6 +34,15 @@
     },
     "plugins": [
       "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#faf5f0"
+        }
+      ],
       "expo-tracking-transparency",
       [
         "react-native-google-mobile-ads",

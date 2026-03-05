@@ -304,8 +304,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   thumbnailIcon: {
-    width: 30,
-    height: 30,
+    width: 60,
+    height: 60,
   },
   cardInfo: {
     flex: 1,
