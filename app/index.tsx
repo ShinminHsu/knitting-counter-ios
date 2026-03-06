@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -19,6 +19,8 @@ import { calculateProgressPercentage } from '../src/utils/progressUtils'
 import AdBanner from '../src/components/AdBanner'
 import CreateProjectModal from '../src/components/CreateProjectModal'
 import { showConfirmDialog } from '../src/components/ConfirmDialog'
+import SpotlightOverlay from '../src/components/SpotlightOverlay'
+import { useSpotlight } from '../src/hooks/useSpotlight'
 
 const formatDate = (dateStr: string): string => {
   const date = new Date(dateStr)
@@ -129,6 +131,25 @@ export default function ProjectListScreen() {
   const deleteProject = useProjectStore((s) => s.deleteProject)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
+  const addButtonRef = useRef<View>(null)
+  const settingsButtonRef = useRef<View>(null)
+
+  const { showSpotlight, resolvedSteps, dismiss } = useSpotlight(
+    SCREEN_NAMES.PROJECT_LIST,
+    [
+      {
+        ref: addButtonRef,
+        title: t('onboarding.projectListAddTitle'),
+        description: t('onboarding.projectListAddDesc'),
+      },
+      {
+        ref: settingsButtonRef,
+        title: t('onboarding.projectListSettingsTitle'),
+        description: t('onboarding.projectListSettingsDesc'),
+      },
+    ]
+  )
+
   useEffect(() => {
     logScreenView(SCREEN_NAMES.PROJECT_LIST)
   }, [])
@@ -150,6 +171,7 @@ export default function ProjectListScreen() {
         <Text style={styles.headerTitle}>{t('projectList.title')}</Text>
         <View style={styles.headerButtons}>
           <TouchableOpacity
+            ref={settingsButtonRef}
             onPress={() => router.push('/settings')}
             style={styles.settingsButton}
             accessibilityLabel={t('settings.title')}
@@ -157,6 +179,7 @@ export default function ProjectListScreen() {
             <Ionicons name="settings-outline" size={22} color="#6b7280" />
           </TouchableOpacity>
           <TouchableOpacity
+            ref={addButtonRef}
             onPress={() => setShowCreateModal(true)}
             style={styles.addButton}
             accessibilityLabel={t('projectList.addProject')}
@@ -197,6 +220,8 @@ export default function ProjectListScreen() {
         visible={showCreateModal}
         onClose={() => setShowCreateModal(false)}
       />
+
+      {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
     </SafeAreaView>
   )
 }

@@ -11,12 +11,17 @@ import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
 import { initializeAds, loadInterstitialAd } from '../src/services';
+import { useOnboardingStore } from '../src/stores';
+import OnboardingCarousel from '../src/components/OnboardingCarousel';
 
 SplashScreen.preventAutoHideAsync()
 
 export default function RootLayout() {
   const { t } = useTranslation()
   const [showLottie, setShowLottie] = useState(true)
+  const [showCarousel, setShowCarousel] = useState(false)
+  const hasSeenCarousel = useOnboardingStore((s) => s.hasSeenCarousel)
+  const markCarouselSeen = useOnboardingStore((s) => s.markCarouselSeen)
 
   useEffect(() => {
     // ATT + AdMob init must complete in sequence, but must not block app startup
@@ -42,7 +47,12 @@ export default function RootLayout() {
           autoPlay
           loop={false}
           style={styles.lottie}
-          onAnimationFinish={() => setShowLottie(false)}
+          onAnimationFinish={() => {
+            setShowLottie(false)
+            if (!hasSeenCarousel) {
+              setShowCarousel(true)
+            }
+          }}
         />
         <Text style={styles.splashTitle}>{t('splash.welcome')}</Text>
       </View>
@@ -52,6 +62,13 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <StatusBar style="dark" />
+      <OnboardingCarousel
+        visible={showCarousel}
+        onDismiss={() => {
+          markCarouselSeen()
+          setShowCarousel(false)
+        }}
+      />
       <Stack
         screenOptions={{
           headerShown: false,

@@ -35,4 +35,5 @@ export const STORAGE_KEYS = {
   LANGUAGE: 'language',
   STITCH_DISPLAY_MODE: 'stitchDisplayMode',
   SETTINGS: 'settings',
+  ONBOARDING: 'onboarding',
 } as const

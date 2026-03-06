@@ -276,20 +276,58 @@ const en = {
   // ─── User Guide ──────────────────────────────────────────────────────────────
   guide: {
     title: 'User Guide',
-    addProjectTitle: 'How to Add a Project',
+    replayButton: 'Replay Onboarding Tutorial',
+    replayTitle: 'Tutorial Reset',
+    replayMessage: 'The onboarding carousel will appear again next time you open the app.',
+
+    sectionProjects: 'Project Management',
     addProject1: 'Tap the "+" button in the top-right corner of My Projects.',
     addProject2: 'Enter a project name (e.g. Scarf, Hat) and choose a craft type.',
     addProject3: 'Tap "Create" to finish. The project will appear in your list.',
+    tipSwipeDeleteProject: 'Swipe left on a project card to reveal the delete button.',
+    tipProjectPhoto: 'In the project detail screen, add reference or progress photos in the Photos section.',
+
+    sectionCharts: 'Charts',
+    buildChart1: 'In the project detail screen, tap "+ Add" to create a chart (e.g. body, brim).',
+    buildChart2: 'Tap "Edit Chart" to open the editor, then add rounds and stitches.',
+    buildChart3: 'A project can have multiple charts. You can switch between them while tracking.',
+    buildChart4: 'Add notes to charts or rounds for future reference.',
+    tipSwipeDeleteChart: 'Swipe left on a chart card to reveal the delete button.',
+    tipImportExport: 'Tap the share icon in the project detail header to import or export the project.',
+
+    sectionEditor: 'Round Editing',
+    editor1: 'Tap "Add Round" in the editor to add a new round, then add stitches to it.',
+    editor2: 'Use "Add Group" to create a repeated stitch group, e.g. (k2, p2) × 5.',
+    tipLongPressMultiSelect: 'Long-press any round to enter selection mode and batch copy or delete multiple rounds.',
+    tipDragReorder: 'Long-press the drag handle (☰) on the left of a round to drag and reorder.',
+    tipStitchGroup: 'In the round editor, long-press stitch items to multi-select, or drag the handle to reorder.',
+
+    sectionTracking: 'Stitch Tracking',
+    track1: 'Tap "Start Tracking" on the project detail screen to enter tracking mode.',
+    track2: 'Tap "Next Stitch →" after each stitch. The app advances to the next round automatically when a round is complete.',
+    track3: 'Tap "← Prev Stitch" to go back one stitch — even across round boundaries.',
+    track4: 'Tap "Complete Round N" to finish a full round instantly, or "Reset Round" to start the round over.',
+    tipPreviewMode: 'Tap the ‹ › arrows in the pattern card header to preview other rounds without affecting your progress.',
+    tipDisplayToggle: 'Tap the icon button in the top-right of the pattern card to toggle between abbreviation text and stitch icons.',
+    tipBlockTap: 'Tap any stitch block in the pattern to jump directly to that position.',
+
+    sectionGestures: 'Gesture Summary',
+    gestureSwipeLeft: 'Swipe Left',
+    gestureSwipeLeftDesc: 'Swipe left on project cards, chart cards, or stitch library items to reveal the delete button.',
+    gestureLongPress: 'Long-Press',
+    gestureLongPressDesc: 'Long-press a round or stitch item to enter selection mode for batch copy or delete.',
+    gestureDrag: 'Drag to Reorder',
+    gestureDragDesc: 'Long-press the ☰ drag handle on the left of list items to drag and reorder them.',
+
+    sectionStitchLibrary: 'Stitch Library',
+    stitchLib1: 'Go to Settings → Stitch & Template Library to create custom stitches with custom abbreviations and stitch counts.',
+    stitchLib2: 'The Templates tab lets you save stitch groups. Apply them with one tap when building chart rounds.',
+    tipSwipeDeleteStitch: 'Swipe left on any custom stitch or template to delete it.',
+
+    // Legacy keys
+    addProjectTitle: 'How to Add a Project',
     buildChartTitle: 'How to Build a Chart',
-    buildChart1: 'Open a project and go to the pattern editor.',
-    buildChart2: 'Tap "Add Round" to add a round or row.',
-    buildChart3: 'Add stitch items to each round and set the stitch type and count.',
-    buildChart4: 'Add notes to rounds or stitches for future reference.',
     trackTitle: 'How to Track Progress',
-    track1: 'Tap "Start Tracking" on the project detail screen.',
-    track2: 'Tap "Next" after each stitch — the counter advances automatically.',
-    track3: 'Tap "Prev" to go back one stitch if you made a mistake.',
-    track4: 'When a round is done, the app moves to the next round automatically.',
   },
 
   // ─── Modals ──────────────────────────────────────────────────────────────────
@@ -442,6 +480,75 @@ const en = {
     languageJa: '日本語',
     toolsSection: 'Tools',
     stitchLibrary: 'Stitch & Template Library',
+    helpSection: 'Help',
+    helpGuide: 'User Guide',
+  },
+
+  onboarding: {
+    carouselSkip: 'Skip',
+    carouselNext: 'Next',
+    carouselStart: 'Get Started',
+
+    slide1Title: 'Welcome to Stitchie',
+    slide1Desc: 'Your knitting & crochet companion. Manage projects, track progress, and enjoy crafting more.',
+
+    slide2Title: 'Manage Your Projects',
+    slide2Desc: 'Tap "+" to create a new project. Swipe left on any project or chart card to reveal the delete button.',
+
+    slide3Title: 'Design Your Charts',
+    slide3Desc: 'Add multiple charts per project, then add rounds with stitch patterns. Long-press to multi-select; drag the handle to reorder.',
+
+    slide4Title: 'Precise Stitch Tracking',
+    slide4Desc: 'Tap "Next Stitch" to count each stitch — rounds advance automatically. Use the arrows to preview other rounds without losing your place.',
+
+    slide5Title: 'More Powerful Features',
+    slide5Desc: 'Create custom stitches and templates in the stitch library. Add reference photos. Import and export projects anytime.',
+
+    spotlightSkip: 'Skip',
+    spotlightNext: 'Next',
+    spotlightDone: 'Done',
+
+    projectListAddTitle: 'Add a Project',
+    projectListAddDesc: 'Tap "+" to create your first knitting project. Swipe left on a project card to delete it.',
+    projectListSettingsTitle: 'Settings',
+    projectListSettingsDesc: 'Change language or visit the User Guide to learn about all features.',
+
+    projectDetailAddChartTitle: 'Add a Chart',
+    projectDetailAddChartDesc: 'One project can have multiple charts (e.g. body, brim). Swipe left on a chart card to delete it.',
+    projectDetailExportTitle: 'Import / Export',
+    projectDetailExportDesc: 'Export your project as a file to back it up or share it. You can also import projects from files.',
+    projectDetailEditTitle: 'Edit Project',
+    projectDetailEditDesc: 'Update the project name, notes, or source. Add reference photos in the Photos section below.',
+
+    editorAddRoundTitle: 'Add a Round',
+    editorAddRoundDesc: 'Tap "Add Round" to add a new row or round to your chart, then edit its stitch content.',
+    editorLongPressTitle: 'Long-Press to Multi-Select',
+    editorLongPressDesc: 'Long-press any round to enter selection mode. You can then batch copy or delete multiple rounds.',
+    editorDragTitle: 'Drag to Reorder',
+    editorDragDesc: 'Long-press the drag handle on the left to drag and reorder rounds.',
+
+    roundAddStitchTitle: 'Add a Stitch',
+    roundAddStitchDesc: 'Tap "+ Add Stitch" to add stitch types like knit or purl, and set the stitch count.',
+    roundAddGroupTitle: 'Add a Group',
+    roundAddGroupDesc: 'Groups combine multiple stitches with a repeat count — perfect for patterns like "(k2, p2) × 5".',
+    roundLongPressTitle: 'Multi-Select & Drag',
+    roundLongPressDesc: 'Long-press a stitch to multi-select and batch delete. Long-press the handle to drag and reorder.',
+
+    trackingNextTitle: 'Next Stitch',
+    trackingNextDesc: 'Tap "Next Stitch" after each stitch. The app automatically advances to the next round when a round is complete.',
+    trackingPrevTitle: 'Previous Stitch',
+    trackingPrevDesc: 'Made a mistake? Tap "Previous Stitch" to go back — even across round boundaries.',
+    trackingToggleTitle: 'Toggle Display Mode',
+    trackingToggleDesc: 'Switch between abbreviation text and stitch symbol icons for the pattern display.',
+    trackingPreviewTitle: 'Preview Other Rounds',
+    trackingPreviewDesc: 'Tap the arrow buttons to preview the pattern of any other round — your tracking progress is unaffected.',
+
+    patternCustomTabTitle: 'Custom Stitches',
+    patternCustomTabDesc: 'Create your own special stitches with custom abbreviations and stitch counts for use in charts.',
+    patternAddCustomTitle: 'Add Custom Stitch',
+    patternAddCustomDesc: 'Tap to add a new stitch. Swipe left on any item to delete it.',
+    patternTemplateTabTitle: 'Templates',
+    patternTemplateTabDesc: 'Save frequently used stitch groups as templates. Apply them with one tap when building chart rounds.',
   },
 } as const
 

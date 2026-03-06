@@ -24,6 +24,8 @@ import { SCREEN_NAMES } from '../../../src/constants'
 import { PatternItem, PatternItemType, Round } from '../../../src/types'
 import EditChartModal from '../../../src/components/EditChartModal'
 import ScreenHeader from '../../../src/components/ScreenHeader'
+import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
+import { useSpotlight } from '../../../src/hooks/useSpotlight'
 import {
   calcRoundTotalStitches,
   getStitchLabel,
@@ -197,6 +199,25 @@ export default function PatternEditorScreen() {
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isDragging, setIsDragging] = useState(false)
+
+  const addRoundButtonRef = useRef<View>(null)
+  const firstRoundRef = useRef<View>(null)
+
+  const { showSpotlight, resolvedSteps, dismiss } = useSpotlight(
+    SCREEN_NAMES.PATTERN_EDITOR,
+    [
+      {
+        ref: addRoundButtonRef,
+        title: t('onboarding.editorAddRoundTitle'),
+        description: t('onboarding.editorAddRoundDesc'),
+      },
+      {
+        ref: firstRoundRef,
+        title: t('onboarding.editorLongPressTitle'),
+        description: t('onboarding.editorLongPressDesc'),
+      },
+    ]
+  )
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -429,32 +450,35 @@ export default function PatternEditorScreen() {
           }}
           renderItem={({ item, getIndex, drag, isActive }: RenderItemParams<Round>) => {
             const index = getIndex() ?? 0
+            const isFirst = index === 0
             return (
-              <Swipeable
-                enabled={!isDragging && !isSelecting}
-                renderRightActions={() => (
-                  <TouchableOpacity
-                    style={styles.swipeDeleteButton}
-                    onPress={() => handleDeleteRound(item.id, index)}
-                    accessibilityLabel={t('common.deleteRound')}
-                    accessibilityRole="button"
-                  >
-                    <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
-                  </TouchableOpacity>
-                )}
-              >
-                <RoundRow
-                  round={item}
-                  index={index}
-                  roundStartNumber={roundStartNumber}
-                  isSelecting={isSelecting}
-                  isSelected={selectedIds.has(item.id)}
-                  isActive={isActive}
-                  drag={drag}
-                  onLongPress={() => handleLongPress(item.id)}
-                  onPress={() => handleRowPress(item)}
-                />
-              </Swipeable>
+              <View ref={isFirst ? firstRoundRef : undefined}>
+                <Swipeable
+                  enabled={!isDragging && !isSelecting}
+                  renderRightActions={() => (
+                    <TouchableOpacity
+                      style={styles.swipeDeleteButton}
+                      onPress={() => handleDeleteRound(item.id, index)}
+                      accessibilityLabel={t('common.deleteRound')}
+                      accessibilityRole="button"
+                    >
+                      <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+                    </TouchableOpacity>
+                  )}
+                >
+                  <RoundRow
+                    round={item}
+                    index={index}
+                    roundStartNumber={roundStartNumber}
+                    isSelecting={isSelecting}
+                    isSelected={selectedIds.has(item.id)}
+                    isActive={isActive}
+                    drag={drag}
+                    onLongPress={() => handleLongPress(item.id)}
+                    onPress={() => handleRowPress(item)}
+                  />
+                </Swipeable>
+              </View>
             )
           }}
           ItemSeparatorComponent={({ leadingItem }: { leadingItem: Round }) => {
@@ -516,6 +540,7 @@ export default function PatternEditorScreen() {
       ) : (
         <View style={styles.footer}>
           <TouchableOpacity
+            ref={addRoundButtonRef}
             style={styles.addRoundButton}
             onPress={handleAddRoundWithPrompt}
             accessibilityLabel={t('editor.addRound')}
@@ -534,6 +559,8 @@ export default function PatternEditorScreen() {
         chart={activeChart}
         onClose={() => setShowEditChart(false)}
       />
+
+      {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
     </SafeAreaView>
   )
 }

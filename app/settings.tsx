@@ -42,6 +42,22 @@ export default function SettingsScreen() {
         </View>
       </View>
 
+      {/* Help section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>{t('settings.helpSection')}</Text>
+        <View style={styles.optionGroup}>
+          <TouchableOpacity
+            style={styles.optionRow}
+            onPress={() => router.push('/guide')}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+          >
+            <Text style={styles.optionLabel}>{t('settings.helpGuide')}</Text>
+            <Feather name="chevron-right" size={18} color="#9ca3af" />
+          </TouchableOpacity>
+        </View>
+      </View>
+
       {/* Language section */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>{t('settings.language')}</Text>
