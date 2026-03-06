@@ -26,7 +26,7 @@ import EditChartModal from '../../../src/components/EditChartModal'
 import ScreenHeader from '../../../src/components/ScreenHeader'
 import {
   calcRoundTotalStitches,
-  getStitchLabel,
+  getLocalizedStitchName,
   isStitchGroup,
   isStitchInfo,
 } from '../../../src/utils/patternHelpers'
@@ -35,14 +35,14 @@ import {
 
 function buildItemSummary(item: PatternItem): string {
   if (item.type === PatternItemType.STITCH && isStitchInfo(item.data)) {
-    const label = getStitchLabel(item.data)
+    const label = getLocalizedStitchName(item.data, i18n.t)
     return `${label} × ${item.data.count}`
   }
   if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
     const group = item.data
     const sep = i18n.t('common.stitchListSep')
     const stitchSummary = group.stitches
-      .map((s) => `${getStitchLabel(s)} ${s.count}`)
+      .map((s) => `${getLocalizedStitchName(s, i18n.t)} ${s.count}`)
       .join(sep)
     return stitchSummary
       ? i18n.t('common.groupSummary', { name: group.name, stitches: stitchSummary, count: group.repeatCount })

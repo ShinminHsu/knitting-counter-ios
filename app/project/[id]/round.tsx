@@ -27,12 +27,11 @@ import GroupEditor, { GroupEditorResult } from '../../../src/components/GroupEdi
 import AdBanner from '../../../src/components/AdBanner'
 import ScreenHeader from '../../../src/components/ScreenHeader'
 import {
-  getStitchLabel,
+  getLocalizedStitchName,
   isStitchInfo,
   isStitchGroup,
   calcRoundTotalStitches,
 } from '../../../src/utils/patternHelpers'
-import { StitchTypeInfo } from '../../../src/types'
 
 // ─── Stitch Editor Modal ──────────────────────────────────────────────────────
 
@@ -81,7 +80,7 @@ function StitchEditor({ title, stitchType, count: initialCount, craftType, onCon
             accessibilityLabel={t('round.changeStitchType')}
           >
             <Text style={styles.stitchTypeLabel} numberOfLines={1}>
-              {currentType === StitchType.CUSTOM ? t('stitch.category.custom') : StitchTypeInfo[currentType]?.label ?? currentType}
+              {currentType === StitchType.CUSTOM ? t('stitch.category.custom') : t(`stitch.name.${currentType}`)}
             </Text>
             <Feather name="chevron-right" size={16} color="#9ca3af" />
           </TouchableOpacity>
@@ -186,12 +185,12 @@ function PatternItemRow({ item, drag, isActive, isDragging, isSelectMode, isSele
 
   const getLabel = (): string => {
     if (item.type === PatternItemType.STITCH && isStitchInfo(item.data)) {
-      return getStitchLabel(item.data)
+      return getLocalizedStitchName(item.data, i18n.t)
     }
     if (item.type === PatternItemType.GROUP && isStitchGroup(item.data)) {
       const group = item.data
       const sep = i18n.t('common.stitchListSep')
-      const stitchSummary = group.stitches.map((s) => `${getStitchLabel(s)} ${s.count}`).join(sep)
+      const stitchSummary = group.stitches.map((s) => `${getLocalizedStitchName(s, i18n.t)} ${s.count}`).join(sep)
       return stitchSummary
         ? i18n.t('common.groupSummary', { name: group.name, stitches: stitchSummary, count: group.repeatCount })
         : i18n.t('common.groupSummaryEmpty', { name: group.name, count: group.repeatCount })
@@ -229,7 +228,7 @@ function PatternItemRow({ item, drag, isActive, isDragging, isSelectMode, isSele
       >
         {item.type === PatternItemType.STITCH && isStitchInfo(item.data) ? (
           <Text style={styles.itemLabel}>
-            {getStitchLabel(item.data)}<Text style={styles.itemCountInline}>×{item.data.count}</Text>
+            {getLocalizedStitchName(item.data, i18n.t)}<Text style={styles.itemCountInline}>×{item.data.count}</Text>
           </Text>
         ) : (
           <Text style={styles.itemLabel}>{getLabel()}</Text>

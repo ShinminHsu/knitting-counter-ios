@@ -30,8 +30,9 @@ const STITCH_SYMBOL: Partial<Record<StitchType, string>> = {
   [StitchType.SC_INC]:       'V',
   [StitchType.SC3INC]:       'Ψ',
   [StitchType.HDC_INC]:      'V̈',
+  [StitchType.HDC3_INC]:     'Ψ̈',
   [StitchType.DC_INC]:       'Ṽ',
-  [StitchType.TR_INC]:       'V̄',
+  [StitchType.DC3_INC]:      'Ψ̃',
   // 鉤針減針
   [StitchType.SC2TOG]:       'Λ',
   [StitchType.SC3TOG]:       '⋀',
@@ -39,7 +40,6 @@ const STITCH_SYMBOL: Partial<Record<StitchType, string>> = {
   [StitchType.HDC3TOG]:      '⋀',
   [StitchType.DC2TOG]:       '∧',
   [StitchType.DC3TOG]:       '⋀',
-  [StitchType.TR3TOG]:       '⋀',
   // 鉤針特殊
   [StitchType.DC3_CLUSTER]:  '❋',
   [StitchType.HDC3_CLUSTER]: '❊',
@@ -140,12 +140,12 @@ export default function StitchPicker({
           if (!q) return true
           const info = StitchTypeInfo[type]
           return (
-            info.label.toLowerCase().includes(q) ||
+            t(`stitch.name.${type}`).toLowerCase().includes(q) ||
             info.abbr.toLowerCase().includes(q) ||
             info.englishName.toLowerCase().includes(q)
           )
         })
-        return { title: cat.label, data: filtered.map((t): BuiltInItem => ({ kind: 'builtin', stitchType: t })) }
+        return { title: t(cat.label), data: filtered.map((t): BuiltInItem => ({ kind: 'builtin', stitchType: t })) }
       })
       .filter((sec) => sec.data.length > 0)
 
@@ -201,7 +201,7 @@ export default function StitchPicker({
           ) : (
             <Text style={styles.stitchSymbol}>{symbol}</Text>
           )}
-          <Text style={styles.stitchLabel}>{t(`stitch.name.${item.stitchType}`, { defaultValue: info.label })}</Text>
+          <Text style={styles.stitchLabel}>{t(`stitch.name.${item.stitchType}`)}</Text>
           <Text style={styles.stitchAbbr}>{info.abbr}</Text>
         </TouchableOpacity>
       )
