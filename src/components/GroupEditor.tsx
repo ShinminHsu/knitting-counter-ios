@@ -17,7 +17,7 @@ import DraggableFlatList, { RenderItemParams } from 'react-native-draggable-flat
 import { useTranslation } from 'react-i18next'
 import { CraftType, CustomStitchPattern, StitchInfo, StitchType } from '../types'
 import { generateId } from '../utils/helpers'
-import { getStitchLabel } from '../utils/patternHelpers'
+import { getLocalizedStitchName } from '../utils/patternHelpers'
 import StitchPicker from './StitchPicker'
 import { useTemplateStore } from '../stores/useTemplateStore'
 
@@ -54,7 +54,7 @@ interface StitchRowProps {
 
 function StitchRow({ stitch, drag, onPress, onChangeCount }: StitchRowProps) {
   const { t } = useTranslation()
-  const label = getStitchLabel(stitch)
+  const label = getLocalizedStitchName(stitch, t)
   const [countText, setCountText] = useState(String(stitch.count))
   const isEditingRef = useRef(false)
 

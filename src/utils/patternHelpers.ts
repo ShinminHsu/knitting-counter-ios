@@ -80,26 +80,15 @@ export function getStitchAbbr(stitch: StitchInfo): string {
 }
 
 /**
- * 取得 StitchInfo 的顯示中文名稱
- * 自訂針法使用 customName，否則使用 StitchTypeInfo 的 label
- */
-export function getStitchLabel(stitch: StitchInfo): string {
-  if (stitch.type === StitchType.CUSTOM) {
-    return stitch.customName ?? '自訂'
-  }
-  return StitchTypeInfo[stitch.type].label
-}
-
-/**
  * 取得針法的本地化名稱（支援 i18n）
- * 自訂針法使用 customName，內建針法使用 t('stitch.name.xxx')，fallback 為 label
+ * 自訂針法使用 customName，內建針法使用 t('stitch.name.xxx')
  */
 export function getLocalizedStitchName(
   stitch: StitchInfo,
-  t: (key: string, options?: { defaultValue: string }) => string
+  t: (key: string) => string
 ): string {
   if (stitch.type === StitchType.CUSTOM) {
-    return stitch.customName ?? '自訂'
+    return stitch.customName ?? t('stitch.name.custom')
   }
-  return t(`stitch.name.${stitch.type}`, { defaultValue: StitchTypeInfo[stitch.type].label })
+  return t(`stitch.name.${stitch.type}`)
 }

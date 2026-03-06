@@ -15,8 +15,9 @@ const CROCHET_STITCHES: StitchType[] = [
   StitchType.SC_INC,
   StitchType.SC3INC,
   StitchType.HDC_INC,
+  StitchType.HDC3_INC,
   StitchType.DC_INC,
-  StitchType.TR_INC,
+  StitchType.DC3_INC,
   // 減針
   StitchType.SC2TOG,
   StitchType.SC3TOG,
@@ -24,7 +25,6 @@ const CROCHET_STITCHES: StitchType[] = [
   StitchType.HDC3TOG,
   StitchType.DC2TOG,
   StitchType.DC3TOG,
-  StitchType.TR3TOG,
   // 特殊
   StitchType.DC3_CLUSTER,
   StitchType.HDC3_CLUSTER,
@@ -91,7 +91,7 @@ export interface StitchCategory {
 
 export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
   {
-    label: '基礎針法',
+    label: 'stitch.category.crochetBasic',
     stitches: [
       StitchType.MAGIC_RING,
       StitchType.CHAIN,
@@ -103,17 +103,18 @@ export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
     ],
   },
   {
-    label: '加針',
+    label: 'stitch.category.crochetIncrease',
     stitches: [
       StitchType.SC_INC,
       StitchType.SC3INC,
       StitchType.HDC_INC,
+      StitchType.HDC3_INC,
       StitchType.DC_INC,
-      StitchType.TR_INC,
+      StitchType.DC3_INC,
     ],
   },
   {
-    label: '減針',
+    label: 'stitch.category.crochetDecrease',
     stitches: [
       StitchType.SC2TOG,
       StitchType.SC3TOG,
@@ -121,11 +122,10 @@ export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
       StitchType.HDC3TOG,
       StitchType.DC2TOG,
       StitchType.DC3TOG,
-      StitchType.TR3TOG,
     ],
   },
   {
-    label: '特殊針法',
+    label: 'stitch.category.crochetSpecial',
     stitches: [
       StitchType.DC3_CLUSTER,
       StitchType.HDC3_CLUSTER,
@@ -137,7 +137,7 @@ export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
 
 export const KNITTING_STITCH_CATEGORIES: StitchCategory[] = [
   {
-    label: '基礎針法',
+    label: 'stitch.category.knitBasic',
     stitches: [
       StitchType.CAST_ON,
       StitchType.BIND_OFF,
@@ -150,12 +150,17 @@ export const KNITTING_STITCH_CATEGORIES: StitchCategory[] = [
     ],
   },
   {
-    label: '減針',
+    label: 'stitch.category.knitDecrease2',
     stitches: [
       StitchType.SSK,
       StitchType.SSP,
       StitchType.K2TOG,
       StitchType.P2TOG,
+    ],
+  },
+  {
+    label: 'stitch.category.knitDecrease3',
+    stitches: [
       StitchType.SSSK,
       StitchType.SSSP,
       StitchType.K3TOG,
@@ -165,7 +170,7 @@ export const KNITTING_STITCH_CATEGORIES: StitchCategory[] = [
     ],
   },
   {
-    label: '加針',
+    label: 'stitch.category.knitIncrease',
     stitches: [
       StitchType.M1L,
       StitchType.M1LP,
@@ -176,7 +181,7 @@ export const KNITTING_STITCH_CATEGORIES: StitchCategory[] = [
     ],
   },
   {
-    label: '麻花／交叉',
+    label: 'stitch.category.knitCable',
     stitches: [
       StitchType.CABLE_1_1_RC,
       StitchType.CABLE_1_1_LC,
@@ -198,13 +203,15 @@ export const STITCH_CATEGORIES_BY_CRAFT: Record<CraftType, StitchCategory[]> = {
 
 // ─── 加針類型（Req 4.15：加針計為 2 針）────────────────────────────────────────
 
-/** 加針針法清單：這些針法在計算針目數時佔 2 針（stitchCount = 2）*/
+/** 加針針法清單：這些針法在計算針目數時佔 2 針以上（stitchCount > 1）*/
 export const INCREASE_STITCH_TYPES: StitchType[] = [
   // 鉤針加針
   StitchType.SC_INC,
+  StitchType.SC3INC,
   StitchType.HDC_INC,
+  StitchType.HDC3_INC,
   StitchType.DC_INC,
-  StitchType.TR_INC,
+  StitchType.DC3_INC,
   // 棒針加針
   StitchType.M1L,
   StitchType.M1LP,
