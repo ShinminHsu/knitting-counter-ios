@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -24,6 +24,8 @@ import PhotoViewer from '../../../src/components/PhotoViewer'
 import { showConfirmDialog } from '../../../src/components/ConfirmDialog'
 import AdBanner from '../../../src/components/AdBanner'
 import ScreenHeader from '../../../src/components/ScreenHeader'
+import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
+import { useSpotlight } from '../../../src/hooks/useSpotlight'
 import { formatDate } from '../../../src/utils/helpers'
 import {
   savePhoto,
@@ -160,6 +162,31 @@ export default function ProjectDetailScreen() {
   const [showAddChart, setShowAddChart] = useState(false)
   const [viewingPhoto, setViewingPhoto] = useState<ProjectPhoto | null>(null)
 
+  const addChartButtonRef = useRef<View>(null)
+  const exportButtonRef = useRef<View>(null)
+  const editButtonRef = useRef<View>(null)
+
+  const { showSpotlight, resolvedSteps, dismiss } = useSpotlight(
+    SCREEN_NAMES.PROJECT_DETAIL,
+    [
+      {
+        ref: addChartButtonRef,
+        title: t('onboarding.projectDetailAddChartTitle'),
+        description: t('onboarding.projectDetailAddChartDesc'),
+      },
+      {
+        ref: exportButtonRef,
+        title: t('onboarding.projectDetailExportTitle'),
+        description: t('onboarding.projectDetailExportDesc'),
+      },
+      {
+        ref: editButtonRef,
+        title: t('onboarding.projectDetailEditTitle'),
+        description: t('onboarding.projectDetailEditDesc'),
+      },
+    ]
+  )
+
   // ── 照片處理 ────────────────────────────────────────────────────────────────
 
   const handleAddPhoto = () => {
@@ -275,6 +302,7 @@ export default function ProjectDetailScreen() {
 
           <View style={styles.headerActions}>
             <TouchableOpacity
+              ref={exportButtonRef}
               style={styles.headerIconButton}
               onPress={() => router.push(`/project/${project.id}/import-export`)}
               accessibilityLabel={t('projectDetail.importExport')}
@@ -282,6 +310,7 @@ export default function ProjectDetailScreen() {
               <Feather name="share" size={18} color="#6b7280" />
             </TouchableOpacity>
             <TouchableOpacity
+              ref={editButtonRef}
               style={styles.headerIconButton}
               onPress={() => setShowEditProject(true)}
               accessibilityLabel={t('projectDetail.editProject')}
@@ -337,6 +366,7 @@ export default function ProjectDetailScreen() {
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionTitle}>{t('projectDetail.sectionCharts')}</Text>
             <TouchableOpacity
+              ref={addChartButtonRef}
               style={styles.addChartButton}
               onPress={() => setShowAddChart(true)}
             >
@@ -398,6 +428,8 @@ export default function ProjectDetailScreen() {
           onClose={() => setViewingPhoto(null)}
         />
       )}
+
+      {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
     </SafeAreaView>
   )
 }

@@ -276,20 +276,58 @@ const zhTW = {
   // ─── 使用說明 ────────────────────────────────────────────────────────────────
   guide: {
     title: '使用說明',
-    addProjectTitle: '如何新增專案',
+    replayButton: '重新觀看新手教學',
+    replayTitle: '教學已重置',
+    replayMessage: '下次開啟 App 時，將再次顯示新手教學輪播。',
+
+    sectionProjects: '專案管理',
     addProject1: '在「我的專案」主畫面點擊右上角的「＋」按鈕。',
     addProject2: '輸入專案名稱（例如：圍巾、帽子），並選擇針法類型。',
     addProject3: '點擊「建立」完成新增，專案會出現在清單中。',
-    buildChartTitle: '如何建立織圖',
-    buildChart1: '進入專案詳細頁面，點擊「織圖編輯器」。',
-    buildChart2: '點擊「新增段落」，為每一圈或每一排新增一個段落。',
-    buildChart3: '在段落中新增針法項目，設定針法類型和針數。',
-    buildChart4: '可為段落或針法加上備註，方便日後參考。',
-    trackTitle: '如何追蹤進度',
+    tipSwipeDeleteProject: '左滑專案卡片，可顯示刪除按鈕。',
+    tipProjectPhoto: '進入專案詳細頁，可在「相片」區域新增參考照片或進度照片。',
+
+    sectionCharts: '織圖（Charts）',
+    buildChart1: '進入專案詳細頁，點擊「+ 新增」新增織圖（例如：帽身、帽緣）。',
+    buildChart2: '點擊「編輯織圖」進入段落編輯器，新增段落後加入針法。',
+    buildChart3: '一個專案可以有多張織圖，計數時可以在織圖之間切換。',
+    buildChart4: '可為織圖或段落加上備註，方便日後參考。',
+    tipSwipeDeleteChart: '左滑織圖卡片，可顯示刪除按鈕。',
+    tipImportExport: '點擊專案詳細頁右上角的分享圖示，可匯出或匯入專案。',
+
+    sectionEditor: '段落編輯',
+    editor1: '在段落編輯器中點擊「新增段落」，輸入一圈的針法序列。',
+    editor2: '可為段落加入「針法群組」，用於設定重複次數的花樣，例如：（下針 2、上針 2）× 5。',
+    tipLongPressMultiSelect: '長按任一段落，可進入多選模式，批次複製或刪除多個段落。',
+    tipDragReorder: '長按段落左側的拖曳把手（☰），可拖動段落調整順序。',
+    tipStitchGroup: '在段落編輯器中也可長按針法項目多選，或拖曳把手調整針法順序。',
+
+    sectionTracking: '計數追蹤',
     track1: '在專案詳細頁面點擊「開始追蹤」進入追蹤模式。',
-    track2: '每完成一針，點擊「下一針」，計數器會自動前進。',
-    track3: '若針數錯誤，點擊「上一針」退回一步。',
-    track4: '完成一圈後，系統會自動跳至下一段落繼續計數。',
+    track2: '每完成一針，點擊「下一針 →」，計數器自動前進。完成整圈後系統自動換圈。',
+    track3: '若針數點錯，點擊「← 上一針」退回一步，可跨圈退回。',
+    track4: '點擊「完成第 N 圈」可一次完成整圈；點擊「重新開始此圈」可歸零重數。',
+    tipPreviewMode: '點擊花樣卡標題左右的 ‹ › 箭頭，可預覽其他圈的針法，不影響計數進度。',
+    tipDisplayToggle: '點擊花樣卡右上角的圖示，可切換針法的顯示模式（縮寫文字 ↔ 針法圖示）。',
+    tipBlockTap: '點擊花樣中的任一針法 block，可直接跳到那個位置繼續計數。',
+
+    sectionGestures: '手勢操作摘要',
+    gestureSwipeLeft: '左滑',
+    gestureSwipeLeftDesc: '在專案清單、織圖清單、針法庫等清單中左滑，可顯示刪除按鈕。',
+    gestureLongPress: '長按',
+    gestureLongPressDesc: '長按段落或針法項目，進入多選模式，可批次複製或刪除。',
+    gestureDrag: '拖曳排序',
+    gestureDragDesc: '長按列表項目左側的 ☰ 拖曳把手，可拖動調整順序。',
+
+    sectionStitchLibrary: '針法庫',
+    stitchLib1: '前往「設定 → 針法和範本管理」，可新增自訂針法，設定名稱、縮寫和針數。',
+    stitchLib2: '「範本」頁籤可儲存常用的針法群組。在段落編輯時，可從範本快速套用。',
+    tipSwipeDeleteStitch: '左滑自訂針法或範本項目，可顯示刪除按鈕。',
+
+    // Legacy keys (kept for compatibility)
+    addProjectTitle: '如何新增專案',
+    buildChartTitle: '如何建立織圖',
+    trackTitle: '如何追蹤進度',
   },
 
   // ─── Modals ──────────────────────────────────────────────────────────────────
@@ -442,6 +480,89 @@ const zhTW = {
     languageJa: '日本語',
     toolsSection: '工具',
     stitchLibrary: '針法和範本管理',
+    helpSection: '說明',
+    helpGuide: '使用說明',
+  },
+
+  // ─── 新手引導 ────────────────────────────────────────────────────────────────
+  onboarding: {
+    // Carousel 共用按鈕
+    carouselSkip: '跳過',
+    carouselNext: '下一步',
+    carouselStart: '開始使用',
+
+    // Slide 1 — 歡迎
+    slide1Title: '歡迎使用 Stitchie',
+    slide1Desc: '你的隨身編織計數助手。輕鬆管理專案、追蹤進度，讓編織更有樂趣。',
+
+    // Slide 2 — 建立專案
+    slide2Title: '管理你的專案',
+    slide2Desc: '點擊「＋」建立新專案。左滑任何專案或織圖卡片，可快速刪除。',
+
+    // Slide 3 — 編輯織圖
+    slide3Title: '設計你的織圖',
+    slide3Desc: '為每個專案新增多張織圖，再逐段加入針法。長按段落可多選批次操作，長按左側把手可拖曳排序。',
+
+    // Slide 4 — 計數追蹤
+    slide4Title: '精準計數追蹤',
+    slide4Desc: '點「下一針」逐針計數，系統自動換圈。點左右箭頭可預覽其他圈的花樣，不影響目前進度。',
+
+    // Slide 5 — 更多功能
+    slide5Title: '更多強大功能',
+    slide5Desc: '在針法庫建立自訂針法和常用範本；為專案新增參考照片；隨時匯入匯出備份。',
+
+    // Spotlight 共用按鈕
+    spotlightSkip: '跳過',
+    spotlightNext: '下一步',
+    spotlightDone: '完成',
+
+    // Project List spotlight
+    projectListAddTitle: '新增專案',
+    projectListAddDesc: '點擊「＋」建立你的第一個編織專案。左滑清單中的專案卡片，可顯示刪除按鈕。',
+    projectListSettingsTitle: '設定',
+    projectListSettingsDesc: '在設定頁切換語言，或前往「使用說明」查閱所有功能。',
+
+    // Project Detail spotlight
+    projectDetailAddChartTitle: '新增織圖',
+    projectDetailAddChartDesc: '一個專案可以有多張織圖（例如：帽身、帽緣）。左滑織圖卡片可刪除。',
+    projectDetailExportTitle: '匯入 / 匯出',
+    projectDetailExportDesc: '將專案匯出為檔案，方便備份或分享。也可以從檔案匯入他人的專案。',
+    projectDetailEditTitle: '編輯專案',
+    projectDetailEditDesc: '修改專案名稱、備註、來源，或在下方的相片區域新增參考照片。',
+
+    // Chart Editor spotlight
+    editorAddRoundTitle: '新增段落',
+    editorAddRoundDesc: '點擊「新增段落」為織圖加入一圈或一排，再進入編輯針法內容。',
+    editorLongPressTitle: '長按多選',
+    editorLongPressDesc: '長按任一段落進入多選模式，可批次複製或刪除多個段落。',
+    editorDragTitle: '拖曳排序',
+    editorDragDesc: '長按左側的拖曳把手，即可拖動段落調整順序。',
+
+    // Round Editor spotlight
+    roundAddStitchTitle: '新增針法',
+    roundAddStitchDesc: '點擊「＋ 新增針法」加入下針、上針等各種針法，並設定針數。',
+    roundAddGroupTitle: '新增群組',
+    roundAddGroupDesc: '群組可將多個針法組合並設定重複次數，方便描述「（下針 2、上針 2）× 5」等花樣。',
+    roundLongPressTitle: '長按多選與拖曳',
+    roundLongPressDesc: '長按針法項目可多選批次刪除；長按左側把手可拖曳調整針法順序。',
+
+    // Tracking spotlight
+    trackingNextTitle: '下一針',
+    trackingNextDesc: '每完成一針，點擊「下一針」。完成一圈後系統自動進入下一段。',
+    trackingPrevTitle: '上一針',
+    trackingPrevDesc: '針數點錯了？點「上一針」退回一步，甚至可以跨圈退回。',
+    trackingToggleTitle: '切換顯示模式',
+    trackingToggleDesc: '點擊此按鈕，可在縮寫文字和針法圖示之間切換顯示模式。',
+    trackingPreviewTitle: '預覽其他圈',
+    trackingPreviewDesc: '點擊左右箭頭可預覽其他圈的花樣內容，完全不影響目前的計數進度。',
+
+    // Pattern Elements spotlight
+    patternCustomTabTitle: '自訂針法',
+    patternCustomTabDesc: '在這裡建立你自己的特殊針法，設定縮寫和針數，就能在織圖中使用。',
+    patternAddCustomTitle: '新增自訂針法',
+    patternAddCustomDesc: '點擊新增，輸入針法名稱和縮寫。左滑清單項目可刪除。',
+    patternTemplateTabTitle: '範本',
+    patternTemplateTabDesc: '將常用的針法群組儲存為範本，建立段落時可一鍵套用，節省時間。',
   },
 } as const
 

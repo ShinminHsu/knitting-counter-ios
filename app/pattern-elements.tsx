@@ -13,6 +13,8 @@ import { Swipeable } from 'react-native-gesture-handler'
 import { Feather } from '@expo/vector-icons'
 import { useTranslation } from 'react-i18next'
 import ScreenHeader from '../src/components/ScreenHeader'
+import SpotlightOverlay from '../src/components/SpotlightOverlay'
+import { useSpotlight } from '../src/hooks/useSpotlight'
 import { logScreenView } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { useCustomStitchStore } from '../src/stores/useCustomStitchStore'
@@ -50,6 +52,31 @@ export default function PatternElementsScreen() {
   useEffect(() => {
     logScreenView(SCREEN_NAMES.PATTERN_ELEMENTS)
   }, [])
+
+  const customTabRef = useRef<View>(null)
+  const addButtonRef = useRef<View>(null)
+  const templateTabRef = useRef<View>(null)
+
+  const { showSpotlight, resolvedSteps, dismiss } = useSpotlight(
+    SCREEN_NAMES.PATTERN_ELEMENTS,
+    [
+      {
+        ref: customTabRef,
+        title: t('onboarding.patternCustomTabTitle'),
+        description: t('onboarding.patternCustomTabDesc'),
+      },
+      {
+        ref: addButtonRef,
+        title: t('onboarding.patternAddCustomTitle'),
+        description: t('onboarding.patternAddCustomDesc'),
+      },
+      {
+        ref: templateTabRef,
+        title: t('onboarding.patternTemplateTabTitle'),
+        description: t('onboarding.patternTemplateTabDesc'),
+      },
+    ]
+  )
 
   // Filter stitches by search query
   const filteredStitches = useMemo(() => {
@@ -325,6 +352,7 @@ export default function PatternElementsScreen() {
       {/* ── Tab selector ────────────────────────────────────────────────────── */}
       <View style={styles.tabBar}>
         <TouchableOpacity
+          ref={customTabRef}
           style={[styles.tab, activeTab === 'custom' && styles.tabActive]}
           onPress={() => setActiveTab('custom')}
           accessibilityRole="tab"
@@ -335,6 +363,7 @@ export default function PatternElementsScreen() {
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
+          ref={templateTabRef}
           style={[styles.tab, activeTab === 'template' && styles.tabActive]}
           onPress={() => setActiveTab('template')}
           accessibilityRole="tab"
@@ -433,6 +462,7 @@ export default function PatternElementsScreen() {
       {/* ── Footer: add button ───────────────────────────────────────────────── */}
       <View style={styles.footer}>
         <TouchableOpacity
+          ref={addButtonRef}
           style={styles.addButton}
           onPress={activeTab === 'custom' ? handleAddPress : handleAddTemplatePress}
           accessibilityLabel={activeTab === 'custom' ? t('patternElements.addCustom') : t('patternElements.addTemplate')}
@@ -471,6 +501,8 @@ export default function PatternElementsScreen() {
         onConfirm={handleAddTemplateConfirm}
         onCancel={handleAddTemplateCancel}
       />
+
+      {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
     </SafeAreaView>
   )
 }

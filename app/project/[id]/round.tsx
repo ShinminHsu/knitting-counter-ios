@@ -21,6 +21,9 @@ import { useProjectStore } from '../../../src/stores'
 import { usePatternStore } from '../../../src/stores/usePatternStore'
 import { useTemplateStore } from '../../../src/stores/useTemplateStore'
 import { useChartStore } from '../../../src/stores/useChartStore'
+import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
+import { useSpotlight } from '../../../src/hooks/useSpotlight'
+import { SCREEN_NAMES } from '../../../src/constants'
 import { CraftType, CustomStitchPattern, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
 import GroupEditor, { GroupEditorResult } from '../../../src/components/GroupEditor'
@@ -310,6 +313,25 @@ export default function RoundEditScreen() {
   const [notesText, setNotesText] = useState(initialNotes)
   const [selectedItemIds, setSelectedItemIds] = useState<Set<string>>(new Set())
   const isSelectMode = selectedItemIds.size > 0
+
+  const addStitchButtonRef = useRef<View>(null)
+  const addGroupButtonRef = useRef<View>(null)
+
+  const { showSpotlight, resolvedSteps, dismiss } = useSpotlight(
+    SCREEN_NAMES.ROUND_EDITOR,
+    [
+      {
+        ref: addStitchButtonRef,
+        title: t('onboarding.roundAddStitchTitle'),
+        description: t('onboarding.roundAddStitchDesc'),
+      },
+      {
+        ref: addGroupButtonRef,
+        title: t('onboarding.roundAddGroupTitle'),
+        description: t('onboarding.roundAddGroupDesc'),
+      },
+    ]
+  )
   // Sync notesText when navigating to a different round
   const prevRoundIdRef = useRef(roundId)
   if (prevRoundIdRef.current !== roundId) {
@@ -676,6 +698,7 @@ export default function RoundEditScreen() {
           <>
             <View style={styles.footerButtons}>
               <TouchableOpacity
+                ref={addGroupButtonRef}
                 style={[styles.addButton, styles.addButtonSecondary]}
                 onPress={() => {
                   setEditingGroup(null)
@@ -687,6 +710,7 @@ export default function RoundEditScreen() {
                 <Text style={styles.addButtonSecondaryText}>{t('round.addGroup')}</Text>
               </TouchableOpacity>
               <TouchableOpacity
+                ref={addStitchButtonRef}
                 style={[styles.addButton, styles.addButtonPrimary]}
                 onPress={() => setShowStitchPicker(true)}
                 accessibilityLabel={t('round.addStitch')}
@@ -750,6 +774,7 @@ export default function RoundEditScreen() {
         onCancel={handleGroupEditorCancel}
       />
 
+      {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
     </SafeAreaView>
   )
 }

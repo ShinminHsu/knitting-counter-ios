@@ -14,6 +14,7 @@ export const SCREEN_NAMES = {
   PROJECT_LIST: 'ProjectList',
   PROJECT_DETAIL: 'ProjectDetail',
   PATTERN_EDITOR: 'PatternEditor',
+  ROUND_EDITOR: 'RoundEditor',
   PROGRESS_TRACKING: 'ProgressTracking',
   IMPORT_EXPORT: 'ImportExport',
   PATTERN_ELEMENTS: 'PatternElements',

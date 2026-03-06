@@ -22,6 +22,8 @@ import { logScreenView, logTrackingStarted, logChartCompleted } from '../../../s
 import { SCREEN_NAMES } from '../../../src/constants'
 import CompletionModal from '../../../src/components/CompletionModal'
 import ScreenHeader from '../../../src/components/ScreenHeader'
+import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
+import { useSpotlight } from '../../../src/hooks/useSpotlight'
 import {
   PatternItemType,
   Round,
@@ -293,6 +295,38 @@ export default function ProgressTrackingScreen() {
     () => mmkv.getString(STORAGE_KEYS.STITCH_DISPLAY_MODE) === 'icon'
   )
   const [showDescription, setShowDescription] = useState(false)
+
+  const nextStitchRef = useRef<View>(null)
+  const prevStitchRef = useRef<View>(null)
+  const displayToggleRef = useRef<View>(null)
+  const previewArrowRef = useRef<View>(null)
+
+  const { showSpotlight, resolvedSteps, dismiss: dismissSpotlight } = useSpotlight(
+    SCREEN_NAMES.PROGRESS_TRACKING,
+    [
+      {
+        ref: nextStitchRef,
+        title: t('onboarding.trackingNextTitle'),
+        description: t('onboarding.trackingNextDesc'),
+      },
+      {
+        ref: prevStitchRef,
+        title: t('onboarding.trackingPrevTitle'),
+        description: t('onboarding.trackingPrevDesc'),
+      },
+      {
+        ref: displayToggleRef,
+        title: t('onboarding.trackingToggleTitle'),
+        description: t('onboarding.trackingToggleDesc'),
+        shape: 'circle',
+      },
+      {
+        ref: previewArrowRef,
+        title: t('onboarding.trackingPreviewTitle'),
+        description: t('onboarding.trackingPreviewDesc'),
+      },
+    ]
+  )
   // null = 正常追蹤模式；number = 預覽指定圈（index）
   const [previewRoundIndex, setPreviewRoundIndex] = useState<number | null>(null)
 
@@ -518,6 +552,7 @@ export default function ProgressTrackingScreen() {
           <View style={styles.cardHeaderLeft}>
             {/* Preview prev arrow */}
             <TouchableOpacity
+              ref={previewArrowRef}
               onPress={() => handlePreviewRound(displayedRoundIndex - 1)}
               disabled={displayedRoundIndex <= 0}
               style={[styles.previewArrow, displayedRoundIndex <= 0 && styles.previewArrowDisabled]}
@@ -550,6 +585,7 @@ export default function ProgressTrackingScreen() {
             )}
             <Text style={styles.roundBadge}>{t('tracking.roundBadge', { total: displayLastRoundNumber })}</Text>
             <TouchableOpacity
+              ref={displayToggleRef}
               onPress={handleToggleDisplayMode}
               style={styles.displayToggleButton}
               accessibilityLabel={showIcons ? t('tracking.toggleAbbrMode') : t('tracking.toggleIconMode')}
@@ -640,6 +676,7 @@ export default function ProgressTrackingScreen() {
             {/* Row 1: ← 上一針 | 0/21 | 下一針 → */}
             <View style={styles.mainRow}>
               <TouchableOpacity
+                ref={prevStitchRef}
                 style={styles.prevButton}
                 onPress={handlePreviousStitch}
                 accessibilityLabel={t('tracking.prevLabel')}
@@ -654,6 +691,7 @@ export default function ProgressTrackingScreen() {
               </View>
 
               <TouchableOpacity
+                ref={nextStitchRef}
                 style={styles.nextButton}
                 onPress={handleNextStitch}
                 accessibilityLabel={t('tracking.nextLabel')}
@@ -701,6 +739,8 @@ export default function ProgressTrackingScreen() {
         onClose={handleCompletionClose}
         interstitialShown={project.interstitialShown}
       />
+
+      {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismissSpotlight} />}
     </SafeAreaView>
   )
 }

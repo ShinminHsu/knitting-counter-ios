@@ -276,20 +276,58 @@ const ja = {
   // ─── ユーザーガイド ───────────────────────────────────────────────────────────
   guide: {
     title: 'ユーザーガイド',
-    addProjectTitle: 'プロジェクトの追加方法',
+    replayButton: 'チュートリアルを再度見る',
+    replayTitle: 'チュートリアルをリセット',
+    replayMessage: '次回アプリを開いた時に、オンボーディングチュートリアルが再度表示されます。',
+
+    sectionProjects: 'プロジェクト管理',
     addProject1: 'マイプロジェクトの右上にある「＋」ボタンをタップします。',
     addProject2: 'プロジェクト名（例：マフラー、帽子）を入力し、編み物の種類を選択します。',
     addProject3: '「作成」をタップして完了です。プロジェクトが一覧に表示されます。',
+    tipSwipeDeleteProject: 'プロジェクトカードを左スワイプすると削除ボタンが表示されます。',
+    tipProjectPhoto: 'プロジェクト詳細の写真セクションで参考写真や進捗写真を追加できます。',
+
+    sectionCharts: 'チャート',
+    buildChart1: 'プロジェクト詳細で「＋ 追加」をタップしてチャートを作成します。',
+    buildChart2: '「チャートを編集」をタップしてエディタを開き、段と針目を追加します。',
+    buildChart3: '1つのプロジェクトに複数のチャートを追加でき、追跡中に切り替えられます。',
+    buildChart4: 'チャートや段にメモを追加して後から参照できるようにします。',
+    tipSwipeDeleteChart: 'チャートカードを左スワイプすると削除ボタンが表示されます。',
+    tipImportExport: 'プロジェクト詳細のシェアアイコンをタップしてインポート・エクスポートできます。',
+
+    sectionEditor: '段の編集',
+    editor1: 'エディタで「段を追加」をタップして新しい段を追加し、針目を設定します。',
+    editor2: '「グループを追加」で繰り返しパターンのグループを作成できます（例：（表目2、裏目2）×5）。',
+    tipLongPressMultiSelect: '段を長押しすると選択モードに入り、複数の段をまとめてコピー・削除できます。',
+    tipDragReorder: '段の左側のドラッグハンドル（☰）を長押しして、順序を変更できます。',
+    tipStitchGroup: '針目エディタでも針目を長押しで複数選択、またはハンドルでドラッグして並び替えができます。',
+
+    sectionTracking: 'カウント追跡',
+    track1: 'プロジェクト詳細画面で「追跡開始」をタップして追跡モードに入ります。',
+    track2: '「次の目 →」をタップするたびにカウントが進みます。段が終わると自動で次の段へ。',
+    track3: '間違えた場合は「← 前の目」をタップして戻れます。段をまたいで戻ることも可能。',
+    track4: '「第N段を完了」で一気に完了、「この段をリセット」でやり直しができます。',
+    tipPreviewMode: 'パターンカードの ‹ › 矢印をタップして他の段をプレビュー。進捗には影響しません。',
+    tipDisplayToggle: 'パターンカード右上のアイコンで略語テキストと針目アイコン表示を切り替えられます。',
+    tipBlockTap: 'パターン内の針目ブロックをタップすると、その位置に直接ジャンプできます。',
+
+    sectionGestures: 'ジェスチャーまとめ',
+    gestureSwipeLeft: '左スワイプ',
+    gestureSwipeLeftDesc: 'プロジェクト・チャート・針目ライブラリのカードを左スワイプすると削除ボタンが表示されます。',
+    gestureLongPress: '長押し',
+    gestureLongPressDesc: '段や針目を長押しすると選択モードに入り、まとめてコピー・削除できます。',
+    gestureDrag: 'ドラッグで並び替え',
+    gestureDragDesc: 'リスト項目左側の☰ハンドルを長押しして順序を変更できます。',
+
+    sectionStitchLibrary: '針目ライブラリ',
+    stitchLib1: '設定 → 針目とテンプレート管理からカスタム針目を追加できます。',
+    stitchLib2: 'テンプレートタブでよく使う針目グループを保存。段編集時にワンタップで適用できます。',
+    tipSwipeDeleteStitch: 'カスタム針目やテンプレートを左スワイプで削除できます。',
+
+    // Legacy keys
+    addProjectTitle: 'プロジェクトの追加方法',
     buildChartTitle: 'チャートの作成方法',
-    buildChart1: 'プロジェクトを開き、パターンエディタに移動します。',
-    buildChart2: '「段を追加」をタップして段または行を追加します。',
-    buildChart3: '各段に編み目を追加し、種類と数を設定します。',
-    buildChart4: '段や編み目にメモを追加して後から参照できるようにします。',
     trackTitle: '進捗の記録方法',
-    track1: 'プロジェクト詳細画面で「進捗を記録する」をタップします。',
-    track2: '各編み目の後に「次へ」をタップすると、カウンターが自動的に進みます。',
-    track3: '間違えた場合は「前へ」をタップして一目戻ります。',
-    track4: '段が終わると、アプリが自動的に次の段に移動します。',
   },
 
   // ─── モーダル ─────────────────────────────────────────────────────────────────
@@ -442,6 +480,75 @@ const ja = {
     languageJa: '日本語',
     toolsSection: 'ツール',
     stitchLibrary: '針目とテンプレート管理',
+    helpSection: 'ヘルプ',
+    helpGuide: '使い方ガイド',
+  },
+
+  onboarding: {
+    carouselSkip: 'スキップ',
+    carouselNext: '次へ',
+    carouselStart: 'はじめる',
+
+    slide1Title: 'Stitchie へようこそ',
+    slide1Desc: 'あなたの編み物カウンターアプリ。プロジェクトの管理と進捗追跡を簡単に。',
+
+    slide2Title: 'プロジェクトを管理',
+    slide2Desc: '「＋」をタップして新規プロジェクトを作成。カードを左スワイプで削除できます。',
+
+    slide3Title: 'チャートをデザイン',
+    slide3Desc: '一つのプロジェクトに複数のチャートを追加できます。長押しで複数選択、ハンドルを長押しで並び替え。',
+
+    slide4Title: '正確な段数カウント',
+    slide4Desc: '「次の目」をタップするたびにカウント。段が終わると自動で次へ。矢印で他の段をプレビューできます。',
+
+    slide5Title: 'さらに便利な機能',
+    slide5Desc: '針目ライブラリでカスタム針目とテンプレートを作成。参考写真の追加やプロジェクトのインポート・エクスポートも可能。',
+
+    spotlightSkip: 'スキップ',
+    spotlightNext: '次へ',
+    spotlightDone: '完了',
+
+    projectListAddTitle: 'プロジェクトを追加',
+    projectListAddDesc: '「＋」をタップして最初のプロジェクトを作成。カードを左スワイプで削除できます。',
+    projectListSettingsTitle: '設定',
+    projectListSettingsDesc: '言語の変更や使い方ガイドの確認ができます。',
+
+    projectDetailAddChartTitle: 'チャートを追加',
+    projectDetailAddChartDesc: '1つのプロジェクトに複数のチャートを追加できます。左スワイプでチャートを削除。',
+    projectDetailExportTitle: 'インポート / エクスポート',
+    projectDetailExportDesc: 'プロジェクトをファイルにエクスポートしてバックアップや共有ができます。',
+    projectDetailEditTitle: 'プロジェクトを編集',
+    projectDetailEditDesc: 'プロジェクト名や備考を編集。写真セクションから参考写真を追加できます。',
+
+    editorAddRoundTitle: '段を追加',
+    editorAddRoundDesc: '「段を追加」をタップしてチャートに新しい段を追加し、針目を編集します。',
+    editorLongPressTitle: '長押しで複数選択',
+    editorLongPressDesc: '段を長押しすると選択モードに入り、複数の段をまとめてコピーまたは削除できます。',
+    editorDragTitle: 'ドラッグで並び替え',
+    editorDragDesc: '左側のドラッグハンドルを長押しして、段の順序を変更できます。',
+
+    roundAddStitchTitle: '針目を追加',
+    roundAddStitchDesc: '「＋ 針目を追加」をタップして針目の種類と数を設定します。',
+    roundAddGroupTitle: 'グループを追加',
+    roundAddGroupDesc: 'グループは複数の針目を繰り返し回数と組み合わせます。「（表目2、裏目2）×5」のようなパターンに最適。',
+    roundLongPressTitle: '複数選択とドラッグ',
+    roundLongPressDesc: '針目を長押しで複数選択して一括削除。ハンドルを長押しでドラッグして並び替え。',
+
+    trackingNextTitle: '次の目',
+    trackingNextDesc: '目を編むたびに「次の目」をタップ。段が終わると自動で次の段へ進みます。',
+    trackingPrevTitle: '前の目',
+    trackingPrevDesc: '間違えた？「前の目」で一つ戻れます。段をまたいで戻ることも可能です。',
+    trackingToggleTitle: '表示モード切替',
+    trackingToggleDesc: '略語テキストと針目シンボルアイコンの表示を切り替えます。',
+    trackingPreviewTitle: '他の段をプレビュー',
+    trackingPreviewDesc: '矢印ボタンで他の段のパターンをプレビュー。現在のカウント進捗には影響しません。',
+
+    patternCustomTabTitle: 'カスタム針目',
+    patternCustomTabDesc: '独自の略語と目数を持つカスタム針目を作成して、チャートで使用できます。',
+    patternAddCustomTitle: 'カスタム針目を追加',
+    patternAddCustomDesc: 'タップして新しい針目を追加。左スワイプで削除できます。',
+    patternTemplateTabTitle: 'テンプレート',
+    patternTemplateTabDesc: 'よく使う針目グループをテンプレートとして保存。段の編集時にワンタップで適用できます。',
   },
 } as const
 
