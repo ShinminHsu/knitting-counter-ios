@@ -62,7 +62,8 @@
         "ios": {
           "useFrameworks": "static"
         }
-      }]
+      }],
+      "./plugins/withFirebaseFrameworkFix"
     ],
     "extra": {
       "router": {},
