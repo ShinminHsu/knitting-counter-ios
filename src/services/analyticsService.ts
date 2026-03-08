@@ -46,9 +46,8 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
         }),
       }
     )
-    console.log(`[GA] ${name} → ${res.status}`)
   } catch (e) {
-    console.log(`[GA] fetch error`, e)
+    // silently ignore network errors
   }
 }
 
