@@ -1,5 +1,5 @@
 export const ANALYTICS_EVENTS = {
-  SCREEN_VIEW: 'screen_view',
+  SCREEN_VIEW: 'page_view',
   PROJECT_CREATED: 'project_created',
   TRACKING_STARTED: 'tracking_started',
   CHART_COMPLETED: 'chart_completed',

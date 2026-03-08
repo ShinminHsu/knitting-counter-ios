@@ -17,11 +17,14 @@ function getClientId(): string {
   return id
 }
 
+// ── Session ID (resets each app launch) ───────────────────────────────────────
+
+const SESSION_ID = Date.now().toString()
+
 // ── Core send function ─────────────────────────────────────────────────────────
 
 async function sendEvent(name: string, params?: Record<string, string>): Promise<void> {
   const { measurement_id, api_secret } = FIREBASE_CONFIG
-  console.log(`[GA] sendEvent: ${name}, mid=${measurement_id ? 'OK' : 'MISSING'}, secret=${api_secret ? 'OK' : 'MISSING'}`)
   if (!measurement_id || !api_secret) return
 
   try {
@@ -32,11 +35,18 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           client_id: getClientId(),
-          events: [{ name, params: { ...(params ?? {}), debug_mode: '1' } }],
+          events: [{
+            name,
+            params: {
+              session_id: SESSION_ID,
+              engagement_time_msec: '100',
+              ...(params ?? {}),
+            },
+          }],
         }),
       }
     )
-    console.log(`[GA] ${name} → status ${res.status}`)
+    console.log(`[GA] ${name} → ${res.status}`)
   } catch (e) {
     console.log(`[GA] fetch error`, e)
   }
@@ -46,8 +56,8 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
 
 export async function logScreenView(screenName: string): Promise<void> {
   sendEvent(ANALYTICS_EVENTS.SCREEN_VIEW, {
-    screen_name: screenName,
-    screen_class: screenName,
+    page_title: screenName,
+    page_location: `app://${screenName}`,
   })
 }
 
