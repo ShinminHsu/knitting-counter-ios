@@ -52,7 +52,11 @@
         }
       ],
       "expo-localization",
-      "@react-native-firebase/app",
+      ["@react-native-firebase/app", {
+        "ios": {
+          "googleServicesFile": "./GoogleService-Info.plist"
+        }
+      }],
       "@react-native-firebase/analytics"
     ],
     "extra": {
