@@ -24,15 +24,22 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
   if (!measurement_id || !api_secret) return
 
   try {
-    await fetch(`${FIREBASE_MP_ENDPOINT}?measurement_id=${measurement_id}&api_secret=${api_secret}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        client_id: getClientId(),
-        events: [{ name, params: params ?? {} }],
-      }),
-    })
-  } catch {}
+    const res = await fetch(
+      `https://www.google-analytics.com/debug/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          client_id: getClientId(),
+          events: [{ name, params: params ?? {} }],
+        }),
+      }
+    )
+    const json = await res.json()
+    console.log(`[GA] ${name}`, JSON.stringify(json))
+  } catch (e) {
+    console.log(`[GA] error`, e)
+  }
 }
 
 // ── Screen & feature events ────────────────────────────────────────────────────
