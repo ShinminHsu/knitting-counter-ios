@@ -16,8 +16,7 @@
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.stitchie.app",
-      "buildNumber": "1",
-      "googleServicesFile": "./GoogleService-Info.plist"
+      "buildNumber": "1"
     },
     "android": {
       "adaptiveIcon": {
@@ -53,17 +52,6 @@
         }
       ],
       "expo-localization",
-      ["@react-native-firebase/app", {
-        "ios": {
-          "googleServicesFile": "./GoogleService-Info.plist"
-        }
-      }],
-      ["expo-build-properties", {
-        "ios": {
-          "useFrameworks": "static"
-        }
-      }],
-      "./plugins/withFirebaseFrameworkFix"
     ],
     "extra": {
       "router": {},
