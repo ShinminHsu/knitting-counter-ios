@@ -1,17 +1,30 @@
 import MobileAds, { InterstitialAd, AdEventType } from 'react-native-google-mobile-ads'
 import { requestTrackingPermissionsAsync } from 'expo-tracking-transparency'
 import { AD_UNIT_IDS } from '../constants/adUnits'
+import { mmkv, STORAGE_KEYS } from '../stores/mmkvStorage'
 
-export async function initializeAds(): Promise<void> {
-  try {
-    await requestTrackingPermissionsAsync()
-  } catch {
-    // ATT unavailable (simulator) or denied - continue anyway
-  }
+/** Initializes AdMob immediately. Does NOT request ATT — call requestATTIfNeeded() separately. */
+export async function initializeAdMob(): Promise<void> {
   try {
     await MobileAds().initialize()
   } catch {
     // AdMob init failed - continue, ads just won't show
+  }
+}
+
+/**
+ * Requests ATT permission if not already requested.
+ * Safe to call multiple times — reads MMKV flag and short-circuits if already done.
+ */
+export async function requestATTIfNeeded(): Promise<void> {
+  try {
+    const already = mmkv.getBoolean(STORAGE_KEYS.ATT_REQUESTED)
+    if (already) return
+    await requestTrackingPermissionsAsync()
+    mmkv.set(STORAGE_KEYS.ATT_REQUESTED, true)
+  } catch {
+    // ATT unavailable (simulator) — still mark as requested to avoid future attempts
+    mmkv.set(STORAGE_KEYS.ATT_REQUESTED, true)
   }
 }
 

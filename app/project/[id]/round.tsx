@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import * as Haptics from 'expo-haptics'
 import {
   Alert,
@@ -23,6 +23,7 @@ import { useTemplateStore } from '../../../src/stores/useTemplateStore'
 import { useChartStore } from '../../../src/stores/useChartStore'
 import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
 import { useSpotlight } from '../../../src/hooks/useSpotlight'
+import { logScreenView } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { CraftType, CustomStitchPattern, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
@@ -284,6 +285,10 @@ export default function RoundEditScreen() {
     roundId: string
   }>()
   const router = useRouter()
+
+  useEffect(() => {
+    logScreenView(SCREEN_NAMES.ROUND_EDITOR)
+  }, [])
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const updateRound = useChartStore((s) => s.updateRound)

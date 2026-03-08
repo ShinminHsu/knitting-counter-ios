@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
@@ -5,6 +6,8 @@ import { useTranslation } from 'react-i18next'
 import i18n from '../src/i18n'
 import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage'
 import ScreenHeader from '../src/components/ScreenHeader'
+import { requestATTIfNeeded, logScreenView } from '../src/services'
+import { SCREEN_NAMES } from '../src/constants'
 
 const LANGUAGES = [
   { code: 'en', labelKey: 'settings.languageEn' as const },
@@ -16,6 +19,11 @@ export default function SettingsScreen() {
   const { t } = useTranslation()
   const router = useRouter()
   const currentLanguage = i18n.language
+
+  useEffect(() => {
+    logScreenView(SCREEN_NAMES.SETTINGS)
+    requestATTIfNeeded()
+  }, [])
 
   function handleLanguageSelect(code: string) {
     mmkv.set(STORAGE_KEYS.LANGUAGE, code)

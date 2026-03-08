@@ -10,7 +10,8 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
-import { initializeAds, loadInterstitialAd } from '../src/services';
+import { initializeAdMob, requestATTIfNeeded, loadInterstitialAd } from '../src/services'
+import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage';
 import { useOnboardingStore } from '../src/stores';
 import OnboardingCarousel from '../src/components/OnboardingCarousel';
 
@@ -28,12 +29,17 @@ export default function RootLayout() {
     // Splash hides immediately; ATT dialog appears on top of the app UI
     SplashScreen.hideAsync()
 
+    // Track launch count for deferred ATT timing
+    const count = (mmkv.getNumber(STORAGE_KEYS.APP_LAUNCH_COUNT) ?? 0) + 1
+    mmkv.set(STORAGE_KEYS.APP_LAUNCH_COUNT, count)
+
     const setupAds = async () => {
-      // Step 1: Request ATT permission (shows iOS dialog on first launch)
-      // Step 2: Initialize AdMob (runs after ATT resolves, regardless of outcome)
-      await initializeAds()
-      // Step 3: Preload interstitial ad in the background (non-blocking)
+      await initializeAdMob()
       loadInterstitialAd()
+      // Show ATT dialog from 2nd launch onward (only once ever)
+      if (count >= 2) {
+        requestATTIfNeeded()
+      }
     }
 
     setupAds()

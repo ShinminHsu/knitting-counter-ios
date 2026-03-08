@@ -36,4 +36,6 @@ export const STORAGE_KEYS = {
   STITCH_DISPLAY_MODE: 'stitchDisplayMode',
   SETTINGS: 'settings',
   ONBOARDING: 'onboarding',
+  APP_LAUNCH_COUNT: 'appLaunchCount',
+  ATT_REQUESTED: 'attRequested',
 } as const
