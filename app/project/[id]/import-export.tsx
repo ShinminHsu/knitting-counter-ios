@@ -15,6 +15,8 @@ import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { logScreenView, logImport, logExport } from '../../../src/services'
 import ScreenHeader from '../../../src/components/ScreenHeader'
+import UpgradePromptModal from '../../../src/components/UpgradePromptModal'
+import { useEntitlementStore } from '../../../src/stores'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { useProjectStore } from '../../../src/stores/useProjectStore'
 import {
@@ -37,6 +39,8 @@ export default function ImportExportScreen() {
   const [isExporting, setIsExporting] = useState(false)
   const [isImporting, setIsImporting] = useState(false)
   const [importPreview, setImportPreview] = useState<ProjectExportData | null>(null)
+  const [showExportUpgrade, setShowExportUpgrade] = useState(false)
+  const canExport = useEntitlementStore((s) => s.canExport)
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const importProject = useProjectStore((s) => s.importProject)
@@ -87,6 +91,10 @@ export default function ImportExportScreen() {
   function handleExport() {
     if (!project) {
       Alert.alert(t('common.error'), t('importExport.notFound'))
+      return
+    }
+    if (!canExport()) {
+      setShowExportUpgrade(true)
       return
     }
 
@@ -302,6 +310,15 @@ export default function ImportExportScreen() {
           </Pressable>
         </Pressable>
       </Modal>
+
+      <UpgradePromptModal
+        visible={showExportUpgrade}
+        onClose={() => setShowExportUpgrade(false)}
+        title={t('upgrade.export.title')}
+        description={t('upgrade.export.desc')}
+        hasAdOption={false}
+        onAdRewarded={() => {}}
+      />
     </SafeAreaView>
   )
 }

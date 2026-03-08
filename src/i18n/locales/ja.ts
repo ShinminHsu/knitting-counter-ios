@@ -550,6 +550,41 @@ const ja = {
     patternTemplateTabTitle: 'テンプレート',
     patternTemplateTabDesc: 'よく使う針目グループをテンプレートとして保存。段の編集時にワンタップで適用できます。',
   },
+
+  upgrade: {
+    projectLimit: {
+      title: 'プロジェクト上限に達しました',
+      desc: '無料プランは最大3つのプロジェクトまで。広告を見るとスロットを1つ追加できます（最大2つ）。Premiumにアップグレードすると無制限に。',
+    },
+    photoLimit: {
+      title: '写真の上限に達しました',
+      desc: '無料プランはプロジェクトごとに写真1枚まで。広告を見るとスロットを1つ追加できます（最大2つ）。Premiumにアップグレードすると無制限に。',
+    },
+    stitchCategory: {
+      title: '針目カテゴリがロックされています',
+      desc: '「{{category}}」を使うにはロック解除が必要です。広告を見るとこのカテゴリを永久に解除できます。Premiumですべて解除。',
+    },
+    customStitch: {
+      title: 'カスタム針目',
+      desc: 'カスタム針目はPremium機能です。アップグレードして独自の針目タイプを作成しましょう。',
+    },
+    export: {
+      title: 'プロジェクトのエクスポート',
+      desc: 'エクスポートはPremium機能です。アップグレードしてプロジェクトをバックアップまたは共有しましょう。',
+    },
+    watchAd: '広告を見てロック解除',
+    buyPremium: 'Premiumを取得 · ${{price}}',
+    maybeLater: 'あとで',
+    premiumSection: 'PREMIUM',
+    getPremium: 'Premiumを取得 · $4.99',
+    premiumActive: '✓ Premium 有効',
+    premiumActiveVoucher: '✓ Premium 有効（プロモコード）',
+    restorePurchase: '購入を復元',
+    enterPromoCode: 'プロモコードを入力',
+    redeemCode: '適用',
+    invalidCode: '無効なプロモコードです',
+    codeRedeemed: 'プロモコードの適用に成功しました！',
+  },
 } as const
 
 export default ja

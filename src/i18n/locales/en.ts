@@ -550,6 +550,41 @@ const en = {
     patternTemplateTabTitle: 'Templates',
     patternTemplateTabDesc: 'Save frequently used stitch groups as templates. Apply them with one tap when building chart rounds.',
   },
+
+  upgrade: {
+    projectLimit: {
+      title: 'Project Limit Reached',
+      desc: 'Free plan allows up to 3 projects. Watch an ad to unlock one more slot (up to 2 extra), or upgrade to Premium for unlimited projects.',
+    },
+    photoLimit: {
+      title: 'Photo Limit Reached',
+      desc: 'Free plan allows 1 photo per project. Watch an ad to unlock one more slot (up to 2 extra), or upgrade to Premium for unlimited photos.',
+    },
+    stitchCategory: {
+      title: 'Stitch Category Locked',
+      desc: '"{{category}}" requires unlocking. Watch an ad to permanently unlock this category, or upgrade to Premium for all categories.',
+    },
+    customStitch: {
+      title: 'Custom Stitches',
+      desc: 'Custom stitches are a Premium feature. Upgrade to create your own stitch types.',
+    },
+    export: {
+      title: 'Export Project',
+      desc: 'Export is a Premium feature. Upgrade to back up or share your projects.',
+    },
+    watchAd: 'Watch Ad to Unlock',
+    buyPremium: 'Get Premium · ${{price}}',
+    maybeLater: 'Maybe Later',
+    premiumSection: 'PREMIUM',
+    getPremium: 'Get Premium · $4.99',
+    premiumActive: '✓ Premium Active',
+    premiumActiveVoucher: '✓ Premium Active (Promo Code)',
+    restorePurchase: 'Restore Purchase',
+    enterPromoCode: 'Enter Promo Code',
+    redeemCode: 'Redeem',
+    invalidCode: 'Invalid promo code',
+    codeRedeemed: 'Promo code redeemed successfully!',
+  },
 } as const
 
 export default en

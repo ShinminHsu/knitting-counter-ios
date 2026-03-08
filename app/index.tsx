@@ -18,6 +18,9 @@ import { Project } from '../src/types'
 import { calculateProgressPercentage } from '../src/utils/progressUtils'
 import AdBanner from '../src/components/AdBanner'
 import CreateProjectModal from '../src/components/CreateProjectModal'
+import UpgradePromptModal from '../src/components/UpgradePromptModal'
+import { useEntitlementStore } from '../src/stores'
+import { REWARD_TYPES } from '../src/constants/analytics'
 import { showConfirmDialog } from '../src/components/ConfirmDialog'
 import SpotlightOverlay from '../src/components/SpotlightOverlay'
 import { useSpotlight } from '../src/hooks/useSpotlight'
@@ -130,6 +133,10 @@ export default function ProjectListScreen() {
   const projects = useProjectStore((s) => s.projects)
   const deleteProject = useProjectStore((s) => s.deleteProject)
   const [showCreateModal, setShowCreateModal] = useState(false)
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const maxProjects = useEntitlementStore((s) => s.maxProjects)
+  const adUnlockedProjectCount = useEntitlementStore((s) => s.adUnlockedProjectCount)
+  const incrementAdUnlockedProjects = useEntitlementStore((s) => s.incrementAdUnlockedProjects)
 
   const addButtonRef = useRef<View>(null)
   const settingsButtonRef = useRef<View>(null)
@@ -180,7 +187,13 @@ export default function ProjectListScreen() {
           </TouchableOpacity>
           <TouchableOpacity
             ref={addButtonRef}
-            onPress={() => setShowCreateModal(true)}
+            onPress={() => {
+              if (projects.length >= maxProjects()) {
+                setShowUpgradeModal(true)
+              } else {
+                setShowCreateModal(true)
+              }
+            }}
             style={styles.addButton}
             accessibilityLabel={t('projectList.addProject')}
           >
@@ -219,6 +232,19 @@ export default function ProjectListScreen() {
       <CreateProjectModal
         visible={showCreateModal}
         onClose={() => setShowCreateModal(false)}
+      />
+
+      <UpgradePromptModal
+        visible={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title={t('upgrade.projectLimit.title')}
+        description={t('upgrade.projectLimit.desc')}
+        hasAdOption={adUnlockedProjectCount < 2}
+        rewardType={REWARD_TYPES.PROJECT_SLOT}
+        onAdRewarded={() => {
+          incrementAdUnlockedProjects()
+          setShowCreateModal(true)
+        }}
       />
 
       {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}

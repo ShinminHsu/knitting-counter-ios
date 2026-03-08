@@ -22,6 +22,8 @@ import { useTemplateStore } from '../src/stores/useTemplateStore'
 import { CraftType, CustomStitchPattern, StitchGroupTemplate, StitchTypeInfo } from '../src/types'
 import CustomStitchModal from '../src/components/CustomStitchModal'
 import GroupEditor, { GroupEditorResult } from '../src/components/GroupEditor'
+import UpgradePromptModal from '../src/components/UpgradePromptModal'
+import { useEntitlementStore } from '../src/stores'
 
 type TabKey = 'custom' | 'template'
 
@@ -42,6 +44,8 @@ export default function PatternElementsScreen() {
   const [templateEditorVisible, setTemplateEditorVisible] = useState(false)
   const [newTemplateCraftType, setNewTemplateCraftType] = useState<CraftType | undefined>(undefined)
   const [addTemplateVisible, setAddTemplateVisible] = useState(false)
+  const [showCustomStitchUpgrade, setShowCustomStitchUpgrade] = useState(false)
+  const canUseCustomStitches = useEntitlementStore((s) => s.canUseCustomStitches)
 
   const templates = useTemplateStore((s) => s.templates)
   const deleteTemplate = useTemplateStore((s) => s.deleteTemplate)
@@ -98,6 +102,10 @@ export default function PatternElementsScreen() {
   }, [templates, templateSearchQuery])
 
   function handleAddPress() {
+    if (!canUseCustomStitches()) {
+      setShowCustomStitchUpgrade(true)
+      return
+    }
     setEditingStitch(undefined)
     setModalVisible(true)
   }
@@ -500,6 +508,15 @@ export default function PatternElementsScreen() {
         craftType={newTemplateCraftType ?? 'crochet'}
         onConfirm={handleAddTemplateConfirm}
         onCancel={handleAddTemplateCancel}
+      />
+
+      <UpgradePromptModal
+        visible={showCustomStitchUpgrade}
+        onClose={() => setShowCustomStitchUpgrade(false)}
+        title={t('upgrade.customStitch.title')}
+        description={t('upgrade.customStitch.desc')}
+        hasAdOption={false}
+        onAdRewarded={() => {}}
       />
 
       {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}

@@ -564,6 +564,41 @@ const zhTW = {
     patternTemplateTabTitle: '範本',
     patternTemplateTabDesc: '將常用的針法群組儲存為範本，建立段落時可一鍵套用，節省時間。',
   },
+
+  upgrade: {
+    projectLimit: {
+      title: '已達專案上限',
+      desc: '免費版最多 3 個專案。看一次廣告可多開一個（最多再加 2 個），或升級 Premium 解鎖無限專案。',
+    },
+    photoLimit: {
+      title: '已達照片上限',
+      desc: '免費版每個專案最多 1 張照片。看一次廣告可多加一張（最多再加 2 張），或升級 Premium 解鎖無限照片。',
+    },
+    stitchCategory: {
+      title: '針法分類已鎖定',
+      desc: '「{{category}}」需解鎖才能使用。看一次廣告永久解鎖此分類，或升級 Premium 解鎖全部。',
+    },
+    customStitch: {
+      title: '自訂針法',
+      desc: '自訂針法為 Premium 功能，升級後可建立專屬針法。',
+    },
+    export: {
+      title: '匯出專案',
+      desc: '匯出功能為 Premium 功能，升級後可備份或分享你的專案。',
+    },
+    watchAd: '看廣告解鎖',
+    buyPremium: '升級 Premium · ${{price}}',
+    maybeLater: '以後再說',
+    premiumSection: 'PREMIUM',
+    getPremium: '取得 Premium · $4.99',
+    premiumActive: '✓ Premium 已啟用',
+    premiumActiveVoucher: '✓ Premium 已啟用（優惠碼）',
+    restorePurchase: '恢復購買',
+    enterPromoCode: '輸入優惠碼',
+    redeemCode: '兌換',
+    invalidCode: '無效的優惠碼',
+    codeRedeemed: '優惠碼兌換成功！',
+  },
 } as const
 
 export default zhTW

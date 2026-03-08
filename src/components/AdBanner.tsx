@@ -1,15 +1,18 @@
 import { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
 import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
+import { useEntitlementStore } from '../stores/useEntitlementStore'
 
 interface AdBannerProps {
   size?: BannerAdSize
 }
 
 export default function AdBanner({ size }: AdBannerProps) {
+  const isPremium = useEntitlementStore((s) => s.isPremium)
   const [isLoaded, setIsLoaded] = useState(false)
   const [hasFailed, setHasFailed] = useState(false)
 
+  if (isPremium) return null
   if (hasFailed) return null
 
   return (

@@ -8,8 +8,12 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { Feather } from '@expo/vector-icons'
 import { useTranslation } from 'react-i18next'
-import { STITCH_CATEGORIES_BY_CRAFT } from '../constants/stitches'
+import { STITCH_CATEGORIES_BY_CRAFT, STITCH_CATEGORY_LOCK_KEY, StitchCategoryLockKey } from '../constants/stitches'
+import { useEntitlementStore } from '../stores/useEntitlementStore'
+import { REWARD_TYPES } from '../constants/analytics'
+import UpgradePromptModal from './UpgradePromptModal'
 import { CROCHET_SVG_MAP, KNIT_SVG_MAP } from '../constants/stitchIcons'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
 import { CraftType, CustomStitchPattern, StitchType, StitchTypeInfo } from '../types'
@@ -128,7 +132,10 @@ export default function StitchPicker({
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [showCreateCustom, setShowCreateCustom] = useState(false)
+  const [lockedCategory, setLockedCategory] = useState<{ key: StitchCategoryLockKey; label: string } | null>(null)
   const { getByType, customStitches } = useCustomStitchStore()
+  const isStitchCategoryUnlocked = useEntitlementStore((s) => s.isStitchCategoryUnlocked)
+  const unlockStitchCategory = useEntitlementStore((s) => s.unlockStitchCategory)
 
   const sections = useMemo<SectionData[]>(() => {
     const q = query.trim().toLowerCase()
@@ -185,15 +192,20 @@ export default function StitchPicker({
     }, 350)
   }
 
-  function renderItem({ item }: { item: ListItem }) {
+  function renderItem({ item, section }: { item: ListItem; section: SectionData }) {
     if (item.kind === 'builtin') {
+      const lockKey = getSectionLockKey(section.title)
+      const isLocked = lockKey ? !isStitchCategoryUnlocked(lockKey) : false
       const info = StitchTypeInfo[item.stitchType]
       const symbol = getSymbol(item.stitchType)
       const SvgIcon = CROCHET_SVG_MAP[item.stitchType] ?? KNIT_SVG_MAP[item.stitchType]
       return (
         <TouchableOpacity
-          style={styles.stitchRow}
-          onPress={() => handleSelect(item)}
+          style={[styles.stitchRow, isLocked && styles.stitchRowLocked]}
+          onPress={() => isLocked
+            ? setLockedCategory({ key: lockKey!, label: section.title })
+            : handleSelect(item)
+          }
           activeOpacity={0.6}
         >
           {SvgIcon ? (
@@ -220,11 +232,25 @@ export default function StitchPicker({
     )
   }
 
+  function getSectionLockKey(title: string): StitchCategoryLockKey | null {
+    const categories = STITCH_CATEGORIES_BY_CRAFT[craftType]
+    const cat = categories.find((c) => t(c.label) === title)
+    if (!cat) return null
+    return STITCH_CATEGORY_LOCK_KEY[cat.label] ?? null
+  }
+
   function renderSectionHeader({ section }: { section: SectionData }) {
+    const lockKey = getSectionLockKey(section.title)
+    const isLocked = lockKey ? !isStitchCategoryUnlocked(lockKey) : false
     return (
-      <View style={styles.sectionHeader}>
+      <TouchableOpacity
+        style={styles.sectionHeader}
+        onPress={isLocked ? () => setLockedCategory({ key: lockKey!, label: section.title }) : undefined}
+        activeOpacity={isLocked ? 0.7 : 1}
+      >
         <Text style={styles.sectionHeaderText}>{section.title}</Text>
-      </View>
+        {isLocked && <Feather name="lock" size={14} color="#9ca3af" />}
+      </TouchableOpacity>
     )
   }
 
@@ -295,6 +321,19 @@ export default function StitchPicker({
         defaultCraftType={craftType}
         onClose={() => setShowCreateCustom(false)}
         onCreated={handleCustomStitchCreated}
+      />
+
+      {/* Stitch category upgrade modal */}
+      <UpgradePromptModal
+        visible={lockedCategory !== null}
+        onClose={() => setLockedCategory(null)}
+        title={t('upgrade.stitchCategory.title')}
+        description={t('upgrade.stitchCategory.desc', { category: lockedCategory?.label ?? '' })}
+        hasAdOption={true}
+        rewardType={REWARD_TYPES.STITCH_CATEGORY_INC}
+        onAdRewarded={() => {
+          if (lockedCategory) unlockStitchCategory(lockedCategory.key)
+        }}
       />
     </Modal>
   )
@@ -373,6 +412,9 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
     paddingHorizontal: 16,
     paddingTop: 16,
     paddingBottom: 6,
@@ -384,6 +426,9 @@ const styles = StyleSheet.create({
     color: '#6b7280',
     textTransform: 'uppercase',
     letterSpacing: 0.5,
+  },
+  stitchRowLocked: {
+    opacity: 0.4,
   },
   stitchRow: {
     flexDirection: 'row',

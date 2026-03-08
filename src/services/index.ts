@@ -1,4 +1,6 @@
 export * from './photoService'
 export * from './analyticsService'
 export * from './importExportService'
-export { initializeAdMob, requestATTIfNeeded, loadInterstitialAd, showInterstitialAd } from './adsService'
+export { initializeAdMob, requestATTIfNeeded, loadInterstitialAd, showInterstitialAd, loadRewardedAd, showRewardedAd } from './adsService'
+export { initializeIAP, purchasePremium, restorePurchases, cleanupIAP } from './iapService'
+export { redeemVoucher } from './voucherService'

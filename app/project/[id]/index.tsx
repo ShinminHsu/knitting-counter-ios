@@ -23,7 +23,10 @@ import PhotoGallery from '../../../src/components/PhotoGallery'
 import PhotoViewer from '../../../src/components/PhotoViewer'
 import { showConfirmDialog } from '../../../src/components/ConfirmDialog'
 import AdBanner from '../../../src/components/AdBanner'
+import UpgradePromptModal from '../../../src/components/UpgradePromptModal'
 import ScreenHeader from '../../../src/components/ScreenHeader'
+import { useEntitlementStore } from '../../../src/stores'
+import { REWARD_TYPES } from '../../../src/constants/analytics'
 import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
 import { useSpotlight } from '../../../src/hooks/useSpotlight'
 import { formatDate } from '../../../src/utils/helpers'
@@ -161,6 +164,10 @@ export default function ProjectDetailScreen() {
   const [showEditProject, setShowEditProject] = useState(false)
   const [showAddChart, setShowAddChart] = useState(false)
   const [viewingPhoto, setViewingPhoto] = useState<ProjectPhoto | null>(null)
+  const [showPhotoUpgrade, setShowPhotoUpgrade] = useState(false)
+  const maxPhotosPerProject = useEntitlementStore((s) => s.maxPhotosPerProject)
+  const adUnlockedPhotoCount = useEntitlementStore((s) => s.adUnlockedPhotoCount)
+  const incrementAdUnlockedPhotos = useEntitlementStore((s) => s.incrementAdUnlockedPhotos)
 
   const addChartButtonRef = useRef<View>(null)
   const exportButtonRef = useRef<View>(null)
@@ -189,7 +196,7 @@ export default function ProjectDetailScreen() {
 
   // ── 照片處理 ────────────────────────────────────────────────────────────────
 
-  const handleAddPhoto = () => {
+  const doAddPhoto = () => {
     Alert.alert(t('projectDetail.addPhotoTitle'), undefined, [
       {
         text: t('projectDetail.addPhotoCamera'),
@@ -213,6 +220,14 @@ export default function ProjectDetailScreen() {
       },
       { text: t('common.cancel'), style: 'cancel' },
     ])
+  }
+
+  const handleAddPhoto = () => {
+    if (project && project.photos.length >= maxPhotosPerProject()) {
+      setShowPhotoUpgrade(true)
+    } else {
+      doAddPhoto()
+    }
   }
 
   const handleDeletePhoto = (photo: ProjectPhoto) => {
@@ -428,6 +443,19 @@ export default function ProjectDetailScreen() {
           onClose={() => setViewingPhoto(null)}
         />
       )}
+
+      <UpgradePromptModal
+        visible={showPhotoUpgrade}
+        onClose={() => setShowPhotoUpgrade(false)}
+        title={t('upgrade.photoLimit.title')}
+        description={t('upgrade.photoLimit.desc')}
+        hasAdOption={adUnlockedPhotoCount < 2}
+        rewardType={REWARD_TYPES.PHOTO_SLOT}
+        onAdRewarded={() => {
+          incrementAdUnlockedPhotos()
+          doAddPhoto()
+        }}
+      />
 
       {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
     </SafeAreaView>

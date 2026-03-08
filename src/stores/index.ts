@@ -5,3 +5,4 @@ export { useProgressStore, totalStitchesInRound } from './useProgressStore';
 export { useCustomStitchStore } from './useCustomStitchStore';
 export { useTemplateStore } from './useTemplateStore';
 export { useOnboardingStore } from './useOnboardingStore';
+export { useEntitlementStore } from './useEntitlementStore';

@@ -7,4 +7,6 @@ export const AD_UNIT_IDS = {
   BANNER: 'ca-app-pub-3940256099942544/2934735716',
   // iOS test interstitial ID
   INTERSTITIAL: 'ca-app-pub-3940256099942544/4411468910',
+  // iOS test rewarded ID
+  REWARDED: 'ca-app-pub-3940256099942544/1712485313',
 } as const

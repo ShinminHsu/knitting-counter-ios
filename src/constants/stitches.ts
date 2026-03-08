@@ -201,6 +201,23 @@ export const STITCH_CATEGORIES_BY_CRAFT: Record<CraftType, StitchCategory[]> = {
   knitting: KNITTING_STITCH_CATEGORIES,
 }
 
+// ─── Stitch category lock keys（free plan gating）────────────────────────────
+
+export type StitchCategoryLockKey = 'basic' | 'inc' | 'dec' | 'special' | 'cable'
+
+/** 將 category label 對應到 lock key，用於判斷該分類是否已解鎖 */
+export const STITCH_CATEGORY_LOCK_KEY: Record<string, StitchCategoryLockKey> = {
+  'stitch.category.crochetBasic':    'basic',
+  'stitch.category.crochetIncrease': 'inc',
+  'stitch.category.crochetDecrease': 'dec',
+  'stitch.category.crochetSpecial':  'special',
+  'stitch.category.knitBasic':       'basic',
+  'stitch.category.knitIncrease':    'inc',
+  'stitch.category.knitDecrease2':   'dec',
+  'stitch.category.knitDecrease3':   'dec',
+  'stitch.category.knitCable':       'cable',
+}
+
 // ─── 加針類型（Req 4.15：加針計為 2 針）────────────────────────────────────────
 
 /** 加針針法清單：這些針法在計算針目數時佔 2 針以上（stitchCount > 1）*/
