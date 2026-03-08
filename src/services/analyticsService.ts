@@ -25,8 +25,9 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
   if (!measurement_id || !api_secret) return
 
   try {
+    const debugEndpoint = 'https://www.google-analytics.com/debug/mp/collect'
     const res = await fetch(
-      `${FIREBASE_MP_ENDPOINT}?measurement_id=${measurement_id}&api_secret=${api_secret}`,
+      `${debugEndpoint}?measurement_id=${measurement_id}&api_secret=${api_secret}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -36,7 +37,8 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
         }),
       }
     )
-    console.log(`[GA] ${name} → status ${res.status}`)
+    const json = await res.json()
+    console.log(`[GA] ${name} → debug:`, JSON.stringify(json))
   } catch (e) {
     console.log(`[GA] fetch error`, e)
   }
