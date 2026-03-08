@@ -24,8 +24,8 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
   if (!measurement_id || !api_secret) return
 
   try {
-    const res = await fetch(
-      `https://www.google-analytics.com/debug/mp/collect?measurement_id=${measurement_id}&api_secret=${api_secret}`,
+    await fetch(
+      `${FIREBASE_MP_ENDPOINT}?measurement_id=${measurement_id}&api_secret=${api_secret}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -35,19 +35,15 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
         }),
       }
     )
-    const json = await res.json()
-    console.log(`[GA] ${name}`, JSON.stringify(json))
-  } catch (e) {
-    console.log(`[GA] error`, e)
-  }
+  } catch {}
 }
 
 // ── Screen & feature events ────────────────────────────────────────────────────
 
 export async function logScreenView(screenName: string): Promise<void> {
   sendEvent(ANALYTICS_EVENTS.SCREEN_VIEW, {
-    firebase_screen: screenName,
-    firebase_screen_class: screenName,
+    screen_name: screenName,
+    screen_class: screenName,
   })
 }
 
