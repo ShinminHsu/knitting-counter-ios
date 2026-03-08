@@ -21,10 +21,11 @@ function getClientId(): string {
 
 async function sendEvent(name: string, params?: Record<string, string>): Promise<void> {
   const { measurement_id, api_secret } = FIREBASE_CONFIG
+  console.log(`[GA] sendEvent: ${name}, mid=${measurement_id ? 'OK' : 'MISSING'}, secret=${api_secret ? 'OK' : 'MISSING'}`)
   if (!measurement_id || !api_secret) return
 
   try {
-    await fetch(
+    const res = await fetch(
       `${FIREBASE_MP_ENDPOINT}?measurement_id=${measurement_id}&api_secret=${api_secret}`,
       {
         method: 'POST',
@@ -35,7 +36,10 @@ async function sendEvent(name: string, params?: Record<string, string>): Promise
         }),
       }
     )
-  } catch {}
+    console.log(`[GA] ${name} → status ${res.status}`)
+  } catch (e) {
+    console.log(`[GA] fetch error`, e)
+  }
 }
 
 // ── Screen & feature events ────────────────────────────────────────────────────
