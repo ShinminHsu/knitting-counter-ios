@@ -39,6 +39,7 @@ export function getGroupFromItem(item: PatternItem): StitchGroup | null {
  */
 export function calcStitchInfoCount(stitch: StitchInfo): number {
   const info = StitchTypeInfo[stitch.type]
+  if (!info) return stitch.count  // 舊資料中已移除的針法 type，視為 stitchCount=1
   return stitch.count * info.stitchCount
 }
 
@@ -76,7 +77,7 @@ export function getStitchAbbr(stitch: StitchInfo): string {
   if (stitch.type === StitchType.CUSTOM) {
     return stitch.customAbbr ?? stitch.customName ?? 'custom'
   }
-  return StitchTypeInfo[stitch.type].abbr
+  return StitchTypeInfo[stitch.type]?.abbr ?? stitch.type
 }
 
 /**
