@@ -56,8 +56,7 @@
         "ios": {
           "googleServicesFile": "./GoogleService-Info.plist"
         }
-      }],
-      "@react-native-firebase/analytics"
+      }]
     ],
     "extra": {
       "router": {},
