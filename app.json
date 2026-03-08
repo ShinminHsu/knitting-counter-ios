@@ -57,6 +57,11 @@
         "ios": {
           "googleServicesFile": "./GoogleService-Info.plist"
         }
+      }],
+      ["expo-build-properties", {
+        "ios": {
+          "useFrameworks": "static"
+        }
       }]
     ],
     "extra": {
