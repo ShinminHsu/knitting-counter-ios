@@ -287,6 +287,7 @@ const zhTW = {
     addProject2: '輸入專案名稱（例如：圍巾、帽子），並選擇針法類型。',
     addProject3: '點擊「建立」完成新增，專案會出現在清單中。',
     tipSwipeDeleteProject: '左滑專案卡片，可顯示刪除按鈕。',
+    tipLongPressProject: '長按專案卡片，可快速複製或刪除該專案。',
     tipProjectPhoto: '進入專案詳細頁，可在「相片」區域新增參考照片或進度照片。',
 
     sectionCharts: '織圖（Charts）',
@@ -295,6 +296,7 @@ const zhTW = {
     buildChart3: '一個專案可以有多張織圖，計數時可以在織圖之間切換。',
     buildChart4: '可為織圖或段落加上備註，方便日後參考。',
     tipSwipeDeleteChart: '左滑織圖卡片，可顯示刪除按鈕。',
+    tipLongPressChart: '長按織圖卡片，可快速複製或刪除該織圖。',
     tipImportExport: '點擊專案詳細頁右上角的分享圖示，可匯出或匯入專案。',
 
     sectionEditor: '段落編輯',
@@ -317,7 +319,7 @@ const zhTW = {
     gestureSwipeLeft: '左滑',
     gestureSwipeLeftDesc: '在專案清單、織圖清單、針法庫等清單中左滑，可顯示刪除按鈕。',
     gestureLongPress: '長按',
-    gestureLongPressDesc: '長按段落或針法項目，進入多選模式，可批次複製或刪除。',
+    gestureLongPressDesc: '長按專案或織圖卡片可複製或刪除；長按段落或針法項目，進入多選模式，可批次複製或刪除。',
     gestureDrag: '拖曳排序',
     gestureDragDesc: '長按列表項目左側的 ☰ 拖曳把手，可拖動調整順序。',
 

@@ -287,6 +287,7 @@ const ja = {
     addProject2: 'プロジェクト名（例：マフラー、帽子）を入力し、編み物の種類を選択します。',
     addProject3: '「作成」をタップして完了です。プロジェクトが一覧に表示されます。',
     tipSwipeDeleteProject: 'プロジェクトカードを左スワイプすると削除ボタンが表示されます。',
+    tipLongPressProject: 'プロジェクトカードを長押しすると、コピーまたは削除できます。',
     tipProjectPhoto: 'プロジェクト詳細の写真セクションで参考写真や進捗写真を追加できます。',
 
     sectionCharts: 'チャート',
@@ -295,6 +296,7 @@ const ja = {
     buildChart3: '1つのプロジェクトに複数のチャートを追加でき、追跡中に切り替えられます。',
     buildChart4: 'チャートや段にメモを追加して後から参照できるようにします。',
     tipSwipeDeleteChart: 'チャートカードを左スワイプすると削除ボタンが表示されます。',
+    tipLongPressChart: 'チャートカードを長押しすると、コピーまたは削除できます。',
     tipImportExport: 'プロジェクト詳細のシェアアイコンをタップしてインポート・エクスポートできます。',
 
     sectionEditor: '段の編集',
@@ -317,7 +319,7 @@ const ja = {
     gestureSwipeLeft: '左スワイプ',
     gestureSwipeLeftDesc: 'プロジェクト・チャート・針目ライブラリのカードを左スワイプすると削除ボタンが表示されます。',
     gestureLongPress: '長押し',
-    gestureLongPressDesc: '段や針目を長押しすると選択モードに入り、まとめてコピー・削除できます。',
+    gestureLongPressDesc: 'プロジェクト・チャートカードの長押しでコピーまたは削除。段や針目の長押しで選択モードに入り、まとめてコピー・削除できます。',
     gestureDrag: 'ドラッグで並び替え',
     gestureDragDesc: 'リスト項目左側の☰ハンドルを長押しして順序を変更できます。',
 

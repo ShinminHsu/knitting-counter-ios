@@ -185,19 +185,17 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label：只顯示文字，不顯示 icon；label 為空時不渲染（單針法第 2+ 個 block） */}
-      {block.label ? (
-        <Text
-          style={[
-            blockStyles.label,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-          numberOfLines={1}
-        >
-          {block.label}
-        </Text>
-      ) : null}
+      {/* Label：永遠佔位以維持對齊；單針法第 2+ 個 block label 為空字串 */}
+      <Text
+        style={[
+          blockStyles.label,
+          isActive && blockStyles.labelActive,
+          isCompleted && blockStyles.labelCompleted,
+        ]}
+        numberOfLines={1}
+      >
+        {block.label}
+      </Text>
 
       {/* 符號區：單行排列，不換行 */}
       <View style={blockStyles.symbolsRow}>

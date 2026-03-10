@@ -69,6 +69,10 @@ export default function GuideScreen() {
             </View>
             <View style={styles.tip}>
               <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
+              <Text style={styles.tipText}>{t('guide.tipLongPressProject')}</Text>
+            </View>
+            <View style={styles.tip}>
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipProjectPhoto')}</Text>
             </View>
           </View>
@@ -97,6 +101,10 @@ export default function GuideScreen() {
             <View style={styles.tip}>
               <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipSwipeDeleteChart')}</Text>
+            </View>
+            <View style={styles.tip}>
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
+              <Text style={styles.tipText}>{t('guide.tipLongPressChart')}</Text>
             </View>
             <View style={styles.tip}>
               <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
