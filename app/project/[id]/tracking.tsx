@@ -54,7 +54,7 @@ interface SymbolEntry {
 
 interface StitchBlock {
   key: string
-  /** 顯示標籤，例如：「sc 1」或「【群組名】- 2」 */
+  /** 顯示標籤，例如：「sc × 5」或「【群組名】- 2」 */
   label: string
   /** 每個針法的符號，含 physical 位置（全部展開，不截斷）*/
   symbols: SymbolEntry[]
@@ -64,6 +64,12 @@ interface StitchBlock {
   endPos: number
   /** 單一針法 block 的針法類型（群組 block 不設定）*/
   stitchType?: StitchType
+  /**
+   * 點擊此 block 時要跳到的位置（覆寫 endPos）。
+   * 用於 STITCH PatternItem 的第一個 block（label block）：
+   * 點擊「sc × 500」應跳到整個 PatternItem 的末端，一次完成所有 500 針。
+   */
+  tapEndPos?: number
 }
 
 type BlockStatus = 'completed' | 'active' | 'upcoming'
@@ -101,12 +107,15 @@ function expandToBlocks(round: Round): StitchBlock[] {
 
       // 每個邏輯針法（stitch.count 次）→ 各自一個 block，才能讓 auto-scroll 每針跟著移動
       // 只有第一個 block 顯示 "abbr × count" label，其餘只顯示 symbol
+      // 第一個 block 的 tapEndPos 指向整個 PatternItem 的末端，點擊可一次完成所有針
+      const itemEndPos = pos + stitch.count * stitchCount
       for (let i = 0; i < stitch.count; i++) {
         const blockStart = pos
         const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
         pos += stitchCount
         const label = i === 0 ? `${abbr} × ${stitch.count}` : ''
-        blocks.push({ key: `${item.id}-${i}`, label, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
+        const tapEndPos = i === 0 && stitch.count > 1 ? itemEndPos : undefined
+        blocks.push({ key: `${item.id}-${i}`, label, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type, tapEndPos })
       }
     } else {
       const group = item.data as StitchGroup
@@ -242,11 +251,12 @@ const blockStyles = StyleSheet.create({
     marginRight: 16,
     marginBottom: 14,
   },
-  // Label：文字標籤，無 icon
+  // Label：文字標籤，無 icon；固定高度確保空字串時排版不跑掉
   label: {
     fontSize: 10,
     fontWeight: '500',
     color: '#4b5563',
+    height: 14,
     marginBottom: 10,
   },
   labelActive: {
@@ -489,11 +499,12 @@ export default function ProgressTrackingScreen() {
 
   function handleBlockTap(block: StitchBlock) {
     if (!id || isPreviewMode) return // 預覽模式不可互動
-    if (block.endPos <= currentStitch) return // 已完成，無效（Req 4.14）
-    if (block.endPos >= totalStitches) {
+    const jumpPos = block.tapEndPos ?? block.endPos
+    if (jumpPos <= currentStitch) return // 已完成，無效（Req 4.14）
+    if (jumpPos >= totalStitches) {
       handleCompleteRound()
     } else {
-      useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, block.endPos)
+      useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, jumpPos)
     }
   }
 
