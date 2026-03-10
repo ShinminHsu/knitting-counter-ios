@@ -20,6 +20,7 @@ interface EntitlementState {
 
   // Actions
   setPremium: (source: 'iap' | 'voucher', voucherCode?: string) => void
+  resetPremium: () => void
   incrementAdUnlockedProjects: () => void
   incrementAdUnlockedPhotos: () => void
   unlockStitchCategory: (key: StitchCategoryLockKey) => void
@@ -52,6 +53,16 @@ export const useEntitlementStore = create<EntitlementState>()(
 
       setPremium: (source, voucherCode) =>
         set({ isPremium: true, premiumSource: source, voucherCode: voucherCode ?? null }),
+
+      resetPremium: () =>
+        set({
+          isPremium: false,
+          premiumSource: null,
+          voucherCode: null,
+          adUnlockedProjectCount: 0,
+          adUnlockedPhotoCount: 0,
+          unlockedStitchCategories: { basic: false, inc: false, dec: false, special: false, cable: false },
+        }),
 
       incrementAdUnlockedProjects: () =>
         set((s) => ({
