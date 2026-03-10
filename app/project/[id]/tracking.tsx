@@ -100,11 +100,13 @@ function expandToBlocks(round: Round): StitchBlock[] {
       const stitchCount = StitchTypeInfo[stitch.type]?.stitchCount ?? 1
 
       // 每個邏輯針法（stitch.count 次）→ 各自一個 block，才能讓 auto-scroll 每針跟著移動
+      // 只有第一個 block 顯示 "abbr × count" label，其餘只顯示 symbol
       for (let i = 0; i < stitch.count; i++) {
         const blockStart = pos
         const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
         pos += stitchCount
-        blocks.push({ key: `${item.id}-${i}`, label: abbr, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
+        const label = i === 0 ? `${abbr} × ${stitch.count}` : ''
+        blocks.push({ key: `${item.id}-${i}`, label, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
       }
     } else {
       const group = item.data as StitchGroup
@@ -183,17 +185,19 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label：只顯示文字，不顯示 icon */}
-      <Text
-        style={[
-          blockStyles.label,
-          isActive && blockStyles.labelActive,
-          isCompleted && blockStyles.labelCompleted,
-        ]}
-        numberOfLines={1}
-      >
-        {block.label}
-      </Text>
+      {/* Label：只顯示文字，不顯示 icon；label 為空時不渲染（單針法第 2+ 個 block） */}
+      {block.label ? (
+        <Text
+          style={[
+            blockStyles.label,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {block.label}
+        </Text>
+      ) : null}
 
       {/* 符號區：單行排列，不換行 */}
       <View style={blockStyles.symbolsRow}>
