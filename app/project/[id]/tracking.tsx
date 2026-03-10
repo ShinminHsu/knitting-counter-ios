@@ -66,10 +66,15 @@ interface StitchBlock {
   stitchType?: StitchType
   /**
    * 點擊此 block 時要跳到的位置（覆寫 endPos）。
-   * 用於 STITCH PatternItem 的第一個 block（label block）：
-   * 點擊「sc × 500」應跳到整個 PatternItem 的末端，一次完成所有 500 針。
+   * STITCH header block 用：點擊「sc × 500」跳到整個 PatternItem 的末端。
    */
   tapEndPos?: number
+  /**
+   * 此 block 為 STITCH PatternItem 的 header block。
+   * 顯示為全寬標籤列，獨佔一行，不含 symbol。
+   * 點擊時一次完成整個 PatternItem 的所有針。
+   */
+  isHeader?: boolean
 }
 
 type BlockStatus = 'completed' | 'active' | 'upcoming'
@@ -105,17 +110,23 @@ function expandToBlocks(round: Round): StitchBlock[] {
       const abbr = getStitchAbbr(stitch)
       const stitchCount = StitchTypeInfo[stitch.type]?.stitchCount ?? 1
 
-      // 每個邏輯針法（stitch.count 次）→ 各自一個 block，才能讓 auto-scroll 每針跟著移動
-      // 只有第一個 block 顯示 "abbr × count" label，其餘只顯示 symbol
-      // 第一個 block 的 tapEndPos 指向整個 PatternItem 的末端，點擊可一次完成所有針
-      const itemEndPos = pos + stitch.count * stitchCount
-      for (let i = 0; i < stitch.count; i++) {
+      if (stitch.count === 1) {
+        // 單一針法：一個 block，label 就是縮寫
         const blockStart = pos
         const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
         pos += stitchCount
-        const label = i === 0 ? `${abbr} × ${stitch.count}` : ''
-        const tapEndPos = i === 0 && stitch.count > 1 ? itemEndPos : undefined
-        blocks.push({ key: `${item.id}-${i}`, label, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type, tapEndPos })
+        blocks.push({ key: item.id, label: abbr, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
+      } else {
+        // 多針法：先放一個全寬 header block（可點擊一次完成所有），再放各自獨立的 symbol block
+        const itemStartPos = pos
+        const itemEndPos = pos + stitch.count * stitchCount
+        blocks.push({ key: `${item.id}-header`, label: `${abbr} × ${stitch.count}`, symbols: [], startPos: itemStartPos, endPos: itemEndPos, tapEndPos: itemEndPos, isHeader: true })
+        for (let i = 0; i < stitch.count; i++) {
+          const blockStart = pos
+          const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
+          pos += stitchCount
+          blocks.push({ key: `${item.id}-${i}`, label: '', symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
+        }
       }
     } else {
       const group = item.data as StitchGroup
@@ -186,6 +197,30 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
+  // Header block：全寬標籤，點擊一次完成整個 PatternItem 的所有針
+  if (block.isHeader) {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={isCompleted ? 1 : 0.7}
+        style={blockStyles.headerRow}
+        accessibilityLabel={block.label}
+        accessibilityRole="button"
+      >
+        <Text
+          style={[
+            blockStyles.headerLabel,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {block.label}
+        </Text>
+      </TouchableOpacity>
+    )
+  }
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -194,19 +229,21 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label：永遠佔位以維持對齊；單針法第 2+ 個 block label 為空字串 */}
-      <Text
-        style={[
-          blockStyles.label,
-          isActive && blockStyles.labelActive,
-          isCompleted && blockStyles.labelCompleted,
-        ]}
-        numberOfLines={1}
-      >
-        {block.label}
-      </Text>
+      {/* Label：只有 GROUP block 或 count=1 的 STITCH block 才有 label */}
+      {block.label ? (
+        <Text
+          style={[
+            blockStyles.label,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {block.label}
+        </Text>
+      ) : null}
 
-      {/* 符號區：單行排列，不換行 */}
+      {/* 符號區 */}
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
@@ -245,18 +282,28 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 }
 
 const blockStyles = StyleSheet.create({
+  // Header block：全寬標籤行，獨佔一行
+  headerRow: {
+    width: '100%',
+    paddingVertical: 4,
+    marginBottom: 6,
+  },
+  headerLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4b5563',
+  },
   // 每個 block 是一個直向欄位，橫向並排
   row: {
     alignItems: 'flex-start',
     marginRight: 16,
     marginBottom: 14,
   },
-  // Label：文字標籤，無 icon；固定高度確保空字串時排版不跑掉
+  // Label：文字標籤，無 icon
   label: {
     fontSize: 10,
     fontWeight: '500',
     color: '#4b5563',
-    height: 14,
     marginBottom: 10,
   },
   labelActive: {
@@ -651,6 +698,7 @@ export default function ProgressTrackingScreen() {
             blocks.map((block) => (
               <View
                 key={block.key}
+                style={block.isHeader ? styles.headerBlockWrapper : undefined}
                 onLayout={(e) => {
                   blockYPositions.current.set(block.key, e.nativeEvent.layout.y)
                 }}
@@ -762,6 +810,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#faf5f0',
+  },
+  // Header block wrapper：強制佔滿整行（flex-wrap 換行）
+  headerBlockWrapper: {
+    width: '100%',
   },
   centered: {
     flex: 1,
