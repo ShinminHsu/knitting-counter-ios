@@ -199,7 +199,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
-          const opacity = symStatus === 'completed' ? 0.5 : symStatus === 'current' ? 1 : 0.7
+          const opacity = symStatus === 'completed' ? 0.2 : symStatus === 'current' ? 1 : 0.7
 
           if (showIcons && symbol.stitchType) {
             const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]

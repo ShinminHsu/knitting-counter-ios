@@ -19,6 +19,7 @@ const en = {
     groupRepTitle: '[{{name}}: {{stitches}}] - Rep. {{n}}',
     groupRepTitleEmpty: '[{{name}}] - Rep. {{n}}',
     deleteRound: 'Delete round',
+    duplicate: 'Duplicate',
   },
 
   // ─── Stitch names ────────────────────────────────────────────────────────────

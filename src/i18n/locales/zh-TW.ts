@@ -19,6 +19,7 @@ const zhTW = {
     groupRepTitle: '【{{name}}：{{stitches}}】 - 第 {{n}} 次',
     groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 次',
     deleteRound: '刪除段落',
+    duplicate: '複製',
   },
 
   // ─── 針法名稱 ────────────────────────────────────────────────────────────────

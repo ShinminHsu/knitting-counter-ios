@@ -6,8 +6,10 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
+  Alert,
   StyleSheet,
 } from 'react-native'
+import { Swipeable } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -38,10 +40,10 @@ const getOverallProgress = (project: Project): number => {
 interface ProjectCardProps {
   project: Project
   onPress: () => void
-  onDelete: (projectId: string, projectName: string) => void
+  onLongPress: () => void
 }
 
-function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
+function ProjectCard({ project, onPress, onLongPress }: ProjectCardProps) {
   const { t } = useTranslation()
   const coverPhoto = project.photos?.find((p) => p.isCover) ?? project.photos?.[0]
   const progress = getOverallProgress(project)
@@ -50,19 +52,12 @@ function ProjectCard({ project, onPress, onDelete }: ProjectCardProps) {
   return (
     <TouchableOpacity
       onPress={onPress}
+      onLongPress={onLongPress}
+      delayLongPress={400}
       style={styles.card}
       accessibilityLabel={`${project.name}`}
       activeOpacity={0.75}
     >
-      {/* Delete button - top right corner */}
-      <TouchableOpacity
-        onPress={() => onDelete(project.id, project.name)}
-        style={styles.deleteButton}
-        accessibilityLabel={t('projectList.deleteProject', { name: project.name })}
-        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-      >
-        <Ionicons name="trash-outline" size={15} color="#9ca3af" />
-      </TouchableOpacity>
       <View style={styles.cardContent}>
         {/* Cover photo thumbnail */}
         {coverPhoto ? (
@@ -129,6 +124,7 @@ export default function ProjectListScreen() {
   const router = useRouter()
   const projects = useProjectStore((s) => s.projects)
   const deleteProject = useProjectStore((s) => s.deleteProject)
+  const duplicateProject = useProjectStore((s) => s.duplicateProject)
   const [showCreateModal, setShowCreateModal] = useState(false)
 
   const addButtonRef = useRef<View>(null)
@@ -162,6 +158,21 @@ export default function ProjectListScreen() {
       destructive: true,
       onConfirm: () => deleteProject(projectId),
     })
+  }
+
+  const handleLongPress = (project: Project) => {
+    Alert.alert(project.name, undefined, [
+      {
+        text: t('common.duplicate'),
+        onPress: () => duplicateProject(project.id),
+      },
+      {
+        text: t('common.delete'),
+        style: 'destructive',
+        onPress: () => handleDelete(project.id, project.name),
+      },
+      { text: t('common.cancel'), style: 'cancel' },
+    ])
   }
 
   return (
@@ -203,11 +214,24 @@ export default function ProjectListScreen() {
           keyExtractor={(item: Project) => item.id}
           contentContainerStyle={styles.listContent}
           renderItem={({ item }: { item: Project }) => (
-            <ProjectCard
-              project={item}
-              onPress={() => router.push(`/project/${item.id}`)}
-              onDelete={handleDelete}
-            />
+            <Swipeable
+              renderRightActions={() => (
+                <TouchableOpacity
+                  style={styles.swipeDeleteBtn}
+                  onPress={() => handleDelete(item.id, item.name)}
+                  accessibilityLabel={t('projectList.deleteProject', { name: item.name })}
+                  accessibilityRole="button"
+                >
+                  <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
+                </TouchableOpacity>
+              )}
+            >
+              <ProjectCard
+                project={item}
+                onPress={() => router.push(`/project/${item.id}`)}
+                onLongPress={() => handleLongPress(item)}
+              />
+            </Swipeable>
           )}
         />
       )}
@@ -303,11 +327,19 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
     elevation: 2,
   },
-  deleteButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    padding: 4,
+  swipeDeleteBtn: {
+    backgroundColor: '#ef4444',
+    justifyContent: 'center',
+    alignItems: 'center',
+    width: 80,
+    borderRadius: 12,
+    marginLeft: 8,
+    marginVertical: 6,
+  },
+  swipeDeleteText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '700',
   },
   cardContent: {
     flexDirection: 'row',
@@ -335,7 +367,6 @@ const styles = StyleSheet.create({
   cardInfo: {
     flex: 1,
     gap: 6,
-    paddingRight: 24,
   },
   nameRow: {
     flexDirection: 'row',

@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
-import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { useEffect, useState } from 'react'
+import { Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -19,6 +19,7 @@ export default function SettingsScreen() {
   const { t } = useTranslation()
   const router = useRouter()
   const currentLanguage = i18n.language
+  const [showLanguagePicker, setShowLanguagePicker] = useState(false)
 
   useEffect(() => {
     logScreenView(SCREEN_NAMES.SETTINGS)
@@ -70,28 +71,68 @@ export default function SettingsScreen() {
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>{t('settings.language')}</Text>
         <View style={styles.optionGroup}>
-          {LANGUAGES.map((lang, index) => {
-            const isSelected = currentLanguage === lang.code
-            const isLast = index === LANGUAGES.length - 1
-            return (
-              <TouchableOpacity
-                key={lang.code}
-                style={[styles.optionRow, !isLast && styles.optionRowBorder]}
-                onPress={() => handleLanguageSelect(lang.code)}
-                activeOpacity={0.7}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: isSelected }}
-              >
-                <Text style={[styles.optionLabel, isSelected && styles.optionLabelSelected]}>
-                  {t(lang.labelKey)}
-                </Text>
-                {isSelected && <Text style={styles.checkmark}>✓</Text>}
-              </TouchableOpacity>
-            )
-          })}
+          <TouchableOpacity
+            style={styles.optionRow}
+            onPress={() => setShowLanguagePicker(true)}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+          >
+            <Text style={styles.optionLabel}>{t('settings.language')}</Text>
+            <View style={styles.optionRowRight}>
+              <Text style={styles.optionValueText}>
+                {LANGUAGES.find((l) => l.code === currentLanguage)
+                  ? t(LANGUAGES.find((l) => l.code === currentLanguage)!.labelKey)
+                  : currentLanguage}
+              </Text>
+              <Feather name="chevron-right" size={18} color="#9ca3af" />
+            </View>
+          </TouchableOpacity>
         </View>
       </View>
     </View>
+
+    {/* Language picker modal */}
+    <Modal
+      visible={showLanguagePicker}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setShowLanguagePicker(false)}
+    >
+      <TouchableOpacity
+        style={styles.modalOverlay}
+        activeOpacity={1}
+        onPress={() => setShowLanguagePicker(false)}
+      >
+        <TouchableOpacity activeOpacity={1} onPress={() => {}}>
+          <View style={styles.languageSheet}>
+            <View style={styles.sheetHandle} />
+            <Text style={styles.sheetTitle}>{t('settings.language')}</Text>
+            {LANGUAGES.map((lang, index) => {
+              const isSelected = currentLanguage === lang.code
+              const isLast = index === LANGUAGES.length - 1
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[styles.sheetOptionRow, !isLast && styles.optionRowBorder]}
+                  onPress={() => {
+                    handleLanguageSelect(lang.code)
+                    setShowLanguagePicker(false)
+                  }}
+                  activeOpacity={0.7}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: isSelected }}
+                >
+                  <Text style={[styles.sheetOptionLabel, isSelected && styles.optionLabelSelected]}>
+                    {t(lang.labelKey)}
+                  </Text>
+                  {isSelected && <Text style={styles.checkmark}>✓</Text>}
+                </TouchableOpacity>
+              )
+            })}
+          </View>
+        </TouchableOpacity>
+      </TouchableOpacity>
+    </Modal>
     </SafeAreaView>
   )
 }
@@ -152,5 +193,54 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#D97398',
     fontWeight: '700',
+  },
+  optionRowRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+  },
+  optionValueText: {
+    fontSize: 15,
+    color: '#9ca3af',
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'flex-end',
+  },
+  languageSheet: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingTop: 12,
+    paddingBottom: 40,
+    paddingHorizontal: 16,
+  },
+  sheetHandle: {
+    width: 36,
+    height: 4,
+    backgroundColor: '#d1d5db',
+    borderRadius: 2,
+    alignSelf: 'center',
+    marginBottom: 16,
+  },
+  sheetTitle: {
+    fontSize: 17,
+    fontWeight: '700',
+    color: '#1f2937',
+    marginBottom: 12,
+    paddingHorizontal: 4,
+  },
+  sheetOptionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 4,
+    paddingVertical: 16,
+    minHeight: 52,
+  },
+  sheetOptionLabel: {
+    fontSize: 16,
+    color: '#1f2937',
   },
 })

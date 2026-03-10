@@ -19,6 +19,7 @@ const ja = {
     groupRepTitle: '【{{name}}：{{stitches}}】 - 第 {{n}} 回',
     groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 回',
     deleteRound: '段を削除',
+    duplicate: 'コピー',
   },
 
   // ─── 編み目名 ────────────────────────────────────────────────────────────────
