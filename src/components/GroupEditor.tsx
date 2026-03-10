@@ -229,11 +229,10 @@ export default function GroupEditor({
   }
 
   function handleLoadTemplate(template: { name: string; stitches: StitchInfo[]; repeatCount: number }) {
-    if (!groupName) {
-      setGroupName(template.name)
-    }
+    setGroupName(template.name)
     setStitches(template.stitches.map((s) => ({ ...s, id: generateId() })))
     setRepeatCount(template.repeatCount)
+    setRepeatCountText(String(template.repeatCount))
   }
 
   function handleConfirm() {

@@ -98,16 +98,14 @@ function expandToBlocks(round: Round): StitchBlock[] {
       const stitch = item.data as StitchInfo
       const abbr = getStitchAbbr(stitch)
       const stitchCount = StitchTypeInfo[stitch.type]?.stitchCount ?? 1
-      const blockStart = pos
-      const symbols: SymbolEntry[] = []
 
-      // 每個邏輯針法（stitch.count 次）→ 1 個符號，佔 stitchCount 個 physical 位置
+      // 每個邏輯針法（stitch.count 次）→ 各自一個 block，才能讓 auto-scroll 每針跟著移動
       for (let i = 0; i < stitch.count; i++) {
-        symbols.push({ abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount })
+        const blockStart = pos
+        const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
         pos += stitchCount
+        blocks.push({ key: `${item.id}-${i}`, label: abbr, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
       }
-
-      blocks.push({ key: item.id, label: `${abbr} ${stitch.count}`, symbols, startPos: blockStart, endPos: pos, stitchType: stitch.type })
     } else {
       const group = item.data as StitchGroup
       // 計算每次重複的 physical 針數

@@ -6,6 +6,8 @@ import {
   ScrollView,
   TouchableOpacity,
   Alert,
+  Modal,
+  TextInput,
   StyleSheet,
 } from 'react-native'
 import { Swipeable } from 'react-native-gesture-handler'
@@ -199,6 +201,9 @@ export default function PatternEditorScreen() {
   const [isSelecting, setIsSelecting] = useState(false)
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set())
   const [isDragging, setIsDragging] = useState(false)
+  const [showAddRoundsModal, setShowAddRoundsModal] = useState(false)
+  const [addRoundsCount, setAddRoundsCount] = useState(1)
+  const [addRoundsCountText, setAddRoundsCountText] = useState('1')
 
   const addRoundButtonRef = useRef<View>(null)
   const firstRoundRef = useRef<View>(null)
@@ -275,28 +280,25 @@ export default function PatternEditorScreen() {
 
   function handleAddRoundWithPrompt() {
     if (!activeChart) return
-    Alert.prompt(
-      t('editor.addRoundsTitle'),
-      t('editor.addRoundsMessage'),
-      (countStr) => {
-        const count = parseInt(countStr ?? '1', 10)
-        if (isNaN(count) || count < 1) return
-        let firstNewRound = null
-        for (let i = 0; i < count; i++) {
-          const newRound = addRound(project!.id, activeChart!.id)
-          if (i === 0) firstNewRound = newRound
-          if (newRound) logRoundAdded()
-        }
-        if (count === 1 && firstNewRound) {
-          router.push(
-            `/project/${project!.id}/round?chartId=${activeChart!.id}&roundId=${firstNewRound.id}`
-          )
-        }
-      },
-      'plain-text',
-      '1',
-      'number-pad',
-    )
+    setAddRoundsCount(1)
+    setAddRoundsCountText('1')
+    setShowAddRoundsModal(true)
+  }
+
+  function handleConfirmAddRounds() {
+    setShowAddRoundsModal(false)
+    if (!activeChart) return
+    let firstNewRound = null
+    for (let i = 0; i < addRoundsCount; i++) {
+      const newRound = addRound(project!.id, activeChart!.id)
+      if (i === 0) firstNewRound = newRound
+      if (newRound) logRoundAdded()
+    }
+    if (addRoundsCount === 1 && firstNewRound) {
+      router.push(
+        `/project/${project!.id}/round?chartId=${activeChart!.id}&roundId=${firstNewRound.id}`
+      )
+    }
   }
 
   function handleDeleteRound(roundId: string, roundIndex: number) {
@@ -561,6 +563,82 @@ export default function PatternEditorScreen() {
       />
 
       {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}
+
+      {/* Add Rounds Stepper Modal */}
+      <Modal
+        visible={showAddRoundsModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowAddRoundsModal(false)}
+      >
+        <TouchableOpacity
+          style={styles.modalOverlay}
+          activeOpacity={1}
+          onPress={() => setShowAddRoundsModal(false)}
+        >
+          <TouchableOpacity activeOpacity={1} onPress={() => {}}>
+            <View style={styles.modalCard}>
+              <Text style={styles.modalTitle}>{t('editor.addRoundsTitle')}</Text>
+              <View style={styles.stepperRow}>
+                <TouchableOpacity
+                  style={styles.stepperBtn}
+                  onPress={() => {
+                    const next = Math.max(1, addRoundsCount - 1)
+                    setAddRoundsCount(next)
+                    setAddRoundsCountText(String(next))
+                  }}
+                  accessibilityLabel={t('groupEditor.decreaseRepeat')}
+                >
+                  <Feather name="minus" size={20} color="#6b7280" />
+                </TouchableOpacity>
+                <TextInput
+                  style={styles.stepperInput}
+                  value={addRoundsCountText}
+                  onChangeText={(text) => {
+                    setAddRoundsCountText(text)
+                    const n = parseInt(text, 10)
+                    if (!isNaN(n) && n >= 1) setAddRoundsCount(n)
+                  }}
+                  onBlur={() => {
+                    const n = parseInt(addRoundsCountText, 10)
+                    if (isNaN(n) || n < 1) {
+                      setAddRoundsCount(1)
+                      setAddRoundsCountText('1')
+                    }
+                  }}
+                  keyboardType="number-pad"
+                  selectTextOnFocus
+                />
+                <TouchableOpacity
+                  style={styles.stepperBtn}
+                  onPress={() => {
+                    const next = addRoundsCount + 1
+                    setAddRoundsCount(next)
+                    setAddRoundsCountText(String(next))
+                  }}
+                  accessibilityLabel={t('groupEditor.increaseRepeat')}
+                >
+                  <Feather name="plus" size={20} color="#6b7280" />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.modalButtons}>
+                <TouchableOpacity
+                  style={styles.modalCancelBtn}
+                  onPress={() => setShowAddRoundsModal(false)}
+                >
+                  <Text style={styles.modalCancelText}>{t('common.cancel')}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.modalConfirmBtn}
+                  onPress={handleConfirmAddRounds}
+                >
+                  <Text style={styles.modalConfirmText}>{t('common.confirm')}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </TouchableOpacity>
+      </Modal>
     </SafeAreaView>
   )
 }
@@ -860,5 +938,81 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#9ca3af',
     marginBottom: 4,
+  },
+
+  // Add Rounds Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCard: {
+    backgroundColor: '#fff',
+    borderRadius: 16,
+    padding: 24,
+    width: 280,
+    alignItems: 'center',
+    gap: 20,
+  },
+  modalTitle: {
+    fontSize: 17,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  stepperRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  stepperBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  stepperInput: {
+    width: 64,
+    height: 44,
+    borderWidth: 1,
+    borderColor: '#d1d5db',
+    borderRadius: 8,
+    textAlign: 'center',
+    fontSize: 18,
+    fontWeight: '600',
+    color: '#1f2937',
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    width: '100%',
+  },
+  modalCancelBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#f3f4f6',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalCancelText: {
+    fontSize: 15,
+    color: '#6b7280',
+    fontWeight: '500',
+  },
+  modalConfirmBtn: {
+    flex: 1,
+    height: 44,
+    borderRadius: 10,
+    backgroundColor: '#D97398',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  modalConfirmText: {
+    fontSize: 15,
+    color: '#fff',
+    fontWeight: '600',
   },
 })
