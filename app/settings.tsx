@@ -186,6 +186,29 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* DEV: Entitlement debug */}
+      {__DEV__ && (
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>DEV Tools</Text>
+          <View style={styles.optionGroup}>
+            <TouchableOpacity
+              style={styles.optionRow}
+              onPress={() => useEntitlementStore.getState().setPremium('iap')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#16a34a' }]}>Set Premium (IAP)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.optionRow, styles.optionRowBorder]}
+              onPress={() => useEntitlementStore.getState().resetPremium()}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#ef4444' }]}>Reset to Free</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
 
     {/* Language picker modal */}
