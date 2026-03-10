@@ -71,14 +71,31 @@ export function showRewardedAd(
   onRewarded: () => void,
   onClose: () => void
 ): void {
+  // DEV shortcut: skip real ad to avoid simulator crashes
+  if (__DEV__) {
+    onRewarded()
+    onClose()
+    return
+  }
+
   if (!ad) {
     onClose()
     return
   }
+
+  let rewarded = false
   try {
-    ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => { onRewarded() })
-    ad.addAdEventListener(AdEventType.CLOSED, () => { onClose() })
-    ad.addAdEventListener(AdEventType.ERROR, () => { onClose() })
+    ad.addAdEventListener(RewardedAdEventType.EARNED_REWARD, () => {
+      rewarded = true
+      onRewarded()
+    })
+    ad.addAdEventListener(AdEventType.CLOSED, () => {
+      // only call onClose once — onRewarded does NOT call onClose
+      onClose()
+    })
+    ad.addAdEventListener(AdEventType.ERROR, () => {
+      if (!rewarded) onClose()
+    })
     ad.show()
   } catch {
     onClose()

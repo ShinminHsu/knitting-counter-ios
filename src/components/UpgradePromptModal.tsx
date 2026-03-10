@@ -54,7 +54,6 @@ export default function UpgradePromptModal({
       () => {
         if (rewardType) logRewardedAdWatched(rewardType)
         onAdRewarded()
-        onClose()
       },
       () => {
         onClose()
