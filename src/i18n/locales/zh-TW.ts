@@ -277,9 +277,10 @@ const zhTW = {
   // ─── 使用說明 ────────────────────────────────────────────────────────────────
   guide: {
     title: '使用說明',
-    replayButton: '重新觀看新手教學',
-    replayTitle: '教學已重置',
-    replayMessage: '下次開啟 App 時，將再次顯示新手教學輪播。',
+    replayButton: '重新觀看操作提示',
+    replayTitle: '重新觀看操作提示',
+    replayMessage: '重置後，回到各頁面時會再次顯示操作提示。',
+    replayConfirm: '確定重置',
 
     sectionProjects: '專案管理',
     addProject1: '在「我的專案」主畫面點擊右上角的「＋」按鈕。',

@@ -19,6 +19,9 @@ interface OnboardingState {
 
   /** Reset carousel seen flag (for "replay tutorial" button in Help Center) */
   resetCarousel: () => void
+
+  /** Reset all spotlight seen flags so they replay when user revisits each screen */
+  resetSpotlights: () => void
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -37,6 +40,8 @@ export const useOnboardingStore = create<OnboardingState>()(
         })),
 
       resetCarousel: () => set({ hasSeenCarousel: false }),
+
+      resetSpotlights: () => set({ seenSpotlights: {} }),
     }),
     {
       name: STORAGE_KEYS.ONBOARDING,

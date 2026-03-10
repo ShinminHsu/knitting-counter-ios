@@ -277,9 +277,10 @@ const en = {
   // ─── User Guide ──────────────────────────────────────────────────────────────
   guide: {
     title: 'User Guide',
-    replayButton: 'Replay Onboarding Tutorial',
-    replayTitle: 'Tutorial Reset',
-    replayMessage: 'The onboarding carousel will appear again next time you open the app.',
+    replayButton: 'Replay Hints',
+    replayTitle: 'Replay Hints',
+    replayMessage: 'After resetting, the hints will reappear when you revisit each screen.',
+    replayConfirm: 'Reset',
 
     sectionProjects: 'Project Management',
     addProject1: 'Tap the "+" button in the top-right corner of My Projects.',

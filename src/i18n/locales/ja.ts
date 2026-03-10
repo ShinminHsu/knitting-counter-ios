@@ -277,9 +277,10 @@ const ja = {
   // ─── ユーザーガイド ───────────────────────────────────────────────────────────
   guide: {
     title: 'ユーザーガイド',
-    replayButton: 'チュートリアルを再度見る',
-    replayTitle: 'チュートリアルをリセット',
-    replayMessage: '次回アプリを開いた時に、オンボーディングチュートリアルが再度表示されます。',
+    replayButton: 'ヒントを再表示',
+    replayTitle: 'ヒントを再表示',
+    replayMessage: 'リセット後、各画面に移動するとヒントが再度表示されます。',
+    replayConfirm: 'リセット',
 
     sectionProjects: 'プロジェクト管理',
     addProject1: 'マイプロジェクトの右上にある「＋」ボタンをタップします。',
