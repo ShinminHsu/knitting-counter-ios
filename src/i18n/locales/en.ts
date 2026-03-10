@@ -19,6 +19,7 @@ const en = {
     groupRepTitle: '[{{name}}: {{stitches}}] - Rep. {{n}}',
     groupRepTitleEmpty: '[{{name}}] - Rep. {{n}}',
     deleteRound: 'Delete round',
+    duplicate: 'Duplicate',
   },
 
   // ─── Stitch names ────────────────────────────────────────────────────────────
@@ -276,15 +277,17 @@ const en = {
   // ─── User Guide ──────────────────────────────────────────────────────────────
   guide: {
     title: 'User Guide',
-    replayButton: 'Replay Onboarding Tutorial',
-    replayTitle: 'Tutorial Reset',
-    replayMessage: 'The onboarding carousel will appear again next time you open the app.',
+    replayButton: 'Replay Hints',
+    replayTitle: 'Replay Hints',
+    replayMessage: 'After resetting, the hints will reappear when you revisit each screen.',
+    replayConfirm: 'Reset',
 
     sectionProjects: 'Project Management',
     addProject1: 'Tap the "+" button in the top-right corner of My Projects.',
     addProject2: 'Enter a project name (e.g. Scarf, Hat) and choose a craft type.',
     addProject3: 'Tap "Create" to finish. The project will appear in your list.',
     tipSwipeDeleteProject: 'Swipe left on a project card to reveal the delete button.',
+    tipLongPressProject: 'Long-press a project card to duplicate or delete it.',
     tipProjectPhoto: 'In the project detail screen, add reference or progress photos in the Photos section.',
 
     sectionCharts: 'Charts',
@@ -293,6 +296,7 @@ const en = {
     buildChart3: 'A project can have multiple charts. You can switch between them while tracking.',
     buildChart4: 'Add notes to charts or rounds for future reference.',
     tipSwipeDeleteChart: 'Swipe left on a chart card to reveal the delete button.',
+    tipLongPressChart: 'Long-press a chart card to duplicate or delete it.',
     tipImportExport: 'Tap the share icon in the project detail header to import or export the project.',
 
     sectionEditor: 'Round Editing',
@@ -315,7 +319,7 @@ const en = {
     gestureSwipeLeft: 'Swipe Left',
     gestureSwipeLeftDesc: 'Swipe left on project cards, chart cards, or stitch library items to reveal the delete button.',
     gestureLongPress: 'Long-Press',
-    gestureLongPressDesc: 'Long-press a round or stitch item to enter selection mode for batch copy or delete.',
+    gestureLongPressDesc: 'Long-press a project or chart card to duplicate or delete it. Long-press a round or stitch item to enter selection mode for batch copy or delete.',
     gestureDrag: 'Drag to Reorder',
     gestureDragDesc: 'Long-press the ☰ drag handle on the left of list items to drag and reorder them.',
 

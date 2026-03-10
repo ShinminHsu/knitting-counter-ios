@@ -68,9 +68,10 @@ interface ChartCardProps {
   chart: Chart
   projectId: string
   onDelete: () => void
+  onDuplicate: () => void
 }
 
-function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
+function ChartCard({ chart, projectId, onDelete, onDuplicate }: ChartCardProps) {
   const { t } = useTranslation()
   const router = useRouter()
   const totalRounds = chart.rounds.length
@@ -91,6 +92,11 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
           <Text style={styles.swipeDeleteText}>{t('common.delete')}</Text>
         </TouchableOpacity>
       )}
+    >
+    <TouchableOpacity
+      activeOpacity={1}
+      onLongPress={onDuplicate}
+      delayLongPress={400}
     >
     <View style={styles.chartCard}>
       {/* Chart name row */}
@@ -142,6 +148,7 @@ function ChartCard({ chart, projectId, onDelete }: ChartCardProps) {
         </TouchableOpacity>
       </View>
     </View>
+    </TouchableOpacity>
     </Swipeable>
   )
 }
@@ -157,6 +164,7 @@ export default function ProjectDetailScreen() {
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
   const addChart = useProjectStore((s) => s.addChart)
   const deleteChart = useProjectStore((s) => s.deleteChart)
+  const duplicateChart = useProjectStore((s) => s.duplicateChart)
   const addPhoto = useProjectStore((s) => s.addPhoto)
   const deletePhotoStore = useProjectStore((s) => s.deletePhoto)
   const setCoverPhoto = useProjectStore((s) => s.setCoverPhoto)
@@ -261,6 +269,21 @@ export default function ProjectDetailScreen() {
         deleteChart(project!.id, chart.id)
       },
     })
+  }
+
+  const handleLongPressChart = (chart: Chart) => {
+    Alert.alert(chart.name, undefined, [
+      {
+        text: t('common.duplicate'),
+        onPress: () => duplicateChart(project!.id, chart.id),
+      },
+      {
+        text: t('common.delete'),
+        style: 'destructive',
+        onPress: () => handleDeleteChart(chart),
+      },
+      { text: t('common.cancel'), style: 'cancel' },
+    ])
   }
 
   // Analytics: log screen view on mount (Req 10.2)
@@ -407,6 +430,7 @@ export default function ProjectDetailScreen() {
                   chart={chart}
                   projectId={project.id}
                   onDelete={() => handleDeleteChart(chart)}
+                  onDuplicate={() => handleLongPressChart(chart)}
                 />
               ))}
             </View>

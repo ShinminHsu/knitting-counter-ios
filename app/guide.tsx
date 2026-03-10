@@ -19,7 +19,7 @@ import { useOnboardingStore } from '../src/stores'
 
 export default function GuideScreen() {
   const { t } = useTranslation()
-  const resetCarousel = useOnboardingStore((s) => s.resetCarousel)
+  const resetSpotlights = useOnboardingStore((s) => s.resetSpotlights)
 
   // Analytics: log screen view on mount (Req 10.2)
   useEffect(() => {
@@ -27,8 +27,13 @@ export default function GuideScreen() {
   }, [])
 
   function handleReplayTutorial() {
-    resetCarousel()
-    Alert.alert(t('guide.replayTitle'), t('guide.replayMessage'))
+    Alert.alert(t('guide.replayTitle'), t('guide.replayMessage'), [
+      { text: t('common.cancel'), style: 'cancel' },
+      {
+        text: t('guide.replayConfirm'),
+        onPress: () => resetSpotlights(),
+      },
+    ])
   }
 
   return (
@@ -38,7 +43,7 @@ export default function GuideScreen() {
       <ScrollView contentContainerStyle={styles.scrollContent}>
         {/* Replay tutorial button */}
         <TouchableOpacity style={styles.replayButton} onPress={handleReplayTutorial}>
-          <Feather name="play-circle" size={18} color="#D97398" style={{ marginRight: 8 }} />
+          <Feather name="play-circle" size={18} color="#6b7280" style={{ marginRight: 8 }} />
           <Text style={styles.replayButtonText}>{t('guide.replayButton')}</Text>
         </TouchableOpacity>
 
@@ -59,11 +64,15 @@ export default function GuideScreen() {
               <Text style={styles.stepText}>{t('guide.addProject3')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipSwipeDeleteProject')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
+              <Text style={styles.tipText}>{t('guide.tipLongPressProject')}</Text>
+            </View>
+            <View style={styles.tip}>
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipProjectPhoto')}</Text>
             </View>
           </View>
@@ -90,11 +99,15 @@ export default function GuideScreen() {
               <Text style={styles.stepText}>{t('guide.buildChart4')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipSwipeDeleteChart')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
+              <Text style={styles.tipText}>{t('guide.tipLongPressChart')}</Text>
+            </View>
+            <View style={styles.tip}>
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipImportExport')}</Text>
             </View>
           </View>
@@ -113,15 +126,15 @@ export default function GuideScreen() {
               <Text style={styles.stepText}>{t('guide.editor2')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipLongPressMultiSelect')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipDragReorder')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipStitchGroup')}</Text>
             </View>
           </View>
@@ -148,15 +161,15 @@ export default function GuideScreen() {
               <Text style={styles.stepText}>{t('guide.track4')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipPreviewMode')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipDisplayToggle')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipBlockTap')}</Text>
             </View>
           </View>
@@ -168,7 +181,7 @@ export default function GuideScreen() {
           <View style={styles.card}>
             <View style={styles.gestureRow}>
               <View style={styles.gestureIconBox}>
-                <Feather name="chevrons-left" size={20} color="#D97398" />
+                <Feather name="chevrons-left" size={20} color="#6b7280" />
               </View>
               <View style={styles.gestureInfo}>
                 <Text style={styles.gestureTitle}>{t('guide.gestureSwipeLeft')}</Text>
@@ -177,7 +190,7 @@ export default function GuideScreen() {
             </View>
             <View style={styles.gestureRow}>
               <View style={styles.gestureIconBox}>
-                <Feather name="more-vertical" size={20} color="#D97398" />
+                <Feather name="more-vertical" size={20} color="#6b7280" />
               </View>
               <View style={styles.gestureInfo}>
                 <Text style={styles.gestureTitle}>{t('guide.gestureLongPress')}</Text>
@@ -186,7 +199,7 @@ export default function GuideScreen() {
             </View>
             <View style={styles.gestureRow}>
               <View style={styles.gestureIconBox}>
-                <Feather name="menu" size={20} color="#D97398" />
+                <Feather name="menu" size={20} color="#6b7280" />
               </View>
               <View style={styles.gestureInfo}>
                 <Text style={styles.gestureTitle}>{t('guide.gestureDrag')}</Text>
@@ -209,7 +222,7 @@ export default function GuideScreen() {
               <Text style={styles.stepText}>{t('guide.stitchLib2')}</Text>
             </View>
             <View style={styles.tip}>
-              <Feather name="info" size={14} color="#C4527F" style={{ marginRight: 8, marginTop: 1 }} />
+              <Feather name="info" size={14} color="#6b7280" style={{ marginRight: 8, marginTop: 1 }} />
               <Text style={styles.tipText}>{t('guide.tipSwipeDeleteStitch')}</Text>
             </View>
           </View>
@@ -237,7 +250,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1.5,
-    borderColor: '#D97398',
+    borderColor: '#d1d5db',
     borderRadius: 12,
     paddingVertical: 14,
     paddingHorizontal: 20,
@@ -247,7 +260,7 @@ const styles = StyleSheet.create({
   replayButtonText: {
     fontSize: 15,
     fontWeight: '600',
-    color: '#D97398',
+    color: '#1f2937',
   },
 
   section: {
@@ -278,7 +291,7 @@ const styles = StyleSheet.create({
     width: 28,
     height: 28,
     borderRadius: 14,
-    backgroundColor: '#fce7f0',
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,
@@ -286,7 +299,7 @@ const styles = StyleSheet.create({
   stepBadgeText: {
     fontSize: 13,
     fontWeight: '700',
-    color: '#C4527F',
+    color: '#1f2937',
   },
   stepText: {
     flex: 1,
@@ -299,14 +312,14 @@ const styles = StyleSheet.create({
   tip: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    backgroundColor: '#fce7f0',
+    backgroundColor: '#f3f4f6',
     borderRadius: 8,
     padding: 10,
   },
   tipText: {
     flex: 1,
     fontSize: 13,
-    color: '#C4527F',
+    color: '#374151',
     lineHeight: 19,
   },
 
@@ -319,7 +332,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: 10,
-    backgroundColor: '#fce7f0',
+    backgroundColor: '#f3f4f6',
     justifyContent: 'center',
     alignItems: 'center',
     flexShrink: 0,

@@ -54,7 +54,7 @@ interface SymbolEntry {
 
 interface StitchBlock {
   key: string
-  /** 顯示標籤，例如：「sc 1」或「【群組名】- 2」 */
+  /** 顯示標籤，例如：「sc × 5」或「【群組名】- 2」 */
   label: string
   /** 每個針法的符號，含 physical 位置（全部展開，不截斷）*/
   symbols: SymbolEntry[]
@@ -64,6 +64,17 @@ interface StitchBlock {
   endPos: number
   /** 單一針法 block 的針法類型（群組 block 不設定）*/
   stitchType?: StitchType
+  /**
+   * 點擊此 block 時要跳到的位置（覆寫 endPos）。
+   * STITCH header block 用：點擊「sc × 500」跳到整個 PatternItem 的末端。
+   */
+  tapEndPos?: number
+  /**
+   * 此 block 為 STITCH PatternItem 的 header block。
+   * 顯示為全寬標籤列，獨佔一行，不含 symbol。
+   * 點擊時一次完成整個 PatternItem 的所有針。
+   */
+  isHeader?: boolean
 }
 
 type BlockStatus = 'completed' | 'active' | 'upcoming'
@@ -98,16 +109,25 @@ function expandToBlocks(round: Round): StitchBlock[] {
       const stitch = item.data as StitchInfo
       const abbr = getStitchAbbr(stitch)
       const stitchCount = StitchTypeInfo[stitch.type]?.stitchCount ?? 1
-      const blockStart = pos
-      const symbols: SymbolEntry[] = []
 
-      // 每個邏輯針法（stitch.count 次）→ 1 個符號，佔 stitchCount 個 physical 位置
-      for (let i = 0; i < stitch.count; i++) {
-        symbols.push({ abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount })
+      if (stitch.count === 1) {
+        // 單一針法：一個 block，label 就是縮寫
+        const blockStart = pos
+        const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
         pos += stitchCount
+        blocks.push({ key: item.id, label: abbr, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
+      } else {
+        // 多針法：先放一個全寬 header block（可點擊一次完成所有），再放各自獨立的 symbol block
+        const itemStartPos = pos
+        const itemEndPos = pos + stitch.count * stitchCount
+        blocks.push({ key: `${item.id}-header`, label: `${abbr} × ${stitch.count}`, symbols: [], startPos: itemStartPos, endPos: itemEndPos, tapEndPos: itemEndPos, isHeader: true })
+        for (let i = 0; i < stitch.count; i++) {
+          const blockStart = pos
+          const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
+          pos += stitchCount
+          blocks.push({ key: `${item.id}-${i}`, label: '', symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
+        }
       }
-
-      blocks.push({ key: item.id, label: `${abbr} ${stitch.count}`, symbols, startPos: blockStart, endPos: pos, stitchType: stitch.type })
     } else {
       const group = item.data as StitchGroup
       // 計算每次重複的 physical 針數
@@ -177,6 +197,30 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
+  // Header block：全寬標籤，點擊一次完成整個 PatternItem 的所有針
+  if (block.isHeader) {
+    return (
+      <TouchableOpacity
+        onPress={onPress}
+        activeOpacity={isCompleted ? 1 : 0.7}
+        style={blockStyles.headerRow}
+        accessibilityLabel={block.label}
+        accessibilityRole="button"
+      >
+        <Text
+          style={[
+            blockStyles.headerLabel,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {block.label}
+        </Text>
+      </TouchableOpacity>
+    )
+  }
+
   return (
     <TouchableOpacity
       onPress={onPress}
@@ -185,23 +229,25 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label：只顯示文字，不顯示 icon */}
-      <Text
-        style={[
-          blockStyles.label,
-          isActive && blockStyles.labelActive,
-          isCompleted && blockStyles.labelCompleted,
-        ]}
-        numberOfLines={1}
-      >
-        {block.label}
-      </Text>
+      {/* Label：只有 GROUP block 或 count=1 的 STITCH block 才有 label */}
+      {block.label ? (
+        <Text
+          style={[
+            blockStyles.label,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {block.label}
+        </Text>
+      ) : null}
 
-      {/* 符號區：單行排列，不換行 */}
+      {/* 符號區 */}
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
-          const opacity = symStatus === 'completed' ? 0.5 : symStatus === 'current' ? 1 : 0.7
+          const opacity = symStatus === 'completed' ? 0.2 : symStatus === 'current' ? 1 : 0.7
 
           if (showIcons && symbol.stitchType) {
             const SymSvg = CROCHET_SVG_MAP[symbol.stitchType] ?? KNIT_SVG_MAP[symbol.stitchType]
@@ -236,6 +282,17 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
 }
 
 const blockStyles = StyleSheet.create({
+  // Header block：全寬標籤行，獨佔一行
+  headerRow: {
+    width: '100%',
+    paddingVertical: 4,
+    marginBottom: 6,
+  },
+  headerLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: '#4b5563',
+  },
   // 每個 block 是一個直向欄位，橫向並排
   row: {
     alignItems: 'flex-start',
@@ -489,11 +546,12 @@ export default function ProgressTrackingScreen() {
 
   function handleBlockTap(block: StitchBlock) {
     if (!id || isPreviewMode) return // 預覽模式不可互動
-    if (block.endPos <= currentStitch) return // 已完成，無效（Req 4.14）
-    if (block.endPos >= totalStitches) {
+    const jumpPos = block.tapEndPos ?? block.endPos
+    if (jumpPos <= currentStitch) return // 已完成，無效（Req 4.14）
+    if (jumpPos >= totalStitches) {
       handleCompleteRound()
     } else {
-      useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, block.endPos)
+      useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, jumpPos)
     }
   }
 
@@ -640,6 +698,7 @@ export default function ProgressTrackingScreen() {
             blocks.map((block) => (
               <View
                 key={block.key}
+                style={block.isHeader ? styles.headerBlockWrapper : undefined}
                 onLayout={(e) => {
                   blockYPositions.current.set(block.key, e.nativeEvent.layout.y)
                 }}
@@ -751,6 +810,10 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#faf5f0',
+  },
+  // Header block wrapper：強制佔滿整行（flex-wrap 換行）
+  headerBlockWrapper: {
+    width: '100%',
   },
   centered: {
     flex: 1,

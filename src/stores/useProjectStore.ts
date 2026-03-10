@@ -1,7 +1,8 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
-import { Chart, CraftType, Project, ProjectPhoto } from '../types'
+import { Chart, CraftType, Project, ProjectPhoto, Round } from '../types'
 import { createChart, createProject } from '../utils'
+import { generateId } from '../utils/helpers'
 import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
 // ─── State & Actions Interface ─────────────────────────────────────────────────
@@ -25,6 +26,9 @@ interface ProjectState {
   /** 刪除專案（Req 1.6） */
   deleteProject: (id: string) => void
 
+  /** 複製專案（不含照片，重置進度） */
+  duplicateProject: (id: string) => void
+
   /** 依 ID 取得專案 */
   getProjectById: (id: string) => Project | undefined
 
@@ -37,6 +41,9 @@ interface ProjectState {
 
   /** 刪除圖表（Req 2.4） */
   deleteChart: (projectId: string, chartId: string) => void
+
+  /** 複製圖表（重置進度） */
+  duplicateChart: (projectId: string, chartId: string) => void
 
   /** 切換目前作用中的圖表（Req 2.3） */
   setCurrentChart: (projectId: string, chartId: string) => void
@@ -100,6 +107,41 @@ export const useProjectStore = create<ProjectState>()(
         }))
       },
 
+      duplicateProject: (id) => {
+        const project = get().projects.find((p) => p.id === id)
+        if (!project) return
+        const now = new Date().toISOString()
+        const dupCharts: Chart[] = project.charts.map((chart) => {
+          const dupRounds: Round[] = chart.rounds.map((round) => ({
+            ...round,
+            id: generateId(),
+            patternItems: round.patternItems.map((item) => ({ ...item, id: generateId() })),
+          }))
+          return {
+            ...chart,
+            id: generateId(),
+            rounds: dupRounds,
+            currentRound: 0,
+            currentStitch: 0,
+            isCompleted: false,
+            createdAt: now,
+            updatedAt: now,
+          }
+        })
+        const dup: Project = {
+          ...project,
+          id: generateId(),
+          name: `${project.name} (副本)`,
+          charts: dupCharts,
+          currentChartId: dupCharts[0]?.id,
+          photos: [],
+          isCompleted: false,
+          createdAt: now,
+          updatedAt: now,
+        }
+        set((state) => ({ projects: [...state.projects, dup] }))
+      },
+
       getProjectById: (id) => {
         return get().projects.find((p) => p.id === id)
       },
@@ -160,6 +202,34 @@ export const useProjectStore = create<ProjectState>()(
                   : p.currentChartId,
               updatedAt: now,
             }
+          }),
+        }))
+      },
+
+      duplicateChart: (projectId, chartId) => {
+        const now = new Date().toISOString()
+        set((state) => ({
+          projects: state.projects.map((p) => {
+            if (p.id !== projectId) return p
+            const chart = p.charts.find((c) => c.id === chartId)
+            if (!chart) return p
+            const dupRounds: Round[] = chart.rounds.map((round) => ({
+              ...round,
+              id: generateId(),
+              patternItems: round.patternItems.map((item) => ({ ...item, id: generateId() })),
+            }))
+            const dup: Chart = {
+              ...chart,
+              id: generateId(),
+              name: `${chart.name} (副本)`,
+              rounds: dupRounds,
+              currentRound: 0,
+              currentStitch: 0,
+              isCompleted: false,
+              createdAt: now,
+              updatedAt: now,
+            }
+            return { ...p, charts: [...p.charts, dup], updatedAt: now }
           }),
         }))
       },
