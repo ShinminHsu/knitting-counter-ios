@@ -586,6 +586,10 @@ const zhTW = {
       title: '自訂針法',
       desc: '自訂針法為 Premium 功能，升級後可建立專屬針法。',
     },
+    template: {
+      title: '群組樣板',
+      desc: '群組樣板讓你快速套用常用針法組合。看一次廣告永久解鎖，或升級 Premium。',
+    },
     export: {
       title: '匯出專案',
       desc: '匯出功能為 Premium 功能，升級後可備份或分享你的專案。',

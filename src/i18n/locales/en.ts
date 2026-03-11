@@ -572,6 +572,10 @@ const en = {
       title: 'Custom Stitches',
       desc: 'Custom stitches are a Premium feature. Upgrade to create your own stitch types.',
     },
+    template: {
+      title: 'Group Templates',
+      desc: 'Templates let you quickly apply saved stitch combinations. Watch an ad to unlock permanently, or upgrade to Premium.',
+    },
     export: {
       title: 'Export Project',
       desc: 'Export is a Premium feature. Upgrade to back up or share your projects.',

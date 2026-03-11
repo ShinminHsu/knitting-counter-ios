@@ -16,6 +16,7 @@ interface EntitlementState {
   voucherCode: string | null
   adUnlockedProjectCount: number  // 0–2
   adUnlockedPhotoCount: number    // 0–2
+  templateUnlocked: boolean
   unlockedStitchCategories: Record<StitchCategoryLockKey, boolean>
 
   // Actions
@@ -23,12 +24,14 @@ interface EntitlementState {
   resetPremium: () => void
   incrementAdUnlockedProjects: () => void
   incrementAdUnlockedPhotos: () => void
+  unlockTemplate: () => void
   unlockStitchCategory: (key: StitchCategoryLockKey) => void
 
   // Computed getters
   maxProjects: () => number
   maxPhotosPerProject: () => number
   canUseCustomStitches: () => boolean
+  canUseTemplates: () => boolean
   canExport: () => boolean
   isStitchCategoryUnlocked: (key: StitchCategoryLockKey) => boolean
 }
@@ -43,6 +46,7 @@ export const useEntitlementStore = create<EntitlementState>()(
       voucherCode: null,
       adUnlockedProjectCount: 0,
       adUnlockedPhotoCount: 0,
+      templateUnlocked: false,
       unlockedStitchCategories: {
         basic: false,
         inc: false,
@@ -61,6 +65,7 @@ export const useEntitlementStore = create<EntitlementState>()(
           voucherCode: null,
           adUnlockedProjectCount: 0,
           adUnlockedPhotoCount: 0,
+          templateUnlocked: false,
           unlockedStitchCategories: { basic: false, inc: false, dec: false, special: false, cable: false },
         }),
 
@@ -73,6 +78,8 @@ export const useEntitlementStore = create<EntitlementState>()(
         set((s) => ({
           adUnlockedPhotoCount: Math.min(s.adUnlockedPhotoCount + 1, AD_PHOTO_SLOTS),
         })),
+
+      unlockTemplate: () => set({ templateUnlocked: true }),
 
       unlockStitchCategory: (key) =>
         set((s) => ({
@@ -92,6 +99,11 @@ export const useEntitlementStore = create<EntitlementState>()(
       },
 
       canUseCustomStitches: () => get().isPremium,
+
+      canUseTemplates: () => {
+        const s = get()
+        return s.isPremium || s.templateUnlocked
+      },
 
       canExport: () => get().isPremium,
 

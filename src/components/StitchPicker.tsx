@@ -132,10 +132,12 @@ export default function StitchPicker({
   const { t } = useTranslation()
   const [query, setQuery] = useState('')
   const [showCreateCustom, setShowCreateCustom] = useState(false)
+  const [showCustomLocked, setShowCustomLocked] = useState(false)
   const [lockedCategory, setLockedCategory] = useState<{ key: StitchCategoryLockKey; label: string } | null>(null)
   const { getByType, customStitches } = useCustomStitchStore()
   const isStitchCategoryUnlocked = useEntitlementStore((s) => s.isStitchCategoryUnlocked)
   const unlockStitchCategory = useEntitlementStore((s) => s.unlockStitchCategory)
+  const canUseCustomStitches = useEntitlementStore((s) => s.canUseCustomStitches)
 
   const sections = useMemo<SectionData[]>(() => {
     const q = query.trim().toLowerCase()
@@ -219,15 +221,19 @@ export default function StitchPicker({
       )
     }
 
+    const isLocked = !canUseCustomStitches()
     return (
       <TouchableOpacity
-        style={styles.stitchRow}
-        onPress={() => handleSelect(item)}
+        style={[styles.stitchRow, isLocked && styles.stitchRowLocked]}
+        onPress={() => isLocked ? setShowCustomLocked(true) : handleSelect(item)}
         activeOpacity={0.6}
       >
         <Text style={styles.stitchSymbol}>✦</Text>
         <Text style={styles.stitchLabel}>{item.stitch.name}</Text>
-        <Text style={styles.stitchAbbr}>{item.stitch.abbr}</Text>
+        {isLocked
+          ? <Feather name="lock" size={14} color="#9ca3af" />
+          : <Text style={styles.stitchAbbr}>{item.stitch.abbr}</Text>
+        }
       </TouchableOpacity>
     )
   }
@@ -307,9 +313,10 @@ export default function StitchPicker({
         <View style={styles.footer}>
           <TouchableOpacity
             style={styles.createCustomButton}
-            onPress={() => setShowCreateCustom(true)}
+            onPress={() => canUseCustomStitches() ? setShowCreateCustom(true) : setShowCustomLocked(true)}
             activeOpacity={0.7}
           >
+            {!canUseCustomStitches() && <Feather name="lock" size={14} color="#9ca3af" style={{ marginRight: 6 }} />}
             <Text style={styles.createCustomText}>{t('stitch.createCustomShort')}</Text>
           </TouchableOpacity>
         </View>
@@ -334,6 +341,16 @@ export default function StitchPicker({
         onAdRewarded={() => {
           if (lockedCategory) unlockStitchCategory(lockedCategory.key)
         }}
+      />
+
+      {/* Custom stitch upgrade modal (premium only, no ad) */}
+      <UpgradePromptModal
+        visible={showCustomLocked}
+        onClose={() => setShowCustomLocked(false)}
+        title={t('upgrade.customStitch.title')}
+        description={t('upgrade.customStitch.desc')}
+        hasAdOption={false}
+        onAdRewarded={() => {}}
       />
     </Modal>
   )
