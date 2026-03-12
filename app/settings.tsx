@@ -72,13 +72,18 @@ export default function SettingsScreen() {
         <View style={styles.optionGroup}>
           {isPremium ? (
             <>
-              <View style={styles.optionRow}>
+              <TouchableOpacity
+                style={styles.optionRow}
+                onPress={() => router.push('/premium')}
+                activeOpacity={0.7}
+              >
                 <Text style={[styles.optionLabel, styles.premiumActiveLabel]}>
                   {premiumSource === 'voucher'
                     ? t('upgrade.premiumActiveVoucher')
                     : t('upgrade.premiumActive')}
                 </Text>
-              </View>
+                <Feather name="chevron-right" size={18} color="#16a34a" />
+              </TouchableOpacity>
               {premiumSource === 'iap' && (
                 <TouchableOpacity
                   style={[styles.optionRow, styles.optionRowBorder]}
@@ -93,6 +98,14 @@ export default function SettingsScreen() {
             <>
               <TouchableOpacity
                 style={styles.optionRow}
+                onPress={() => router.push('/premium')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.optionLabel}>{t('upgrade.plansTitle')}</Text>
+                <Feather name="chevron-right" size={18} color="#9ca3af" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.optionRow, styles.optionRowBorder]}
                 onPress={handleGetPremium}
                 activeOpacity={0.7}
               >

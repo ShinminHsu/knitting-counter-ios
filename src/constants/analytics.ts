@@ -24,6 +24,7 @@ export const SCREEN_NAMES = {
   PATTERN_ELEMENTS: 'PatternElements',
   GUIDE: 'Guide',
   SETTINGS: 'Settings',
+  PREMIUM_PLANS: 'PremiumPlans',
 } as const
 
 export const REWARD_TYPES = {
