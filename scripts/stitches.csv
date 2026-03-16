@@ -1,0 +1,54 @@
+craft,category,stitch_type,abbr,english_name,zh_name,ja_name,stitch_count,svg_file
+crochet,基礎/crochetBasic,magic_ring,mr,magic ring,魔術環,わの作り目,1,（無圖檔）
+crochet,基礎/crochetBasic,chain,ch,chain,鎖針,鎖編み,1,crochet-master_chain.svg
+crochet,基礎/crochetBasic,slip_stitch,sl st,slip stitch,引拔針,引き抜き編み,1,crochet-master_slst.svg
+crochet,基礎/crochetBasic,single,sc,single crochet,短針,細編み,1,crochet-master_sc.svg
+crochet,基礎/crochetBasic,half_double,hdc,half double crochet,中長針,中長編み,1,crochet-master_hdc.svg
+crochet,基礎/crochetBasic,double,dc,double crochet,長針,長編み,1,crochet-master_dc.svg
+crochet,基礎/crochetBasic,treble,tr,treble crochet,長長針,長々編み,1,crochet-master_tr.svg
+crochet,加針/crochetIncrease,sc_inc,sc inc,2 single crochets in 1 st,2短針加針,細編み2目編み入れる,2,crochet-master_sc-inc.svg
+crochet,加針/crochetIncrease,sc3inc,sc3inc,3 single crochets in 1 st,3短針加針,細編み3目編み入れる,3,crochet-master_sc3inc.svg
+crochet,加針/crochetIncrease,hdc_inc,hdc inc,2 half double crochets in 1 st,2中長針加針,中長編み2目編み入れる,2,crochet-master_hdcinc.svg
+crochet,加針/crochetIncrease,hdc3_inc,hdc3inc,3 half double crochets in 1 st,3中長針加針,中長編み3目編み入れる,3,crochet-master_3hdc-inc.svg
+crochet,加針/crochetIncrease,dc_inc,dc inc,2 double crochets in 1 st,2長針加針,長編み2目編み入れる,2,crochet-master_dcinc.svg
+crochet,加針/crochetIncrease,dc3_inc,dc3inc,3 double crochets in 1 st,3長針加針,長編み3目編み入れる,3,crochet-master_3dc-inc.svg
+crochet,減針/crochetDecrease,sc2tog,sc2tog,single crochet 2 together,2短針併針,細編み2目一度,1,crochet-master_sc2tog.svg
+crochet,減針/crochetDecrease,sc3tog,sc3tog,single crochet 3 together,3短針併針,細編み3目一度,1,crochet-master_sc3tog.svg
+crochet,減針/crochetDecrease,hdc2tog,hdc2tog,half double crochet 2 together,2中長針併針,中長編み2目一度,1,crochet-master_hdc2tog.svg
+crochet,減針/crochetDecrease,hdc3tog,hdc3tog,half double crochet 3 together,3中長針併針,中長編み3目一度,1,crochet-master_hdc3tog.svg
+crochet,減針/crochetDecrease,dc2tog,dc2tog,double crochet 2 together,2長針併針,長編み2目一度,1,crochet-master_dc2tog.svg
+crochet,減針/crochetDecrease,dc3tog,dc3tog,double crochet 3 together,3長針併針,長編み3目一度,1,crochet-master_dc3tog.svg
+crochet,特殊/crochetSpecial,dc3_cluster,3dc-clu,3-dc cluster,3長針玉針,長編み3目の玉編み,1,crochet-master_3dc-cluster.svg
+crochet,特殊/crochetSpecial,hdc3_cluster,3hdc-clu,3-hdc cluster,3中長針玉針,中長編み3目の玉編み,1,crochet-master_3hdc-cluster.svg
+crochet,特殊/crochetSpecial,dc5_popcorn,5dc popcorn,5-dc popcorn,5長針爆米花針,長編み5目のパプコーン編み,1,crochet-master_5dc-popcorn.svg
+crochet,特殊/crochetSpecial,dc5_shell,5dc shell,5-dc shell,5長針加針,長編み5目編み入れる,5,crochet-master_5dc-shell.svg
+knitting,基礎/knitBasic,cast_on,co,cast on,起針,作り目,1,（無圖檔）
+knitting,基礎/knitBasic,bind_off,bo,bind off,收針,伏せ止め,1,
+knitting,基礎/knitBasic,knit,k,knit,下針,表目,1,
+knitting,基礎/knitBasic,purl,p,purl,上針,裏目,1,
+knitting,基礎/knitBasic,yarn_over,yo,yarn over,掛針,かけ目,1,
+knitting,基礎/knitBasic,slip_wyib,sl1-wyib,slip 1 with yarn in back,滑針,すべり目,1,
+knitting,基礎/knitBasic,slip_wyif,sl1-wyif,slip 1 with yarn in front,浮針,浮き目,1,
+knitting,基礎/knitBasic,backward loop co,backward loop co,Backward Loop Cast-on,捲針,卷き目,1,
+knitting,減針2→1/knitDecrease2,k2tog,k2tog,knit 2 together,左上2併針,左上二目一度,1,
+knitting,減針2→1/knitDecrease2,p2tog,p2tog,purl 2 together,左上2併針（上針）,左上二目一度（裏目）,1,
+knitting,減針2→1/knitDecrease2,ssk,ssk,slip slip knit,右上2併針,右上二目一度,1,
+knitting,減針2→1/knitDecrease2,ssp,ssp,slip slip purl,右上2併針（上針）,右上二目一度（裏目）,1,
+knitting,減針3→1/knitDecrease3,k3tog,k3tog,knit 3 together,左上3併針,左上三目一度,1,
+knitting,減針3→1/knitDecrease3,p3tog,p3tog,purl 3 together,左上3併針（上針）,左上三目一度（裏目）,1,
+knitting,減針3→1/knitDecrease3,sssk,sssk,slip slip slip knit,右上3併針,右上三目一度,1,
+knitting,減針3→1/knitDecrease3,sssp,sssp,slip slip slip purl,右上3併針（上針）,右上三目一度（裏目）,1,
+knitting,減針3→1/knitDecrease3,s2kp2,s2kp2,"slip 2, knit 1, pass 2 over",中上3併針,中上三目一度,1,
+knitting,減針3→1/knitDecrease3,sspp2,sspp2,"slip, slip, purl, pass 2 over",中上3併針（上針）,中上三目一度（裏目）,1,
+knitting,加針/knitIncrease,lli,lli,left lifted increase,左加針,左増目,2,
+knitting,加針/knitIncrease,llpi,llpi,llpi,左加針（上針）,左増目（裏目）,2,
+knitting,加針/knitIncrease,rli,rli,right lifted increase,右加針,右増目,2,
+knitting,加針/knitIncrease,rlpi,rlpi,right lifted purl increase,右加針（上針）,右増目（裏目）,2,
+knitting,基礎/crochetBasic,k_tbl,k1 tbl,knit 1 through back loop,扭針,ねじり目,1,
+knitting,基礎/crochetBasic,p_tbl,p1 tbl,purl 1 through back loop,扭針（上針）,ねじり目（裏目）,1,
+knitting,麻花交叉/knitCable,2-st RC,2-st RC,2-st right cross,左上1針交叉,左上交差,1,
+knitting,麻花交叉/knitCable,2-st LC,2-st LC,2-st left cross,右上1針交叉,右上交差,1,
+knitting,麻花交叉/knitCable,2-st RPC,2-st RPC,2-st right purl cross,左上1針交叉（上針）,左上交差（裏目）,1,
+knitting,麻花交叉/knitCable,2-st LPC,2-st LPC,2-st left purl cross,右上1針交叉（上針）,右上交差（裏目）,1,
+crochet,基礎/crochetBasic,ch-3 picot,ch-3 picot,ch-3 picot,結粒針,ピコット編み,1,crochet-master_ch3-picot.svg
+crochet,基礎/crochetBasic,dtr,dtr,double treble crochet,三捲長針,三つ巻き長編み,1,crochet-master_dtr.svg
