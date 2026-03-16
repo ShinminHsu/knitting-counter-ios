@@ -44,7 +44,7 @@ export default function PremiumPlansScreen() {
     { labelKey: 'upgrade.rowPhotos',           free: t('upgrade.rowPhotosFree'),           premium: t('upgrade.rowPhotosPremium') },
     { labelKey: 'upgrade.rowStitchCategories', free: t('upgrade.rowStitchCategoriesFree'), premium: t('upgrade.rowStitchCategoriesPremium') },
     { labelKey: 'upgrade.rowCustomStitch',     free: 'cross',                              premium: 'check' },
-    { labelKey: 'upgrade.rowTemplate',         free: 'ad',                                 premium: 'check' },
+    { labelKey: 'upgrade.rowTemplate',         free: t('upgrade.adUnlockable'),            premium: 'check' },
     { labelKey: 'upgrade.rowExport',           free: 'cross',                              premium: 'check' },
   ]
 
@@ -199,7 +199,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fafafa',
   },
   labelCell: {
-    flex: 2,
+    flex: 1,
     paddingHorizontal: 14,
   },
   planCell: {
