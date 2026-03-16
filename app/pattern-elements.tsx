@@ -16,12 +16,14 @@ import ScreenHeader from '../src/components/ScreenHeader'
 import SpotlightOverlay from '../src/components/SpotlightOverlay'
 import { useSpotlight } from '../src/hooks/useSpotlight'
 import { logScreenView } from '../src/services'
-import { SCREEN_NAMES } from '../src/constants'
+import { SCREEN_NAMES, REWARD_TYPES } from '../src/constants'
 import { useCustomStitchStore } from '../src/stores/useCustomStitchStore'
 import { useTemplateStore } from '../src/stores/useTemplateStore'
 import { CraftType, CustomStitchPattern, StitchGroupTemplate, StitchTypeInfo } from '../src/types'
 import CustomStitchModal from '../src/components/CustomStitchModal'
 import GroupEditor, { GroupEditorResult } from '../src/components/GroupEditor'
+import UpgradePromptModal from '../src/components/UpgradePromptModal'
+import { useEntitlementStore } from '../src/stores'
 
 type TabKey = 'custom' | 'template'
 
@@ -42,6 +44,11 @@ export default function PatternElementsScreen() {
   const [templateEditorVisible, setTemplateEditorVisible] = useState(false)
   const [newTemplateCraftType, setNewTemplateCraftType] = useState<CraftType | undefined>(undefined)
   const [addTemplateVisible, setAddTemplateVisible] = useState(false)
+  const [showCustomStitchUpgrade, setShowCustomStitchUpgrade] = useState(false)
+  const [showTemplateUpgrade, setShowTemplateUpgrade] = useState(false)
+  const canUseCustomStitches = useEntitlementStore((s) => s.canUseCustomStitches)
+  const canUseTemplates = useEntitlementStore((s) => s.canUseTemplates)
+  const unlockTemplate = useEntitlementStore((s) => s.unlockTemplate)
 
   const templates = useTemplateStore((s) => s.templates)
   const deleteTemplate = useTemplateStore((s) => s.deleteTemplate)
@@ -98,6 +105,10 @@ export default function PatternElementsScreen() {
   }, [templates, templateSearchQuery])
 
   function handleAddPress() {
+    if (!canUseCustomStitches()) {
+      setShowCustomStitchUpgrade(true)
+      return
+    }
     setEditingStitch(undefined)
     setModalVisible(true)
   }
@@ -133,6 +144,10 @@ export default function PatternElementsScreen() {
   }
 
   function handleAddTemplatePress() {
+    if (!canUseTemplates()) {
+      setShowTemplateUpgrade(true)
+      return
+    }
     // Ask craft type before opening editor
     Alert.alert(
       t('patternElements.addTemplateTitle'),
@@ -500,6 +515,25 @@ export default function PatternElementsScreen() {
         craftType={newTemplateCraftType ?? 'crochet'}
         onConfirm={handleAddTemplateConfirm}
         onCancel={handleAddTemplateCancel}
+      />
+
+      <UpgradePromptModal
+        visible={showCustomStitchUpgrade}
+        onClose={() => setShowCustomStitchUpgrade(false)}
+        title={t('upgrade.customStitch.title')}
+        description={t('upgrade.customStitch.desc')}
+        hasAdOption={false}
+        onAdRewarded={() => {}}
+      />
+
+      <UpgradePromptModal
+        visible={showTemplateUpgrade}
+        onClose={() => setShowTemplateUpgrade(false)}
+        title={t('upgrade.template.title')}
+        description={t('upgrade.template.desc')}
+        hasAdOption={true}
+        rewardType={REWARD_TYPES.TEMPLATE}
+        onAdRewarded={() => unlockTemplate()}
       />
 
       {showSpotlight && <SpotlightOverlay steps={resolvedSteps} onDismiss={dismiss} />}

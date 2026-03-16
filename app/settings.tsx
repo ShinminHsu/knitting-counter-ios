@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Modal, SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { Alert, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../src/i18n'
 import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage'
 import ScreenHeader from '../src/components/ScreenHeader'
-import { requestATTIfNeeded, logScreenView } from '../src/services'
+import { requestATTIfNeeded, logScreenView, purchasePremium, restorePurchases, redeemVoucher } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
+import { useEntitlementStore } from '../src/stores'
 
 const LANGUAGES = [
   { code: 'en', labelKey: 'settings.languageEn' as const },
@@ -19,7 +20,12 @@ export default function SettingsScreen() {
   const { t } = useTranslation()
   const router = useRouter()
   const currentLanguage = i18n.language
+  const [promoCode, setPromoCode] = useState('')
+  const [redeemMessage, setRedeemMessage] = useState<string | null>(null)
   const [showLanguagePicker, setShowLanguagePicker] = useState(false)
+
+  const isPremium = useEntitlementStore((s) => s.isPremium)
+  const premiumSource = useEntitlementStore((s) => s.premiumSource)
 
   useEffect(() => {
     logScreenView(SCREEN_NAMES.SETTINGS)
@@ -31,10 +37,114 @@ export default function SettingsScreen() {
     i18n.changeLanguage(code)
   }
 
+  async function handleGetPremium() {
+    const result = await purchasePremium()
+    if (result === 'error') {
+      Alert.alert(t('common.error'), t('common.error'))
+    }
+  }
+
+  async function handleRestorePurchases() {
+    const restored = await restorePurchases()
+    if (!restored) {
+      Alert.alert(t('common.error'), t('common.error'))
+    }
+  }
+
+  async function handleRedeemCode() {
+    const success = await redeemVoucher(promoCode)
+    if (success) {
+      setRedeemMessage(t('upgrade.codeRedeemed'))
+      setPromoCode('')
+    } else {
+      setRedeemMessage(t('upgrade.invalidCode'))
+    }
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScreenHeader title={t('settings.title')} />
       <View style={styles.container}>
+
+      {/* Premium section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>{t('upgrade.premiumSection')}</Text>
+        <View style={styles.optionGroup}>
+          {isPremium ? (
+            <>
+              <TouchableOpacity
+                style={styles.optionRow}
+                onPress={() => router.push('/premium')}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.optionLabel, styles.premiumActiveLabel]}>
+                  {premiumSource === 'voucher'
+                    ? t('upgrade.premiumActiveVoucher')
+                    : t('upgrade.premiumActive')}
+                </Text>
+                <Feather name="chevron-right" size={18} color="#16a34a" />
+              </TouchableOpacity>
+              {premiumSource === 'iap' && (
+                <TouchableOpacity
+                  style={[styles.optionRow, styles.optionRowBorder]}
+                  onPress={handleRestorePurchases}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.optionLabel}>{t('upgrade.restorePurchase')}</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                style={styles.optionRow}
+                onPress={() => router.push('/premium')}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.optionLabel}>{t('upgrade.plansTitle')}</Text>
+                <Feather name="chevron-right" size={18} color="#9ca3af" />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.optionRow, styles.optionRowBorder]}
+                onPress={handleGetPremium}
+                activeOpacity={0.7}
+              >
+                <Text style={[styles.optionLabel, styles.premiumCTALabel]}>{t('upgrade.getPremium')}</Text>
+                <Feather name="chevron-right" size={18} color="#D97398" />
+              </TouchableOpacity>
+              <View style={[styles.optionRow, styles.optionRowBorder, styles.promoRow]}>
+                <TextInput
+                  style={styles.promoInput}
+                  placeholder={t('upgrade.enterPromoCode')}
+                  placeholderTextColor="#9ca3af"
+                  value={promoCode}
+                  onChangeText={(v) => { setPromoCode(v); setRedeemMessage(null) }}
+                  autoCapitalize="characters"
+                  autoCorrect={false}
+                />
+                <TouchableOpacity
+                  style={[styles.redeemButton, !promoCode.trim() && styles.redeemButtonDisabled]}
+                  onPress={handleRedeemCode}
+                  disabled={!promoCode.trim()}
+                >
+                  <Text style={styles.redeemButtonText}>{t('upgrade.redeemCode')}</Text>
+                </TouchableOpacity>
+              </View>
+              {redeemMessage && (
+                <View style={styles.optionRow}>
+                  <Text style={[
+                    styles.redeemMessage,
+                    redeemMessage === t('upgrade.codeRedeemed') && styles.redeemSuccess,
+                  ]}>
+                    {redeemMessage}
+                  </Text>
+                </View>
+              )}
+            </>
+          )}
+        </View>
+      </View>
+
       {/* Tools section */}
       <View style={styles.section}>
         <Text style={styles.sectionHeader}>{t('settings.toolsSection')}</Text>
@@ -89,6 +199,29 @@ export default function SettingsScreen() {
           </TouchableOpacity>
         </View>
       </View>
+
+      {/* DEV: Entitlement debug */}
+      {__DEV__ && (
+        <View style={styles.section}>
+          <Text style={styles.sectionHeader}>DEV Tools</Text>
+          <View style={styles.optionGroup}>
+            <TouchableOpacity
+              style={styles.optionRow}
+              onPress={() => useEntitlementStore.getState().setPremium('iap')}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#16a34a' }]}>Set Premium (IAP)</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.optionRow, styles.optionRowBorder]}
+              onPress={() => useEntitlementStore.getState().resetPremium()}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#ef4444' }]}>Reset to Free</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
     </View>
 
     {/* Language picker modal */}
@@ -178,8 +311,8 @@ const styles = StyleSheet.create({
     minHeight: 48,
   },
   optionRowBorder: {
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#e5e7eb',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderTopColor: '#e5e7eb',
   },
   optionLabel: {
     fontSize: 16,
@@ -189,10 +322,50 @@ const styles = StyleSheet.create({
     color: '#D97398',
     fontWeight: '600',
   },
+  premiumActiveLabel: {
+    color: '#16a34a',
+    fontWeight: '600',
+  },
+  premiumCTALabel: {
+    color: '#D97398',
+    fontWeight: '600',
+  },
   checkmark: {
     fontSize: 16,
     color: '#D97398',
     fontWeight: '700',
+  },
+  promoRow: {
+    gap: 8,
+  },
+  promoInput: {
+    flex: 1,
+    fontSize: 15,
+    color: '#1f2937',
+    minHeight: 44,
+  },
+  redeemButton: {
+    backgroundColor: '#D97398',
+    borderRadius: 8,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    minHeight: 36,
+    justifyContent: 'center',
+  },
+  redeemButtonDisabled: {
+    opacity: 0.4,
+  },
+  redeemButtonText: {
+    color: '#fff',
+    fontSize: 14,
+    fontWeight: '600',
+  },
+  redeemMessage: {
+    fontSize: 14,
+    color: '#ef4444',
+  },
+  redeemSuccess: {
+    color: '#16a34a',
   },
   optionRowRight: {
     flexDirection: 'row',

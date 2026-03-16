@@ -24,6 +24,7 @@ export const SCREEN_NAMES = {
   PATTERN_ELEMENTS: 'PatternElements',
   GUIDE: 'Guide',
   SETTINGS: 'Settings',
+  PREMIUM_PLANS: 'PremiumPlans',
 } as const
 
 export const REWARD_TYPES = {
@@ -32,6 +33,7 @@ export const REWARD_TYPES = {
   STITCH_CATEGORY_INC:     'stitch_category_inc',
   STITCH_CATEGORY_DEC:     'stitch_category_dec',
   STITCH_CATEGORY_SPECIAL: 'stitch_category_special',
+  TEMPLATE:                'template',
 } as const
 
 export type RewardType = typeof REWARD_TYPES[keyof typeof REWARD_TYPES]

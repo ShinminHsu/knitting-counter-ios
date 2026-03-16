@@ -13,39 +13,35 @@ export enum StitchType {
   YARN_OVER = 'yarn_over',
   SLIP_WYIB = 'slip_wyib',
   SLIP_WYIF = 'slip_wyif',
-  WRAP_AND_TURN = 'wrap_and_turn',
-
-  // ── 棒針減針（2→1）──────────────────────────
-  SSK = 'ssk',
-  SSP = 'ssp',
-  K2TOG = 'k2tog',
-  P2TOG = 'p2tog',
-
-  // ── 棒針減針（3→1）──────────────────────────
-  SSSK = 'sssk',
-  SSSP = 'sssp',
-  K3TOG = 'k3tog',
-  P3TOG = 'p3tog',
-  CDD = 'cdd',
-  CDDP = 'cddp',
-
-  // ── 棒針加針 ──────────────────────────────────
-  M1L = 'm1l',
-  M1LP = 'm1lp',
-  M1R = 'm1r',
-  M1RP = 'm1rp',
+  BACKWARD_LOOP_CO = 'backward_loop_co',
   K_TBL = 'k_tbl',
   P_TBL = 'p_tbl',
 
+  // ── 棒針減針（2→1）──────────────────────────
+  K2TOG = 'k2tog',
+  P2TOG = 'p2tog',
+  SSK = 'ssk',
+  SSP = 'ssp',
+
+  // ── 棒針減針（3→1）──────────────────────────
+  K3TOG = 'k3tog',
+  P3TOG = 'p3tog',
+  SSSK = 'sssk',
+  SSSP = 'sssp',
+  S2KP2 = 's2kp2',
+  SSPP2 = 'sspp2',
+
+  // ── 棒針加針 ──────────────────────────────────
+  LLI = 'lli',
+  LLPI = 'llpi',
+  RLI = 'rli',
+  RLPI = 'rlpi',
+
   // ── 棒針麻花／交叉 ───────────────────────────
-  CABLE_1_1_RC = 'cable_1_1_rc',
-  CABLE_1_1_LC = 'cable_1_1_lc',
-  CABLE_2_2_RC = 'cable_2_2_rc',
-  CABLE_2_2_LC = 'cable_2_2_lc',
-  CABLE_1_1_RPC = 'cable_1_1_rpc',
-  CABLE_1_1_LPC = 'cable_1_1_lpc',
-  CABLE_2_2_RPC = 'cable_2_2_rpc',
-  CABLE_2_2_LPC = 'cable_2_2_lpc',
+  CABLE_2ST_RC = 'cable_2st_rc',
+  CABLE_2ST_LC = 'cable_2st_lc',
+  CABLE_2ST_RPC = 'cable_2st_rpc',
+  CABLE_2ST_LPC = 'cable_2st_lpc',
 
   // ── 鉤針基礎 ──────────────────────────────────
   MAGIC_RING = 'magic_ring',
@@ -55,6 +51,8 @@ export enum StitchType {
   HALF_DOUBLE = 'half_double',
   DOUBLE = 'double',
   TREBLE = 'treble',
+  CH3_PICOT = 'ch3_picot',
+  DTR = 'dtr',
 
   // ── 鉤針加針 ──────────────────────────────────
   SC_INC = 'sc_inc',
@@ -98,63 +96,61 @@ export interface StitchTypeDetails {
 
 export const StitchTypeInfo: Record<StitchType, StitchTypeDetails> = {
   // ── 棒針基礎 ──────────────────────────────────
-  [StitchType.CAST_ON]:       { abbr: 'co',       englishName: 'cast on',                       stitchCount: 1 },
-  [StitchType.BIND_OFF]:      { abbr: 'bo',       englishName: 'bind off',                      stitchCount: 1 },
-  [StitchType.KNIT]:          { abbr: 'k',        englishName: 'knit',                          stitchCount: 1 },
-  [StitchType.PURL]:          { abbr: 'p',        englishName: 'purl',                          stitchCount: 1 },
-  [StitchType.YARN_OVER]:     { abbr: 'yo',       englishName: 'yarn over',                     stitchCount: 1 },
-  [StitchType.SLIP_WYIB]:     { abbr: 'sl1-wyib', englishName: 'slip 1 with yarn in back',      stitchCount: 1 },
-  [StitchType.SLIP_WYIF]:     { abbr: 'sl1-wyif', englishName: 'slip 1 with yarn in front',     stitchCount: 1 },
-  [StitchType.WRAP_AND_TURN]: { abbr: 'w&t',      englishName: 'wrap and turn',                 stitchCount: 1 },
+  [StitchType.CAST_ON]:         { abbr: 'co',              englishName: 'cast on',                       stitchCount: 1 },
+  [StitchType.BIND_OFF]:        { abbr: 'bo',              englishName: 'bind off',                      stitchCount: 1 },
+  [StitchType.KNIT]:            { abbr: 'k',               englishName: 'knit',                          stitchCount: 1 },
+  [StitchType.PURL]:            { abbr: 'p',               englishName: 'purl',                          stitchCount: 1 },
+  [StitchType.YARN_OVER]:       { abbr: 'yo',              englishName: 'yarn over',                     stitchCount: 1 },
+  [StitchType.SLIP_WYIB]:       { abbr: 'sl1-wyib',        englishName: 'slip 1 with yarn in back',      stitchCount: 1 },
+  [StitchType.SLIP_WYIF]:       { abbr: 'sl1-wyif',        englishName: 'slip 1 with yarn in front',     stitchCount: 1 },
+  [StitchType.BACKWARD_LOOP_CO]:{ abbr: 'backward loop co',englishName: 'Backward Loop Cast-on',         stitchCount: 1 },
+  [StitchType.K_TBL]:           { abbr: 'k1 tbl',          englishName: 'knit 1 through back loop',      stitchCount: 1 },
+  [StitchType.P_TBL]:           { abbr: 'p1 tbl',          englishName: 'purl 1 through back loop',      stitchCount: 1 },
 
   // ── 棒針減針（2→1）──────────────────────────
-  [StitchType.SSK]:   { abbr: 'ssk',   englishName: 'slip, slip, knit',   stitchCount: 1 },
-  [StitchType.SSP]:   { abbr: 'ssp',   englishName: 'slip, slip, purl',   stitchCount: 1 },
-  [StitchType.K2TOG]: { abbr: 'k2tog', englishName: 'knit 2 together',    stitchCount: 1 },
-  [StitchType.P2TOG]: { abbr: 'p2tog', englishName: 'purl 2 together',    stitchCount: 1 },
+  [StitchType.K2TOG]: { abbr: 'k2tog', englishName: 'knit 2 together',  stitchCount: 1 },
+  [StitchType.P2TOG]: { abbr: 'p2tog', englishName: 'purl 2 together',  stitchCount: 1 },
+  [StitchType.SSK]:   { abbr: 'ssk',   englishName: 'slip slip knit',   stitchCount: 1 },
+  [StitchType.SSP]:   { abbr: 'ssp',   englishName: 'slip slip purl',   stitchCount: 1 },
 
   // ── 棒針減針（3→1）──────────────────────────
-  [StitchType.SSSK]:  { abbr: 'sssk',  englishName: 'slip, slip, slip, knit',           stitchCount: 1 },
-  [StitchType.SSSP]:  { abbr: 'sssp',  englishName: 'slip, slip, slip, purl',           stitchCount: 1 },
-  [StitchType.K3TOG]: { abbr: 'k3tog', englishName: 'knit 3 together',                  stitchCount: 1 },
-  [StitchType.P3TOG]: { abbr: 'p3tog', englishName: 'purl 3 together',                  stitchCount: 1 },
-  [StitchType.CDD]:   { abbr: 'cdd',   englishName: 'central double decrease',          stitchCount: 1 },
-  [StitchType.CDDP]:  { abbr: 'cddp',  englishName: 'central double decrease purlwise', stitchCount: 1 },
+  [StitchType.K3TOG]: { abbr: 'k3tog', englishName: 'knit 3 together',              stitchCount: 1 },
+  [StitchType.P3TOG]: { abbr: 'p3tog', englishName: 'purl 3 together',              stitchCount: 1 },
+  [StitchType.SSSK]:  { abbr: 'sssk',  englishName: 'slip slip slip knit',          stitchCount: 1 },
+  [StitchType.SSSP]:  { abbr: 'sssp',  englishName: 'slip slip slip purl',          stitchCount: 1 },
+  [StitchType.S2KP2]: { abbr: 's2kp2', englishName: 'slip 2 knit 1 pass 2 over',   stitchCount: 1 },
+  [StitchType.SSPP2]: { abbr: 'sspp2', englishName: 'slip slip purl pass 2 over',  stitchCount: 1 },
 
   // ── 棒針加針 ──────────────────────────────────
-  [StitchType.M1L]:   { abbr: 'm1l',    englishName: 'make 1 left',              stitchCount: 2 },
-  [StitchType.M1LP]:  { abbr: 'm1lp',   englishName: 'make 1 left purlwise',     stitchCount: 2 },
-  [StitchType.M1R]:   { abbr: 'm1r',    englishName: 'make 1 right',             stitchCount: 2 },
-  [StitchType.M1RP]:  { abbr: 'm1rp',   englishName: 'make 1 right purlwise',    stitchCount: 2 },
-  [StitchType.K_TBL]: { abbr: 'k1-tbl', englishName: 'knit 1 through back loop', stitchCount: 1 },
-  [StitchType.P_TBL]: { abbr: 'p1-tbl', englishName: 'purl 1 through back loop', stitchCount: 1 },
+  [StitchType.LLI]:  { abbr: 'lli',  englishName: 'left lifted increase',       stitchCount: 2 },
+  [StitchType.LLPI]: { abbr: 'llpi', englishName: 'left lifted purl increase',  stitchCount: 2 },
+  [StitchType.RLI]:  { abbr: 'rli',  englishName: 'right lifted increase',      stitchCount: 2 },
+  [StitchType.RLPI]: { abbr: 'rlpi', englishName: 'right lifted purl increase', stitchCount: 2 },
 
   // ── 棒針麻花／交叉 ───────────────────────────
-  [StitchType.CABLE_1_1_RC]:  { abbr: '1/1 RC',  englishName: '1 over 1 right cross',      stitchCount: 1 },
-  [StitchType.CABLE_1_1_LC]:  { abbr: '1/1 LC',  englishName: '1 over 1 left cross',       stitchCount: 1 },
-  [StitchType.CABLE_2_2_RC]:  { abbr: '2/2 RC',  englishName: '2 over 2 right cross',      stitchCount: 1 },
-  [StitchType.CABLE_2_2_LC]:  { abbr: '2/2 LC',  englishName: '2 over 2 left cross',       stitchCount: 1 },
-  [StitchType.CABLE_1_1_RPC]: { abbr: '1/1 RPC', englishName: '1 over 1 right purl cross', stitchCount: 1 },
-  [StitchType.CABLE_1_1_LPC]: { abbr: '1/1 LPC', englishName: '1 over 1 left purl cross',  stitchCount: 1 },
-  [StitchType.CABLE_2_2_RPC]: { abbr: '2/2 RPC', englishName: '2 over 2 right purl cross', stitchCount: 1 },
-  [StitchType.CABLE_2_2_LPC]: { abbr: '2/2 LPC', englishName: '2 over 2 left purl cross',  stitchCount: 1 },
+  [StitchType.CABLE_2ST_RC]:  { abbr: '2-st RC',  englishName: '2-st right cross',      stitchCount: 1 },
+  [StitchType.CABLE_2ST_LC]:  { abbr: '2-st LC',  englishName: '2-st left cross',       stitchCount: 1 },
+  [StitchType.CABLE_2ST_RPC]: { abbr: '2-st RPC', englishName: '2-st right purl cross', stitchCount: 1 },
+  [StitchType.CABLE_2ST_LPC]: { abbr: '2-st LPC', englishName: '2-st left purl cross',  stitchCount: 1 },
 
   // ── 鉤針基礎 ──────────────────────────────────
-  [StitchType.MAGIC_RING]:   { abbr: 'mr',    englishName: 'magic ring',          stitchCount: 1 },
-  [StitchType.CHAIN]:        { abbr: 'ch',    englishName: 'chain',               stitchCount: 1 },
-  [StitchType.SLIP_STITCH]:  { abbr: 'sl st', englishName: 'slip stitch',         stitchCount: 1 },
-  [StitchType.SINGLE]:       { abbr: 'sc',    englishName: 'single crochet',      stitchCount: 1 },
-  [StitchType.HALF_DOUBLE]:  { abbr: 'hdc',   englishName: 'half double crochet', stitchCount: 1 },
-  [StitchType.DOUBLE]:       { abbr: 'dc',    englishName: 'double crochet',      stitchCount: 1 },
-  [StitchType.TREBLE]:       { abbr: 'tr',    englishName: 'treble crochet',      stitchCount: 1 },
+  [StitchType.MAGIC_RING]:  { abbr: 'mr',        englishName: 'magic ring',             stitchCount: 1 },
+  [StitchType.CHAIN]:       { abbr: 'ch',        englishName: 'chain',                  stitchCount: 1 },
+  [StitchType.SLIP_STITCH]: { abbr: 'sl st',     englishName: 'slip stitch',            stitchCount: 1 },
+  [StitchType.SINGLE]:      { abbr: 'sc',        englishName: 'single crochet',         stitchCount: 1 },
+  [StitchType.HALF_DOUBLE]: { abbr: 'hdc',       englishName: 'half double crochet',    stitchCount: 1 },
+  [StitchType.DOUBLE]:      { abbr: 'dc',        englishName: 'double crochet',         stitchCount: 1 },
+  [StitchType.TREBLE]:      { abbr: 'tr',        englishName: 'treble crochet',         stitchCount: 1 },
+  [StitchType.CH3_PICOT]:   { abbr: 'ch-3 picot',englishName: 'ch-3 picot',             stitchCount: 1 },
+  [StitchType.DTR]:         { abbr: 'dtr',       englishName: 'double treble crochet',  stitchCount: 1 },
 
   // ── 鉤針加針 ──────────────────────────────────
-  [StitchType.SC_INC]:   { abbr: 'sc-inc',    englishName: '2 single crochets in 1 st',      stitchCount: 2 },
-  [StitchType.SC3INC]:   { abbr: '3-sc inc',  englishName: '3 single crochets in 1 st',      stitchCount: 3 },
-  [StitchType.HDC_INC]:  { abbr: 'hdc-inc',   englishName: '2 half double crochets in 1 st', stitchCount: 2 },
-  [StitchType.HDC3_INC]: { abbr: '3-hdc inc', englishName: '3 half double crochets in 1 st', stitchCount: 3 },
-  [StitchType.DC_INC]:   { abbr: 'dc-inc',    englishName: '2 double crochets in 1 st',      stitchCount: 2 },
-  [StitchType.DC3_INC]:  { abbr: '3-dc inc',  englishName: '3 double crochets in 1 st',      stitchCount: 3 },
+  [StitchType.SC_INC]:   { abbr: 'sc inc',   englishName: '2 single crochets in 1 st',      stitchCount: 2 },
+  [StitchType.SC3INC]:   { abbr: 'sc3inc',   englishName: '3 single crochets in 1 st',      stitchCount: 3 },
+  [StitchType.HDC_INC]:  { abbr: 'hdc inc',  englishName: '2 half double crochets in 1 st', stitchCount: 2 },
+  [StitchType.HDC3_INC]: { abbr: 'hdc3inc',  englishName: '3 half double crochets in 1 st', stitchCount: 3 },
+  [StitchType.DC_INC]:   { abbr: 'dc inc',   englishName: '2 double crochets in 1 st',      stitchCount: 2 },
+  [StitchType.DC3_INC]:  { abbr: 'dc3inc',   englishName: '3 double crochets in 1 st',      stitchCount: 3 },
 
   // ── 鉤針減針 ──────────────────────────────────
   [StitchType.SC2TOG]:  { abbr: 'sc2tog',  englishName: 'single crochet 2 together',      stitchCount: 1 },
@@ -165,10 +161,10 @@ export const StitchTypeInfo: Record<StitchType, StitchTypeDetails> = {
   [StitchType.DC3TOG]:  { abbr: 'dc3tog',  englishName: 'double crochet 3 together',      stitchCount: 1 },
 
   // ── 鉤針特殊針法 ──────────────────────────────
-  [StitchType.DC3_CLUSTER]:  { abbr: '3-dc cluster',  englishName: '3-dc cluster',  stitchCount: 1 },
-  [StitchType.HDC3_CLUSTER]: { abbr: '3-hdc cluster', englishName: '3-hdc cluster', stitchCount: 1 },
-  [StitchType.DC5_POPCORN]:  { abbr: '5-dc popcorn',  englishName: '5-dc popcorn',  stitchCount: 1 },
-  [StitchType.DC5_SHELL]:    { abbr: '5-dc shell',     englishName: '5-dc shell',    stitchCount: 5 },
+  [StitchType.DC3_CLUSTER]:  { abbr: '3dc-clu',    englishName: '3-dc cluster',  stitchCount: 1 },
+  [StitchType.HDC3_CLUSTER]: { abbr: '3hdc-clu',   englishName: '3-hdc cluster', stitchCount: 1 },
+  [StitchType.DC5_POPCORN]:  { abbr: '5dc popcorn',englishName: '5-dc popcorn',  stitchCount: 1 },
+  [StitchType.DC5_SHELL]:    { abbr: '5dc shell',   englishName: '5-dc shell',    stitchCount: 5 },
 
   // ── 自訂 ──────────────────────────────────────
   [StitchType.CUSTOM]: { abbr: 'custom', englishName: 'custom stitch', stitchCount: 1 },

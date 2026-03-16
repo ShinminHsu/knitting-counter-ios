@@ -39,4 +39,5 @@ export const STORAGE_KEYS = {
   APP_LAUNCH_COUNT: 'appLaunchCount',
   ATT_REQUESTED: 'attRequested',
   GA_CLIENT_ID: 'gaClientId',
+  ENTITLEMENTS: 'entitlements',
 } as const

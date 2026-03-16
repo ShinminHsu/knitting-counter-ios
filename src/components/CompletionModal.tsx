@@ -2,6 +2,8 @@ import { useEffect, useRef } from 'react'
 import { Animated, Modal, StyleSheet, Text, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { loadInterstitialAd, showInterstitialAd } from '../services/adsService'
+import { logInterstitialShown } from '../services/analyticsService'
+import { useEntitlementStore } from '../stores/useEntitlementStore'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -20,6 +22,7 @@ export default function CompletionModal({
   interstitialShown = false,
 }: CompletionModalProps) {
   const { t } = useTranslation()
+  const isPremium = useEntitlementStore((s) => s.isPremium)
   const scaleAnim = useRef(new Animated.Value(0)).current
   const opacityAnim = useRef(new Animated.Value(0)).current
 
@@ -51,8 +54,9 @@ export default function CompletionModal({
   useEffect(() => {
     if (!visible) return
     const timer = setTimeout(async () => {
-      if (!interstitialShown) {
+      if (!interstitialShown && !isPremium) {
         const ad = await loadInterstitialAd()
+        if (ad) logInterstitialShown()
         showInterstitialAd(ad, onClose)
       } else {
         onClose()

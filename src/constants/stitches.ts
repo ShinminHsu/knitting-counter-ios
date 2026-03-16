@@ -11,6 +11,8 @@ const CROCHET_STITCHES: StitchType[] = [
   StitchType.HALF_DOUBLE,
   StitchType.DOUBLE,
   StitchType.TREBLE,
+  StitchType.CH3_PICOT,
+  StitchType.DTR,
   // 加針
   StitchType.SC_INC,
   StitchType.SC3INC,
@@ -43,35 +45,31 @@ const KNITTING_STITCHES: StitchType[] = [
   StitchType.YARN_OVER,
   StitchType.SLIP_WYIB,
   StitchType.SLIP_WYIF,
-  StitchType.WRAP_AND_TURN,
-  // 減針 2→1
-  StitchType.SSK,
-  StitchType.SSP,
-  StitchType.K2TOG,
-  StitchType.P2TOG,
-  // 減針 3→1
-  StitchType.SSSK,
-  StitchType.SSSP,
-  StitchType.K3TOG,
-  StitchType.P3TOG,
-  StitchType.CDD,
-  StitchType.CDDP,
-  // 加針
-  StitchType.M1L,
-  StitchType.M1LP,
-  StitchType.M1R,
-  StitchType.M1RP,
+  StitchType.BACKWARD_LOOP_CO,
   StitchType.K_TBL,
   StitchType.P_TBL,
+  // 減針 2→1
+  StitchType.K2TOG,
+  StitchType.P2TOG,
+  StitchType.SSK,
+  StitchType.SSP,
+  // 減針 3→1
+  StitchType.K3TOG,
+  StitchType.P3TOG,
+  StitchType.SSSK,
+  StitchType.SSSP,
+  StitchType.S2KP2,
+  StitchType.SSPP2,
+  // 加針
+  StitchType.LLI,
+  StitchType.LLPI,
+  StitchType.RLI,
+  StitchType.RLPI,
   // 麻花／交叉
-  StitchType.CABLE_1_1_RC,
-  StitchType.CABLE_1_1_LC,
-  StitchType.CABLE_2_2_RC,
-  StitchType.CABLE_2_2_LC,
-  StitchType.CABLE_1_1_RPC,
-  StitchType.CABLE_1_1_LPC,
-  StitchType.CABLE_2_2_RPC,
-  StitchType.CABLE_2_2_LPC,
+  StitchType.CABLE_2ST_RC,
+  StitchType.CABLE_2ST_LC,
+  StitchType.CABLE_2ST_RPC,
+  StitchType.CABLE_2ST_LPC,
   // 自訂
   StitchType.CUSTOM,
 ]
@@ -100,6 +98,8 @@ export const CROCHET_STITCH_CATEGORIES: StitchCategory[] = [
       StitchType.HALF_DOUBLE,
       StitchType.DOUBLE,
       StitchType.TREBLE,
+      StitchType.CH3_PICOT,
+      StitchType.DTR,
     ],
   },
   {
@@ -146,51 +146,47 @@ export const KNITTING_STITCH_CATEGORIES: StitchCategory[] = [
       StitchType.YARN_OVER,
       StitchType.SLIP_WYIB,
       StitchType.SLIP_WYIF,
-      StitchType.WRAP_AND_TURN,
-    ],
-  },
-  {
-    label: 'stitch.category.knitDecrease2',
-    stitches: [
-      StitchType.SSK,
-      StitchType.SSP,
-      StitchType.K2TOG,
-      StitchType.P2TOG,
-    ],
-  },
-  {
-    label: 'stitch.category.knitDecrease3',
-    stitches: [
-      StitchType.SSSK,
-      StitchType.SSSP,
-      StitchType.K3TOG,
-      StitchType.P3TOG,
-      StitchType.CDD,
-      StitchType.CDDP,
-    ],
-  },
-  {
-    label: 'stitch.category.knitIncrease',
-    stitches: [
-      StitchType.M1L,
-      StitchType.M1LP,
-      StitchType.M1R,
-      StitchType.M1RP,
+      StitchType.BACKWARD_LOOP_CO,
       StitchType.K_TBL,
       StitchType.P_TBL,
     ],
   },
   {
+    label: 'stitch.category.knitDecrease2',
+    stitches: [
+      StitchType.K2TOG,
+      StitchType.P2TOG,
+      StitchType.SSK,
+      StitchType.SSP,
+    ],
+  },
+  {
+    label: 'stitch.category.knitDecrease3',
+    stitches: [
+      StitchType.K3TOG,
+      StitchType.P3TOG,
+      StitchType.SSSK,
+      StitchType.SSSP,
+      StitchType.S2KP2,
+      StitchType.SSPP2,
+    ],
+  },
+  {
+    label: 'stitch.category.knitIncrease',
+    stitches: [
+      StitchType.LLI,
+      StitchType.LLPI,
+      StitchType.RLI,
+      StitchType.RLPI,
+    ],
+  },
+  {
     label: 'stitch.category.knitCable',
     stitches: [
-      StitchType.CABLE_1_1_RC,
-      StitchType.CABLE_1_1_LC,
-      StitchType.CABLE_2_2_RC,
-      StitchType.CABLE_2_2_LC,
-      StitchType.CABLE_1_1_RPC,
-      StitchType.CABLE_1_1_LPC,
-      StitchType.CABLE_2_2_RPC,
-      StitchType.CABLE_2_2_LPC,
+      StitchType.CABLE_2ST_RC,
+      StitchType.CABLE_2ST_LC,
+      StitchType.CABLE_2ST_RPC,
+      StitchType.CABLE_2ST_LPC,
     ],
   },
 ]
@@ -199,6 +195,23 @@ export const KNITTING_STITCH_CATEGORIES: StitchCategory[] = [
 export const STITCH_CATEGORIES_BY_CRAFT: Record<CraftType, StitchCategory[]> = {
   crochet: CROCHET_STITCH_CATEGORIES,
   knitting: KNITTING_STITCH_CATEGORIES,
+}
+
+// ─── Stitch category lock keys（free plan gating）────────────────────────────
+
+export type StitchCategoryLockKey = 'basic' | 'inc' | 'dec' | 'special' | 'cable'
+
+/** 將 category label 對應到 lock key，用於判斷該分類是否已解鎖 */
+export const STITCH_CATEGORY_LOCK_KEY: Record<string, StitchCategoryLockKey> = {
+  'stitch.category.crochetBasic':    'basic',
+  'stitch.category.crochetIncrease': 'inc',
+  'stitch.category.crochetDecrease': 'dec',
+  'stitch.category.crochetSpecial':  'special',
+  'stitch.category.knitBasic':       'basic',
+  'stitch.category.knitIncrease':    'inc',
+  'stitch.category.knitDecrease2':   'dec',
+  'stitch.category.knitDecrease3':   'dec',
+  'stitch.category.knitCable':       'cable',
 }
 
 // ─── 加針類型（Req 4.15：加針計為 2 針）────────────────────────────────────────
@@ -213,8 +226,8 @@ export const INCREASE_STITCH_TYPES: StitchType[] = [
   StitchType.DC_INC,
   StitchType.DC3_INC,
   // 棒針加針
-  StitchType.M1L,
-  StitchType.M1LP,
-  StitchType.M1R,
-  StitchType.M1RP,
+  StitchType.LLI,
+  StitchType.LLPI,
+  StitchType.RLI,
+  StitchType.RLPI,
 ]

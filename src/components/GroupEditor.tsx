@@ -19,7 +19,10 @@ import { CraftType, CustomStitchPattern, StitchInfo, StitchType } from '../types
 import { generateId } from '../utils/helpers'
 import { getLocalizedStitchName } from '../utils/patternHelpers'
 import StitchPicker from './StitchPicker'
+import UpgradePromptModal from './UpgradePromptModal'
 import { useTemplateStore } from '../stores/useTemplateStore'
+import { useEntitlementStore } from '../stores/useEntitlementStore'
+import { REWARD_TYPES } from '../constants/analytics'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -163,7 +166,10 @@ export default function GroupEditor({
   const [saveAsTemplate, setSaveAsTemplate] = useState(false)
   const [showStitchPicker, setShowStitchPicker] = useState(false)
   const [showTemplatePicker, setShowTemplatePicker] = useState(false)
+  const [showTemplateLocked, setShowTemplateLocked] = useState(false)
   const [editingStitchIndex, setEditingStitchIndex] = useState<number | null>(null)
+  const canUseTemplates = useEntitlementStore((s) => s.canUseTemplates)
+  const unlockTemplate = useEntitlementStore((s) => s.unlockTemplate)
   const [isDragging, setIsDragging] = useState(false)
 
   // Sync state when modal opens
@@ -359,12 +365,15 @@ export default function GroupEditor({
             <View style={styles.section}>
               <TouchableOpacity
                 style={styles.loadTemplateButton}
-                onPress={() => setShowTemplatePicker(true)}
+                onPress={() => canUseTemplates() ? setShowTemplatePicker(true) : setShowTemplateLocked(true)}
                 accessibilityRole="button"
               >
                 <Feather name="layers" size={16} color="#4b5563" />
                 <Text style={styles.loadTemplateButtonText}>{t('groupEditor.loadFromTemplate')}</Text>
-                <Feather name="chevron-right" size={16} color="#4b5563" />
+                {canUseTemplates()
+                  ? <Feather name="chevron-right" size={16} color="#4b5563" />
+                  : <Feather name="lock" size={16} color="#9ca3af" />
+                }
               </TouchableOpacity>
             </View>
           )}
@@ -436,7 +445,13 @@ export default function GroupEditor({
                 </View>
                 <Switch
                   value={saveAsTemplate}
-                  onValueChange={setSaveAsTemplate}
+                  onValueChange={(v) => {
+                    if (v && !canUseTemplates()) {
+                      setShowTemplateLocked(true)
+                    } else {
+                      setSaveAsTemplate(v)
+                    }
+                  }}
                   trackColor={{ false: '#d1d5db', true: '#D97398' }}
                   thumbColor="#fff"
                   accessibilityLabel={t('groupEditor.saveAsTemplate')}
@@ -501,6 +516,17 @@ export default function GroupEditor({
           </ScrollView>
         </View>
       </Modal>
+
+      {/* Template upgrade modal */}
+      <UpgradePromptModal
+        visible={showTemplateLocked}
+        onClose={() => setShowTemplateLocked(false)}
+        title={t('upgrade.template.title')}
+        description={t('upgrade.template.desc')}
+        hasAdOption={true}
+        rewardType={REWARD_TYPES.TEMPLATE}
+        onAdRewarded={() => unlockTemplate()}
+      />
     </Modal>
   )
 }
