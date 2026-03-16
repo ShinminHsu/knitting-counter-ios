@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { View, StyleSheet } from 'react-native'
-import { BannerAd, BannerAdSize, TestIds } from 'react-native-google-mobile-ads'
+import { BannerAd, BannerAdSize } from 'react-native-google-mobile-ads'
 import { useEntitlementStore } from '../stores/useEntitlementStore'
+import { AD_UNIT_IDS } from '../constants/adUnits'
 
 interface AdBannerProps {
   size?: BannerAdSize
@@ -20,7 +21,7 @@ export default function AdBanner({ size }: AdBannerProps) {
       {!isLoaded && <View style={styles.placeholder} />}
       <View style={!isLoaded ? styles.hidden : undefined}>
         <BannerAd
-          unitId={TestIds.ADAPTIVE_BANNER}
+          unitId={AD_UNIT_IDS.BANNER}
           size={size ?? BannerAdSize.BANNER}
           onAdLoaded={() => setIsLoaded(true)}
           onAdFailedToLoad={() => setHasFailed(true)}
