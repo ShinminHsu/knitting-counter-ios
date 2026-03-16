@@ -222,7 +222,7 @@ export default function SettingsScreen() {
             <TouchableOpacity
               style={[styles.optionRow, styles.optionRowBorder]}
               onPress={() => {
-                mmkv.delete(STORAGE_KEYS.ATT_REQUESTED)
+                mmkv.remove(STORAGE_KEYS.ATT_REQUESTED)
                 mmkv.set(STORAGE_KEYS.APP_LAUNCH_COUNT, 1)
                 Alert.alert('ATT Reset', 'ATT flag cleared. Restart app to trigger dialog.')
               }}
