@@ -51,8 +51,8 @@ export default function SettingsScreen() {
     }
   }
 
-  async function handleRedeemCode() {
-    const success = await redeemVoucher(promoCode)
+  function handleRedeemCode() {
+    const success = redeemVoucher(promoCode)
     if (success) {
       setRedeemMessage(t('upgrade.codeRedeemed'))
       setPromoCode('')
