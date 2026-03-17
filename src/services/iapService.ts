@@ -20,7 +20,7 @@ export async function initializeIAP(): Promise<void> {
 
 export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'error'> {
   try {
-    await requestPurchase({ sku: PREMIUM_SKU })
+    await requestPurchase({ productId: PREMIUM_SKU })
     return 'purchased'
   } catch (e: any) {
     if (e?.code === 'E_USER_CANCELLED') return 'cancelled'
