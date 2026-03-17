@@ -1,4 +1,4 @@
-import { initConnection, endConnection, requestPurchase, getAvailablePurchases, purchaseUpdatedListener } from 'react-native-iap'
+import { initConnection, endConnection, requestPurchase, getAvailablePurchases, finishTransaction, purchaseUpdatedListener } from 'react-native-iap'
 import { useEntitlementStore } from '../stores/useEntitlementStore'
 import { logIAPPurchaseCompleted } from './analyticsService'
 
@@ -7,8 +7,9 @@ const PREMIUM_SKU = 'com.stitchie.premium'
 export async function initializeIAP(): Promise<void> {
   try {
     await initConnection()
-    purchaseUpdatedListener((purchase) => {
+    purchaseUpdatedListener(async (purchase) => {
       if (purchase.productId === PREMIUM_SKU) {
+        await finishTransaction({ purchase, isConsumable: false })
         useEntitlementStore.getState().setPremium('iap')
         logIAPPurchaseCompleted()
       }
@@ -20,7 +21,7 @@ export async function initializeIAP(): Promise<void> {
 
 export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'error'> {
   try {
-    await requestPurchase({ productId: PREMIUM_SKU })
+    await requestPurchase({ request: { apple: { sku: PREMIUM_SKU } }, type: 'in-app' })
     return 'purchased'
   } catch (e: any) {
     if (e?.code === 'E_USER_CANCELLED') return 'cancelled'
