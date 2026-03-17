@@ -12,4 +12,5 @@ const PROD_IDS = {
   REWARDED: 'ca-app-pub-8349726503229968/1317529327',
 }
 
-export const AD_UNIT_IDS = __DEV__ ? TEST_IDS : PROD_IDS
+const useTestAds = __DEV__ || process.env.EXPO_PUBLIC_USE_TEST_ADS === 'true'
+export const AD_UNIT_IDS = useTestAds ? TEST_IDS : PROD_IDS
