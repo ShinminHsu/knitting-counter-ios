@@ -87,8 +87,8 @@ export default function UpgradePromptModal({
               disabled={adLoading || !ad}
             >
               {adLoading
-                ? <ActivityIndicator color="#fff" />
-                : <Text style={styles.buttonText}>{t('upgrade.watchAd')}</Text>
+                ? <ActivityIndicator color="#D97398" />
+                : <Text style={[styles.buttonText, styles.adButtonText]}>{t('upgrade.watchAd')}</Text>
               }
             </TouchableOpacity>
           )}
@@ -158,7 +158,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   adButton: {
-    backgroundColor: '#D97398',
+    backgroundColor: '#fff',
+    borderWidth: 1.5,
+    borderColor: '#D97398',
   },
   premiumButton: {
     backgroundColor: '#C4527F',
@@ -170,6 +172,9 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  adButtonText: {
+    color: '#D97398',
   },
   laterButton: {
     alignItems: 'center',

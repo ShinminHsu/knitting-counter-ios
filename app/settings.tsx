@@ -6,7 +6,7 @@ import { useTranslation } from 'react-i18next'
 import i18n from '../src/i18n'
 import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage'
 import ScreenHeader from '../src/components/ScreenHeader'
-import { requestATTIfNeeded, logScreenView, purchasePremium, restorePurchases, redeemVoucher } from '../src/services'
+import { requestATTIfNeeded, logScreenView, purchasePremium, restorePurchases, redeemVoucher, preloadRewardedAd } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { useEntitlementStore } from '../src/stores'
 
@@ -218,6 +218,24 @@ export default function SettingsScreen() {
               activeOpacity={0.7}
             >
               <Text style={[styles.optionLabel, { color: '#ef4444' }]}>Reset to Free</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.optionRow, styles.optionRowBorder]}
+              onPress={() => {
+                mmkv.remove(STORAGE_KEYS.ATT_REQUESTED)
+                mmkv.set(STORAGE_KEYS.APP_LAUNCH_COUNT, 1)
+                Alert.alert('ATT Reset', 'ATT flag cleared. Restart app to trigger dialog.')
+              }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#f59e0b' }]}>Reset ATT flag</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.optionRow, styles.optionRowBorder]}
+              onPress={() => { preloadRewardedAd(); Alert.alert('Ad', 'Preloading rewarded ad...') }}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#6b7280' }]}>Preload Rewarded Ad</Text>
             </TouchableOpacity>
           </View>
         </View>

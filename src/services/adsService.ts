@@ -47,7 +47,11 @@ export async function loadInterstitialAd(): Promise<InterstitialAd | null> {
   })
 }
 
-export async function loadRewardedAd(): Promise<RewardedAd | null> {
+// Module-level cache so rewarded ads are ready before the modal opens
+let cachedRewardedAd: RewardedAd | null = null
+let rewardedAdPreloading = false
+
+function loadRewardedAdFresh(): Promise<RewardedAd | null> {
   return new Promise((resolve) => {
     try {
       const ad = RewardedAd.createForAdRequest(AD_UNIT_IDS.REWARDED)
@@ -64,6 +68,25 @@ export async function loadRewardedAd(): Promise<RewardedAd | null> {
       resolve(null)
     }
   })
+}
+
+/** Preloads a rewarded ad in the background. Call once at app startup. */
+export async function preloadRewardedAd(): Promise<void> {
+  if (rewardedAdPreloading || cachedRewardedAd) return
+  rewardedAdPreloading = true
+  cachedRewardedAd = await loadRewardedAdFresh()
+  rewardedAdPreloading = false
+}
+
+/** Returns the cached ad instantly (if ready), or waits for a fresh load. Triggers background reload for next call. */
+export async function loadRewardedAd(): Promise<RewardedAd | null> {
+  if (cachedRewardedAd) {
+    const ad = cachedRewardedAd
+    cachedRewardedAd = null
+    preloadRewardedAd() // reload in background for next time
+    return ad
+  }
+  return loadRewardedAdFresh()
 }
 
 export function showRewardedAd(
