@@ -25,6 +25,7 @@ export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'er
     return 'purchased'
   } catch (e: any) {
     if (e?.code === 'E_USER_CANCELLED') return 'cancelled'
+    console.error('[IAP] purchasePremium error:', e?.code, e?.message)
     return 'error'
   }
 }
