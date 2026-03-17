@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Modal, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { RewardedAd } from 'react-native-google-mobile-ads'
 import { loadRewardedAd, showRewardedAd } from '../services/adsService'
@@ -66,6 +66,7 @@ export default function UpgradePromptModal({
     const result = await purchasePremium()
     setPurchasing(false)
     if (result === 'purchased') onClose()
+    else if (result === 'error') Alert.alert(t('common.error'), t('upgrade.purchaseError'))
   }
 
   function handleMaybeLater() {
@@ -83,8 +84,11 @@ export default function UpgradePromptModal({
           {hasAdOption && (
             <TouchableOpacity
               style={[styles.button, styles.adButton, (adLoading || !ad) && styles.buttonDisabled]}
-              onPress={handleWatchAd}
-              disabled={adLoading || !ad}
+              onPress={() => {
+                if (!ad) { Alert.alert(t('upgrade.adUnavailableTitle'), t('upgrade.adUnavailableDesc')); return }
+                handleWatchAd()
+              }}
+              disabled={adLoading}
             >
               {adLoading
                 ? <ActivityIndicator color="#D97398" />
