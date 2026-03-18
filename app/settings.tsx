@@ -39,9 +39,7 @@ export default function SettingsScreen() {
 
   async function handleGetPremium() {
     const result = await purchasePremium()
-    if (result === 'error') {
-      Alert.alert(t('common.error'), t('common.error'))
-    }
+    Alert.alert('IAP Result', String(result))
   }
 
   async function handleRestorePurchases() {
