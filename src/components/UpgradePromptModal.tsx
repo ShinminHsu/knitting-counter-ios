@@ -65,10 +65,8 @@ export default function UpgradePromptModal({
     setPurchasing(true)
     const result = await purchasePremium()
     setPurchasing(false)
+    Alert.alert('IAP Result', String(result))
     if (result === 'purchased') onClose()
-    else if (result === 'error') Alert.alert(t('common.error'), t('upgrade.purchaseError'))
-    // show raw error string for debugging non-standard errors
-    else if (typeof result === 'string' && result.startsWith('error:')) Alert.alert('IAP Error', result)
   }
 
   function handleMaybeLater() {
