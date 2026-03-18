@@ -27,7 +27,7 @@ export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'er
     return 'purchased'
   } catch (e: any) {
     if (e?.code === 'E_USER_CANCELLED') return 'cancelled'
-    return 'error'
+    return `error:${e?.code ?? 'unknown'}:${e?.message ?? ''}` as any
   }
 }
 

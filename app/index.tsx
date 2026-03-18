@@ -130,6 +130,14 @@ export default function ProjectListScreen() {
   const duplicateProject = useProjectStore((s) => s.duplicateProject)
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [showUpgradeModal, setShowUpgradeModal] = useState(false)
+  const [pendingCreateAfterAd, setPendingCreateAfterAd] = useState(false)
+
+  useEffect(() => {
+    if (!showUpgradeModal && pendingCreateAfterAd) {
+      setPendingCreateAfterAd(false)
+      setShowCreateModal(true)
+    }
+  }, [showUpgradeModal, pendingCreateAfterAd])
   const maxProjects = useEntitlementStore((s) => s.maxProjects)
   const adUnlockedProjectCount = useEntitlementStore((s) => s.adUnlockedProjectCount)
   const incrementAdUnlockedProjects = useEntitlementStore((s) => s.incrementAdUnlockedProjects)
@@ -267,7 +275,7 @@ export default function ProjectListScreen() {
         rewardType={REWARD_TYPES.PROJECT_SLOT}
         onAdRewarded={() => {
           incrementAdUnlockedProjects()
-          setShowCreateModal(true)
+          setPendingCreateAfterAd(true)
         }}
       />
 
