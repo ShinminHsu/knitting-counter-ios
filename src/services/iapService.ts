@@ -22,13 +22,16 @@ export async function initializeIAP(): Promise<void> {
 }
 
 export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'error'> {
-  try {
-    await requestPurchase({ request: { apple: { sku: PREMIUM_SKU } }, type: 'in-app' })
-    return 'purchased'
-  } catch (e: any) {
-    if (e?.code === 'E_USER_CANCELLED') return 'cancelled'
-    return `error:${e?.code ?? 'unknown'}:${e?.message ?? ''}` as any
-  }
+  const timeout = new Promise<'error:timeout'>((resolve) =>
+    setTimeout(() => resolve('error:timeout'), 12000)
+  )
+  const purchase = requestPurchase({ request: { apple: { sku: PREMIUM_SKU } }, type: 'in-app' })
+    .then(() => 'purchased' as const)
+    .catch((e: any) => {
+      if (e?.code === 'E_USER_CANCELLED') return 'cancelled' as const
+      return `error:${e?.code ?? 'unknown'}:${e?.message ?? ''}` as any
+    })
+  return Promise.race([purchase, timeout])
 }
 
 export async function restorePurchases(): Promise<boolean> {
