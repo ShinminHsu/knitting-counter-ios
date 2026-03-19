@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import {
   ActivityIndicator,
+  Alert,
   SafeAreaView,
   ScrollView,
   StyleSheet,
@@ -50,8 +51,9 @@ export default function PremiumPlansScreen() {
 
   async function handleGetPremium() {
     setPurchasing(true)
-    await purchasePremium()
+    const result = await purchasePremium()
     setPurchasing(false)
+    Alert.alert('IAP Result', String(result))
   }
 
   async function handleRestore() {

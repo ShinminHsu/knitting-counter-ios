@@ -21,17 +21,8 @@ export async function initializeIAP(): Promise<void> {
   try {
     const connected = await initConnection()
     if (!connected) return
-
     iapConnected = true
     await fetchProducts({ skus: [PREMIUM_SKU] })
-
-    purchaseUpdatedListener(async (purchase) => {
-      await handlePurchase(purchase)
-    })
-
-    purchaseErrorListener((error) => {
-      console.warn('[IAP] purchase error:', error.code, error.message)
-    })
   } catch (e) {
     console.warn('[IAP] initializeIAP failed:', e)
   }
@@ -40,23 +31,38 @@ export async function initializeIAP(): Promise<void> {
 export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'error'> {
   if (!iapConnected) return 'error:not-connected' as any
 
-  const timeout = new Promise<'error:timeout'>((resolve) =>
-    setTimeout(() => resolve('error:timeout'), 12000)
-  )
-  const purchase = (async () => {
-    try {
-      const result = await requestPurchase({ request: { apple: { sku: PREMIUM_SKU } }, type: 'in-app' })
-      if (result) {
-        const p = Array.isArray(result) ? result[0] : result
-        if (p) await handlePurchase(p)
-      }
-      return 'purchased' as const
-    } catch (e: any) {
-      if (e?.code === 'E_USER_CANCELLED') return 'cancelled' as const
-      return `error:${e?.code ?? 'unknown'}:${e?.message ?? ''}` as any
-    }
-  })()
-  return Promise.race([purchase, timeout])
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => {
+      updateSub.remove()
+      errorSub.remove()
+      resolve('error:timeout' as any)
+    }, 12000)
+
+    const updateSub = purchaseUpdatedListener(async (purchase) => {
+      clearTimeout(timer)
+      updateSub.remove()
+      errorSub.remove()
+      await handlePurchase(purchase)
+      resolve('purchased')
+    })
+
+    const errorSub = purchaseErrorListener((error: any) => {
+      clearTimeout(timer)
+      updateSub.remove()
+      errorSub.remove()
+      if (error?.code === 'E_USER_CANCELLED') resolve('cancelled')
+      else resolve(`error:${error?.code ?? 'unknown'}` as any)
+    })
+
+    requestPurchase({ request: { apple: { sku: PREMIUM_SKU } }, type: 'in-app' })
+      .catch((e: any) => {
+        clearTimeout(timer)
+        updateSub.remove()
+        errorSub.remove()
+        if (e?.code === 'E_USER_CANCELLED') resolve('cancelled')
+        else resolve(`error:${e?.code ?? 'unknown'}:${e?.message ?? ''}` as any)
+      })
+  })
 }
 
 export async function restorePurchases(): Promise<boolean> {
