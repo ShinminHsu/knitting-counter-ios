@@ -419,6 +419,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   createCustomButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 20,
   },
@@ -459,7 +461,7 @@ const styles = StyleSheet.create({
   stitchSymbol: {
     width: 28,
     fontSize: 16,
-    color: '#D97398',
+    color: '#1f2937',
     textAlign: 'center',
     marginRight: 8,
   },

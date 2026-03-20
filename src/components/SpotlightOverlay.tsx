@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import {
   Animated,
-  Dimensions,
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native'
+import { useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useTranslation } from 'react-i18next'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -31,7 +32,6 @@ interface SpotlightOverlayProps {
   onDismiss: () => void
 }
 
-const { width: SCREEN_WIDTH, height: SCREEN_HEIGHT } = Dimensions.get('window')
 const CALLOUT_HEIGHT_ESTIMATE = 160
 const CALLOUT_MARGIN = 12
 
@@ -39,6 +39,9 @@ const CALLOUT_MARGIN = 12
 
 export default function SpotlightOverlay({ steps, onDismiss }: SpotlightOverlayProps) {
   const { t } = useTranslation()
+  const { height: windowHeight } = useWindowDimensions()
+  const insets = useSafeAreaInsets()
+  const availableHeight = windowHeight - insets.top - insets.bottom
   const [currentStep, setCurrentStep] = useState(0)
   const opacityAnim = useRef(new Animated.Value(0)).current
 
@@ -74,9 +77,11 @@ export default function SpotlightOverlay({ steps, onDismiss }: SpotlightOverlayP
   if (!step) return null
 
   const padding = step.padding ?? 8
+  // measureInWindow returns screen-absolute coords; subtract insets.top because
+  // this overlay is rendered inside SafeAreaView (content starts below status bar)
   const highlight = {
     x: step.targetRect.x - padding,
-    y: step.targetRect.y - padding,
+    y: step.targetRect.y - insets.top - padding,
     width: step.targetRect.width + padding * 2,
     height: step.targetRect.height + padding * 2,
   }
@@ -85,7 +90,7 @@ export default function SpotlightOverlay({ steps, onDismiss }: SpotlightOverlayP
     : 10
 
   // Callout positioning: prefer below, fallback to above
-  const spaceBelow = SCREEN_HEIGHT - (highlight.y + highlight.height)
+  const spaceBelow = availableHeight - (highlight.y + highlight.height)
   const calloutTop = spaceBelow >= CALLOUT_HEIGHT_ESTIMATE + CALLOUT_MARGIN * 2
     ? highlight.y + highlight.height + CALLOUT_MARGIN
     : highlight.y - CALLOUT_HEIGHT_ESTIMATE - CALLOUT_MARGIN
@@ -157,8 +162,8 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: 0,
     left: 0,
-    width: SCREEN_WIDTH,
-    height: SCREEN_HEIGHT,
+    right: 0,
+    bottom: 0,
     zIndex: 9999,
   },
   overlay: {

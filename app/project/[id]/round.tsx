@@ -232,7 +232,7 @@ function PatternItemRow({ item, drag, isActive, isDragging, isSelectMode, isSele
       >
         {item.type === PatternItemType.STITCH && isStitchInfo(item.data) ? (
           <Text style={styles.itemLabel}>
-            {getLocalizedStitchName(item.data, i18n.t)}<Text style={styles.itemCountInline}>×{item.data.count}</Text>
+            {getLocalizedStitchName(item.data, i18n.t)}<Text style={styles.itemCountInline}> × {item.data.count}</Text>
           </Text>
         ) : (
           <Text style={styles.itemLabel}>{getLabel()}</Text>

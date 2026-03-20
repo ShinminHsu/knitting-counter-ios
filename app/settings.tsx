@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Alert, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
@@ -23,6 +23,7 @@ export default function SettingsScreen() {
   const [promoCode, setPromoCode] = useState('')
   const [redeemMessage, setRedeemMessage] = useState<string | null>(null)
   const [showLanguagePicker, setShowLanguagePicker] = useState(false)
+  const [purchasing, setPurchasing] = useState(false)
 
   const isPremium = useEntitlementStore((s) => s.isPremium)
   const premiumSource = useEntitlementStore((s) => s.premiumSource)
@@ -38,7 +39,9 @@ export default function SettingsScreen() {
   }
 
   async function handleGetPremium() {
+    setPurchasing(true)
     const result = await purchasePremium()
+    setPurchasing(false)
     Alert.alert('IAP Result', String(result))
   }
 
@@ -106,9 +109,15 @@ export default function SettingsScreen() {
                 style={[styles.optionRow, styles.optionRowBorder]}
                 onPress={handleGetPremium}
                 activeOpacity={0.7}
+                disabled={purchasing}
               >
-                <Text style={[styles.optionLabel, styles.premiumCTALabel]}>{t('upgrade.getPremium')}</Text>
-                <Feather name="chevron-right" size={18} color="#D97398" />
+                {purchasing
+                  ? <ActivityIndicator color="#D97398" />
+                  : <>
+                      <Text style={[styles.optionLabel, styles.premiumCTALabel]}>{t('upgrade.getPremium')}</Text>
+                      <Feather name="chevron-right" size={18} color="#D97398" />
+                    </>
+                }
               </TouchableOpacity>
               <View style={[styles.optionRow, styles.optionRowBorder, styles.promoRow]}>
                 <TextInput
