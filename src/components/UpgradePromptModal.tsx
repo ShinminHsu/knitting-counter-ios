@@ -65,7 +65,6 @@ export default function UpgradePromptModal({
     setPurchasing(true)
     const result = await purchasePremium()
     setPurchasing(false)
-    Alert.alert('IAP Result', String(result))
     if (result === 'purchased') onClose()
   }
 

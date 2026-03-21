@@ -40,9 +40,8 @@ export default function SettingsScreen() {
 
   async function handleGetPremium() {
     setPurchasing(true)
-    const result = await purchasePremium()
+    await purchasePremium()
     setPurchasing(false)
-    Alert.alert('IAP Result', String(result))
   }
 
   async function handleRestorePurchases() {
