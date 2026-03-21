@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import {
   Animated,
   Dimensions,
+  Modal,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -91,6 +92,7 @@ export default function SpotlightOverlay({ steps, onDismiss }: SpotlightOverlayP
     : highlight.y - CALLOUT_HEIGHT_ESTIMATE - CALLOUT_MARGIN
 
   return (
+    <Modal visible transparent animationType="none" statusBarTranslucent>
     <Animated.View style={[styles.container, { opacity: opacityAnim }]}>
       {/* Top panel */}
       <View style={[styles.overlay, { top: 0, left: 0, right: 0, height: Math.max(0, highlight.y) }]} />
@@ -147,6 +149,7 @@ export default function SpotlightOverlay({ steps, onDismiss }: SpotlightOverlayP
         <Text style={styles.skipText}>{t('onboarding.spotlightSkip')}</Text>
       </TouchableOpacity>
     </Animated.View>
+    </Modal>
   )
 }
 

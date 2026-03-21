@@ -11,7 +11,6 @@ export interface SpotlightStepConfig {
   description: string   // already-translated text
   shape?: 'circle' | 'rect'
   padding?: number
-  yOffset?: number      // pixel offset applied to measured y (negative = move up)
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -59,7 +58,7 @@ export function useSpotlight(
           step.ref.current.measureInWindow((x, y, width, height) => {
             if (width > 0 && height > 0) {
               measured.push({
-                targetRect: { x, y: y + (step.yOffset ?? 0), width, height } as TargetRect,
+                targetRect: { x, y, width, height } as TargetRect,
                 title: step.title,
                 description: step.description,
                 shape: step.shape,
