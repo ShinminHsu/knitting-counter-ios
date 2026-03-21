@@ -150,9 +150,19 @@ function expandToBlocks(round: Round): StitchBlock[] {
         }
 
         const groupLabel = `${group.name} - ${r + 1}`
+        // Group label as full-width header so symbol blocks have no label and align with other blocks
+        blocks.push({
+          key: `${item.id}-r${r}-header`,
+          label: groupLabel,
+          symbols: [],
+          startPos: blockStart,
+          endPos: blockStart + perRepeat,
+          tapEndPos: blockStart + perRepeat,
+          isHeader: true,
+        })
         blocks.push({
           key: `${item.id}-r${r}`,
-          label: groupLabel,
+          label: '',
           symbols,
           startPos: blockStart,
           endPos: blockStart + perRepeat,
