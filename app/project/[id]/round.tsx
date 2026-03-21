@@ -328,13 +328,13 @@ export default function RoundEditScreen() {
         ref: addStitchButtonRef,
         title: t('onboarding.roundAddStitchTitle'),
         description: t('onboarding.roundAddStitchDesc'),
-        yOffset: -24,
+        yOffset: -12,
       },
       {
         ref: addGroupButtonRef,
         title: t('onboarding.roundAddGroupTitle'),
         description: t('onboarding.roundAddGroupDesc'),
-        yOffset: -24,
+        yOffset: -12,
       },
     ]
   )
