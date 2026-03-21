@@ -255,7 +255,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
             if (SymSvg) {
               const iconColor = symStatus === 'current' ? '#D97398' : '#000'
               return (
-                <View key={i} style={{ opacity }}>
+                <View key={i} style={{ opacity, width: 24, height: 24 }}>
                   <SymSvg width={24} height={24} color={iconColor} />
                 </View>
               )

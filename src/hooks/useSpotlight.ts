@@ -43,6 +43,7 @@ export function useSpotlight(
 
     const task = InteractionManager.runAfterInteractions(() => {
       const timer = setTimeout(() => {
+        requestAnimationFrame(() => {
         hasMeasured.current = true
 
         const measured: SpotlightStep[] = []
@@ -71,7 +72,8 @@ export function useSpotlight(
         })
 
         if (steps.length === 0) finalize([])
-      }, 300)
+        }) // requestAnimationFrame
+      }, 800)
 
       return () => clearTimeout(timer)
     })
