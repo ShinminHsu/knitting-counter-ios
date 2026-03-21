@@ -229,19 +229,21 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
-      {/* Label：只有 GROUP block 或 count=1 的 STITCH block 才有 label */}
-      {block.label ? (
-        <Text
-          style={[
-            blockStyles.label,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-          numberOfLines={1}
-        >
-          {block.label}
-        </Text>
-      ) : null}
+      {/* 固定高度的 label 區：有 label 就顯示，沒有就留白，確保所有 block 的 symbol 對齊 */}
+      <View style={blockStyles.labelArea}>
+        {block.label ? (
+          <Text
+            style={[
+              blockStyles.label,
+              isActive && blockStyles.labelActive,
+              isCompleted && blockStyles.labelCompleted,
+            ]}
+            numberOfLines={1}
+          >
+            {block.label}
+          </Text>
+        ) : null}
+      </View>
 
       {/* 符號區 */}
       <View style={blockStyles.symbolsRow}>
@@ -300,12 +302,16 @@ const blockStyles = StyleSheet.create({
     marginRight: 16,
     marginBottom: 14,
   },
+  // 固定高度的 label 容器，讓所有 block symbol 對齊
+  labelArea: {
+    height: 24,
+    justifyContent: 'flex-start',
+  },
   // Label：文字標籤，無 icon
   label: {
     fontSize: 10,
     fontWeight: '500',
     color: '#4b5563',
-    marginBottom: 10,
   },
   labelActive: {
     color: '#D97398',
@@ -945,7 +951,7 @@ const styles = StyleSheet.create({
   blocksContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-end',
+    alignItems: 'flex-start',
     justifyContent: 'flex-start',
     paddingVertical: 4,
     paddingHorizontal: 4,
