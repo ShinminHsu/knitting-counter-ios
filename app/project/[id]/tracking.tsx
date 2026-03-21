@@ -229,6 +229,20 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
       accessibilityLabel={block.label}
       accessibilityRole="button"
     >
+      {/* Label：只有 GROUP block 或 count=1 的 STITCH block 才有 label */}
+      {block.label ? (
+        <Text
+          style={[
+            blockStyles.label,
+            isActive && blockStyles.labelActive,
+            isCompleted && blockStyles.labelCompleted,
+          ]}
+          numberOfLines={1}
+        >
+          {block.label}
+        </Text>
+      ) : null}
+
       {/* 符號區 */}
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
@@ -264,19 +278,6 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
         })}
       </View>
 
-      {/* Label：只有 GROUP block 或 count=1 的 STITCH block 才有 label */}
-      {block.label ? (
-        <Text
-          style={[
-            blockStyles.label,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-          numberOfLines={1}
-        >
-          {block.label}
-        </Text>
-      ) : null}
     </TouchableOpacity>
   )
 }
@@ -299,12 +300,12 @@ const blockStyles = StyleSheet.create({
     marginRight: 16,
     marginBottom: 14,
   },
-  // Label：文字標籤，無 icon（顯示在符號下方）
+  // Label：文字標籤，無 icon
   label: {
     fontSize: 10,
     fontWeight: '500',
     color: '#4b5563',
-    marginTop: 4,
+    marginBottom: 10,
   },
   labelActive: {
     color: '#D97398',
@@ -944,7 +945,7 @@ const styles = StyleSheet.create({
   blocksContent: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    alignItems: 'flex-start',
+    alignItems: 'flex-end',
     justifyContent: 'flex-start',
     paddingVertical: 4,
     paddingHorizontal: 4,
