@@ -57,8 +57,9 @@
     "extra": {
       "router": {},
       "eas": {
-        "projectId": "9a084d97-bd0a-474a-9f68-e516c8c7eda1"
+        "projectId": "af630d24-3c1c-4eb2-be47-177ea92bd28e"
       }
-    }
+    },
+    "owner": "mhsu"
   }
 }

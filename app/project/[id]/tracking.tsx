@@ -150,9 +150,19 @@ function expandToBlocks(round: Round): StitchBlock[] {
         }
 
         const groupLabel = `${group.name} - ${r + 1}`
+        // Group label as full-width header so symbol blocks have no label and align with other blocks
+        blocks.push({
+          key: `${item.id}-r${r}-header`,
+          label: groupLabel,
+          symbols: [],
+          startPos: blockStart,
+          endPos: blockStart + perRepeat,
+          tapEndPos: blockStart + perRepeat,
+          isHeader: true,
+        })
         blocks.push({
           key: `${item.id}-r${r}`,
-          label: groupLabel,
+          label: '',
           symbols,
           startPos: blockStart,
           endPos: blockStart + perRepeat,
@@ -255,7 +265,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
             if (SymSvg) {
               const iconColor = symStatus === 'current' ? '#D97398' : '#000'
               return (
-                <View key={i} style={{ opacity }}>
+                <View key={i} style={{ opacity, width: 24, height: 24 }}>
                   <SymSvg width={24} height={24} color={iconColor} />
                 </View>
               )
@@ -277,6 +287,7 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
           )
         })}
       </View>
+
     </TouchableOpacity>
   )
 }
