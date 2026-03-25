@@ -31,6 +31,7 @@ export function useSpotlight(
 } {
   const seenSpotlights = useOnboardingStore((s) => s.seenSpotlights)
   const markSpotlightSeen = useOnboardingStore((s) => s.markSpotlightSeen)
+  const hasSeenCarousel = useOnboardingStore((s) => s.hasSeenCarousel)
 
   const [showSpotlight, setShowSpotlight] = useState(false)
   const [resolvedSteps, setResolvedSteps] = useState<SpotlightStep[]>([])
@@ -39,7 +40,9 @@ export function useSpotlight(
   const alreadySeen = !!seenSpotlights[screenName]
 
   useEffect(() => {
-    if (alreadySeen || hasMeasured.current) return
+    // Don't measure until the onboarding carousel is fully dismissed —
+    // measuring while the carousel modal is animating away returns wrong coordinates
+    if (alreadySeen || hasMeasured.current || !hasSeenCarousel) return
 
     const task = InteractionManager.runAfterInteractions(() => {
       const timer = setTimeout(() => {
@@ -80,7 +83,7 @@ export function useSpotlight(
 
     return () => task.cancel()
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [screenName, alreadySeen])
+  }, [screenName, alreadySeen, hasSeenCarousel])
 
   function finalize(measured: SpotlightStep[]) {
     if (measured.length === 0) {

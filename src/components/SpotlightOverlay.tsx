@@ -3,6 +3,7 @@ import {
   Animated,
   Dimensions,
   Modal,
+  Pressable,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -95,23 +96,23 @@ export default function SpotlightOverlay({ steps, onDismiss }: SpotlightOverlayP
     <Modal visible transparent animationType="none" statusBarTranslucent>
     <Animated.View style={[styles.container, { opacity: opacityAnim }]}>
       {/* Top panel */}
-      <View style={[styles.overlay, { top: 0, left: 0, right: 0, height: Math.max(0, highlight.y) }]} />
+      <Pressable style={[styles.overlay, { top: 0, left: 0, right: 0, height: Math.max(0, highlight.y) }]} onPress={handleNext} />
       {/* Bottom panel */}
-      <View style={[styles.overlay, { top: highlight.y + highlight.height, left: 0, right: 0, bottom: 0 }]} />
+      <Pressable style={[styles.overlay, { top: highlight.y + highlight.height, left: 0, right: 0, bottom: 0 }]} onPress={handleNext} />
       {/* Left panel */}
-      <View style={[styles.overlay, {
+      <Pressable style={[styles.overlay, {
         top: highlight.y,
         left: 0,
         width: Math.max(0, highlight.x),
         height: highlight.height,
-      }]} />
+      }]} onPress={handleNext} />
       {/* Right panel */}
-      <View style={[styles.overlay, {
+      <Pressable style={[styles.overlay, {
         top: highlight.y,
         left: highlight.x + highlight.width,
         right: 0,
         height: highlight.height,
-      }]} />
+      }]} onPress={handleNext} />
 
       {/* Highlight border */}
       <View style={[styles.highlightBorder, {
