@@ -44,3 +44,8 @@ yarn-error.*
 # Firebase credentials (download from Firebase console, do not commit)
 GoogleService-Info.plist
 google-services.json
+.spectra/
+openspec/.vector-search.db*
+
+.claude/settings.json
+.claude/settings.local.json
