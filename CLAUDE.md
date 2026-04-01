@@ -59,9 +59,15 @@ React Native + Expo Router 的 iOS 編織計數器 App。
 - 不包含 "Co-Authored-By: Claude" 等 AI 相關字詞
 
 ## 開發注意事項
-- App 是 debug build，執行前需先啟動 Metro：`npx expo start`
+- **這台開發機太舊，無法執行 `npx expo run:ios`**，所有 build 都要 push 到 GitHub 後在另一台電腦進行
 - 修改 native 設定（app.json plugins、新增 native 套件）後需重新 `npx expo prebuild --platform ios --clean` 並 rebuild
 - `ios/` 目錄由 prebuild 產生，不需 commit
+
+## 測試流程
+1. 這台電腦開發完成後，push feature branch 到 GitHub
+2. 另一台電腦 pull + `npx expo run:ios` 裝到實體裝置測試
+3. 確認沒問題後，merge 到 `dev`
+4. 正式發布走 EAS Build + TestFlight
 
 ## 功能說明
 - 「從 0 還是 1 開始」是在**建立織圖時**詢問，不是建立專案時

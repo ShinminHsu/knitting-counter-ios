@@ -27,7 +27,7 @@
 ## 5. Cleanup
 
 - [x] 5.1 Delete `styles.headerBlockWrapper` from the main `styles` object
-- [ ] 5.2 [手動驗證] 建立含群組 × 2 + 單針 + 多針法的圈，在 app 中確認：
+- [ ] 5.2 [手動驗證] Push 到 GitHub，在另一台電腦執行 `npx expo run:ios`，建立含群組 × 2 + 單針 + 多針法的圈，確認：
   - [ ] 5.2.1 [手動] 所有 block 流式排列，群組 label 與後續元素同行
   - [ ] 5.2.2 [手動] 點群組 label → 整個重複完成
   - [ ] 5.2.3 [手動] 點群組內單個符號 → 只推進一針
