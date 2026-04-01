@@ -272,10 +272,12 @@ function StitchBlockRow({ block, currentStitch, showIcons, onLabelPress, onSymbo
 }
 
 const blockStyles = StyleSheet.create({
-  // 每個 block 是一個 inline-block，alignSelf: 'flex-start' 讓它縮到內容寬度
+  // 每個 block 是一個 inline-block：alignSelf: 'flex-start' 讓它縮到內容寬度，
+  // maxWidth: '100%' 提供換行邊界，避免 symbols 超出螢幕
   blockWrapper: {
     alignSelf: 'flex-start',
     alignItems: 'flex-start',
+    maxWidth: '100%',
     marginRight: 16,
     marginBottom: 14,
   },
@@ -294,9 +296,10 @@ const blockStyles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#9ca3af',
   },
-  // 符號區：不換行，讓 block 寬度由 symbols 決定
+  // 符號區：可換行，在 blockWrapper 的 maxWidth 內自動換行
   symbolsRow: {
     flexDirection: 'row',
+    flexWrap: 'wrap',
     gap: 6,
     alignItems: 'center',
   },
