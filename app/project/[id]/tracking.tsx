@@ -66,15 +66,14 @@ interface StitchBlock {
   stitchType?: StitchType
   /**
    * 點擊此 block 時要跳到的位置（覆寫 endPos）。
-   * STITCH header block 用：點擊「sc × 500」跳到整個 PatternItem 的末端。
+   * 多針法 / 群組 block 用：點擊 label 跳到整個 PatternItem 的末端。
    */
   tapEndPos?: number
   /**
-   * 此 block 為 STITCH PatternItem 的 header block。
-   * 顯示為全寬標籤列，獨佔一行，不含 symbol。
-   * 點擊時一次完成整個 PatternItem 的所有針。
+   * true 時點擊 label 會跳到 tapEndPos（完成整個 item）。
+   * 多針法與群組 block 設為 true；單一針法不設定。
    */
-  isHeader?: boolean
+  labelTapsToEnd?: boolean
 }
 
 type BlockStatus = 'completed' | 'active' | 'upcoming'
@@ -117,16 +116,15 @@ function expandToBlocks(round: Round): StitchBlock[] {
         pos += stitchCount
         blocks.push({ key: item.id, label: abbr, symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
       } else {
-        // 多針法：先放一個全寬 header block（可點擊一次完成所有），再放各自獨立的 symbol block
+        // 多針法：一個 block，label 在上（可點擊一次完成所有），symbols 在下（個別可點擊推進一針）
         const itemStartPos = pos
         const itemEndPos = pos + stitch.count * stitchCount
-        blocks.push({ key: `${item.id}-header`, label: `${abbr} × ${stitch.count}`, symbols: [], startPos: itemStartPos, endPos: itemEndPos, tapEndPos: itemEndPos, isHeader: true })
+        const symbols: SymbolEntry[] = []
         for (let i = 0; i < stitch.count; i++) {
-          const blockStart = pos
-          const symbol: SymbolEntry = { abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount }
+          symbols.push({ abbr, stitchType: stitch.type, physicalStart: pos, physicalEnd: pos + stitchCount })
           pos += stitchCount
-          blocks.push({ key: `${item.id}-${i}`, label: '', symbols: [symbol], startPos: blockStart, endPos: pos, stitchType: stitch.type })
         }
+        blocks.push({ key: item.id, label: `${abbr} × ${stitch.count}`, symbols, startPos: itemStartPos, endPos: itemEndPos, tapEndPos: itemEndPos, labelTapsToEnd: true, stitchType: stitch.type })
       }
     } else {
       const group = item.data as StitchGroup
@@ -150,22 +148,15 @@ function expandToBlocks(round: Round): StitchBlock[] {
         }
 
         const groupLabel = `${group.name} - ${r + 1}`
-        // Group label as full-width header so symbol blocks have no label and align with other blocks
-        blocks.push({
-          key: `${item.id}-r${r}-header`,
-          label: groupLabel,
-          symbols: [],
-          startPos: blockStart,
-          endPos: blockStart + perRepeat,
-          tapEndPos: blockStart + perRepeat,
-          isHeader: true,
-        })
+        // 群組：一個 block，label 在上（可點擊完成整個重複），symbols 在下（個別可點擊推進一針）
         blocks.push({
           key: `${item.id}-r${r}`,
-          label: '',
+          label: groupLabel,
           symbols,
           startPos: blockStart,
           endPos: blockStart + perRepeat,
+          tapEndPos: blockStart + perRepeat,
+          labelTapsToEnd: true,
         })
       }
     }
@@ -192,68 +183,46 @@ function getRoundDescriptionText(round: Round): string {
 }
 
 // ─── StitchBlockRow ───────────────────────────────────────────────────────────
-// 每個 block 為一行（全寬）：label 在上，符號在下
-// 對應 web 版的 inline-block + flex-wrap 結構，但以全寬垂直排列更符合 iOS 習慣
+// 每個 block 是一個 inline-block：label（可點擊完成整個 item）在上，
+// 個別 symbol（可點擊推進一針）在下。外層以 alignSelf: 'flex-start' 參與 flexWrap 容器。
 
 interface StitchBlockRowProps {
   block: StitchBlock
   currentStitch: number
   showIcons: boolean
-  onPress: () => void
+  onLabelPress: () => void
+  onSymbolPress: (symbol: SymbolEntry) => void
 }
 
-function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBlockRowProps) {
+function StitchBlockRow({ block, currentStitch, showIcons, onLabelPress, onSymbolPress }: StitchBlockRowProps) {
   const blockStatus = getBlockStatus(block, currentStitch)
   const isCompleted = blockStatus === 'completed'
   const isActive = blockStatus === 'active'
 
-  // Header block：全寬標籤，點擊一次完成整個 PatternItem 的所有針
-  if (block.isHeader) {
-    return (
-      <TouchableOpacity
-        onPress={onPress}
-        activeOpacity={isCompleted ? 1 : 0.7}
-        style={blockStyles.headerRow}
-        accessibilityLabel={block.label}
-        accessibilityRole="button"
-      >
-        <Text
-          style={[
-            blockStyles.headerLabel,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-          numberOfLines={1}
-        >
-          {block.label}
-        </Text>
-      </TouchableOpacity>
-    )
-  }
-
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={isCompleted ? 1 : 0.7}
-      style={blockStyles.row}
-      accessibilityLabel={block.label}
-      accessibilityRole="button"
-    >
-      {/* Label：只有 GROUP block 或 count=1 的 STITCH block 才有 label */}
+    <View style={blockStyles.blockWrapper}>
+      {/* Label：多針法 / 群組 / count=1 的 STITCH 都有 label */}
       {block.label ? (
-        <Text
-          style={[
-            blockStyles.label,
-            isActive && blockStyles.labelActive,
-            isCompleted && blockStyles.labelCompleted,
-          ]}
-          numberOfLines={1}
+        <TouchableOpacity
+          onPress={onLabelPress}
+          activeOpacity={isCompleted ? 1 : 0.7}
+          accessibilityLabel={block.label}
+          accessibilityRole="button"
         >
-          {block.label}
-        </Text>
+          <Text
+            style={[
+              blockStyles.label,
+              isActive && blockStyles.labelActive,
+              isCompleted && blockStyles.labelCompleted,
+            ]}
+            numberOfLines={1}
+          >
+            {block.label}
+          </Text>
+        </TouchableOpacity>
       ) : null}
 
-      {/* 符號區 */}
+      {/* 符號區：每個符號個別可點擊 */}
       <View style={blockStyles.symbolsRow}>
         {block.symbols.map((symbol, i) => {
           const symStatus = getSymbolStatus(symbol, currentStitch)
@@ -265,52 +234,52 @@ function StitchBlockRow({ block, currentStitch, showIcons, onPress }: StitchBloc
             if (SymSvg) {
               const iconColor = symStatus === 'current' ? '#D97398' : '#000'
               return (
-                <View key={i} style={{ opacity, width: 24, height: 24 }}>
-                  <SymSvg width={24} height={24} color={iconColor} />
-                </View>
+                <TouchableOpacity
+                  key={i}
+                  onPress={() => onSymbolPress(symbol)}
+                  activeOpacity={isCompleted ? 1 : 0.7}
+                >
+                  <View style={{ opacity, width: 24, height: 24 }}>
+                    <SymSvg width={24} height={24} color={iconColor} />
+                  </View>
+                </TouchableOpacity>
               )
             }
           }
 
           return (
-            <Text
+            <TouchableOpacity
               key={i}
-              style={[
-                blockStyles.symbol,
-                symStatus === 'current' && blockStyles.symbolCurrent,
-                symStatus === 'completed' && blockStyles.symbolCompleted,
-                symStatus === 'upcoming' && blockStyles.symbolUpcoming,
-              ]}
+              onPress={() => onSymbolPress(symbol)}
+              activeOpacity={isCompleted ? 1 : 0.7}
             >
-              {symbol.abbr}
-            </Text>
+              <Text
+                style={[
+                  blockStyles.symbol,
+                  symStatus === 'current' && blockStyles.symbolCurrent,
+                  symStatus === 'completed' && blockStyles.symbolCompleted,
+                  symStatus === 'upcoming' && blockStyles.symbolUpcoming,
+                ]}
+              >
+                {symbol.abbr}
+              </Text>
+            </TouchableOpacity>
           )
         })}
       </View>
-
-    </TouchableOpacity>
+    </View>
   )
 }
 
 const blockStyles = StyleSheet.create({
-  // Header block：全寬標籤行，獨佔一行
-  headerRow: {
-    width: '100%',
-    paddingVertical: 4,
-    marginBottom: 6,
-  },
-  headerLabel: {
-    fontSize: 12,
-    fontWeight: '600',
-    color: '#4b5563',
-  },
-  // 每個 block 是一個直向欄位，橫向並排
-  row: {
+  // 每個 block 是一個 inline-block，alignSelf: 'flex-start' 讓它縮到內容寬度
+  blockWrapper: {
+    alignSelf: 'flex-start',
     alignItems: 'flex-start',
     marginRight: 16,
     marginBottom: 14,
   },
-  // Label：文字標籤，無 icon
+  // Label：文字標籤
   label: {
     fontSize: 10,
     fontWeight: '500',
@@ -325,10 +294,9 @@ const blockStyles = StyleSheet.create({
     textDecorationLine: 'line-through',
     color: '#9ca3af',
   },
-  // 符號區：可換行
+  // 符號區：不換行，讓 block 寬度由 symbols 決定
   symbolsRow: {
     flexDirection: 'row',
-    flexWrap: 'wrap',
     gap: 6,
     alignItems: 'center',
   },
@@ -558,7 +526,18 @@ export default function ProgressTrackingScreen() {
   function handleBlockTap(block: StitchBlock) {
     if (!id || isPreviewMode) return // 預覽模式不可互動
     const jumpPos = block.tapEndPos ?? block.endPos
-    if (jumpPos <= currentStitch) return // 已完成，無效（Req 4.14）
+    if (jumpPos <= currentStitch) return // 已完成，無效
+    if (jumpPos >= totalStitches) {
+      handleCompleteRound()
+    } else {
+      useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, jumpPos)
+    }
+  }
+
+  function handleSymbolTap(symbol: SymbolEntry) {
+    if (!id || isPreviewMode) return
+    const jumpPos = symbol.physicalEnd
+    if (jumpPos <= currentStitch) return
     if (jumpPos >= totalStitches) {
       handleCompleteRound()
     } else {
@@ -709,7 +688,6 @@ export default function ProgressTrackingScreen() {
             blocks.map((block) => (
               <View
                 key={block.key}
-                style={block.isHeader ? styles.headerBlockWrapper : undefined}
                 onLayout={(e) => {
                   blockYPositions.current.set(block.key, e.nativeEvent.layout.y)
                 }}
@@ -718,7 +696,8 @@ export default function ProgressTrackingScreen() {
                   block={block}
                   currentStitch={displayStitch}
                   showIcons={showIcons}
-                  onPress={() => handleBlockTap(block)}
+                  onLabelPress={() => handleBlockTap(block)}
+                  onSymbolPress={(symbol) => handleSymbolTap(symbol)}
                 />
               </View>
             ))
@@ -821,10 +800,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#faf5f0',
-  },
-  // Header block wrapper：強制佔滿整行（flex-wrap 換行）
-  headerBlockWrapper: {
-    width: '100%',
   },
   centered: {
     flex: 1,
