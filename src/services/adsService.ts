@@ -17,14 +17,13 @@ export async function initializeAdMob(): Promise<void> {
  * Safe to call multiple times — reads MMKV flag and short-circuits if already done.
  */
 export async function requestATTIfNeeded(): Promise<void> {
+  const already = mmkv.getBoolean(STORAGE_KEYS.ATT_REQUESTED)
+  if (already) return
   try {
-    const already = mmkv.getBoolean(STORAGE_KEYS.ATT_REQUESTED)
-    if (already) return
     await requestTrackingPermissionsAsync()
     mmkv.set(STORAGE_KEYS.ATT_REQUESTED, true)
   } catch {
-    // ATT unavailable (simulator) — still mark as requested to avoid future attempts
-    mmkv.set(STORAGE_KEYS.ATT_REQUESTED, true)
+    // ATT unavailable (e.g. simulator) — do NOT set the flag so we retry next launch
   }
 }
 

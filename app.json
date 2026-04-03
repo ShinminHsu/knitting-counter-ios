@@ -18,7 +18,9 @@
       "bundleIdentifier": "com.stitchie.app",
       "buildNumber": "1",
       "infoPlist": {
-        "ITSAppUsesNonExemptEncryption": false
+        "ITSAppUsesNonExemptEncryption": false,
+        "NSCameraUsageDescription": "Stitchie uses your camera to take photos of your knitting projects and add them to your project's photo gallery.",
+        "NSPhotoLibraryUsageDescription": "Stitchie accesses your photo library so you can add photos of your knitting projects to your project's photo gallery."
       }
     },
     "android": {

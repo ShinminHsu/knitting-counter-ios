@@ -29,18 +29,13 @@ export default function RootLayout() {
     // Splash hides immediately; ATT dialog appears on top of the app UI
     SplashScreen.hideAsync()
 
-    // Track launch count for deferred ATT timing
-    const count = (mmkv.getNumber(STORAGE_KEYS.APP_LAUNCH_COUNT) ?? 0) + 1
-    mmkv.set(STORAGE_KEYS.APP_LAUNCH_COUNT, count)
-
     const setupAds = async () => {
+      // ATT must be requested before AdMob initializes (Apple Guideline 2.1)
+      // "only once ever" is enforced by the ATT_REQUESTED MMKV flag inside requestATTIfNeeded
+      await requestATTIfNeeded()
       await initializeAdMob()
       loadInterstitialAd()
       preloadRewardedAd()
-      // Show ATT dialog from 2nd launch onward (only once ever)
-      if (count >= 2) {
-        requestATTIfNeeded()
-      }
     }
 
     setupAds()
