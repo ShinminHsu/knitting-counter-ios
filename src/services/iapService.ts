@@ -5,6 +5,9 @@ import { logIAPPurchaseCompleted } from './analyticsService'
 
 const PREMIUM_SKU = 'com.stitchie.premium'
 let iapConnected = false
+let purchaseUpdateSub: ReturnType<typeof purchaseUpdatedListener> | null = null
+let purchaseErrorSub: ReturnType<typeof purchaseErrorListener> | null = null
+let pendingResolve: ((result: 'purchased' | 'cancelled' | 'error') => void) | null = null
 
 async function handlePurchase(purchase: Purchase): Promise<void> {
   if (purchase.productId !== PREMIUM_SKU) return
@@ -15,52 +18,54 @@ async function handlePurchase(purchase: Purchase): Promise<void> {
   }
   useEntitlementStore.getState().setPremium('iap')
   logIAPPurchaseCompleted()
+  pendingResolve?.('purchased')
+  pendingResolve = null
 }
 
 export async function initializeIAP(): Promise<void> {
   try {
-    const connected = await initConnection()
-    if (!connected) return
+    await initConnection()
     iapConnected = true
     await fetchProducts({ skus: [PREMIUM_SKU] })
+
+    // Register persistent listeners for the lifetime of the app.
+    // This also handles transactions that were interrupted in a previous session.
+    purchaseUpdateSub = purchaseUpdatedListener(async (purchase) => {
+      await handlePurchase(purchase)
+    })
+    purchaseErrorSub = purchaseErrorListener((error: any) => {
+      if (error?.code === 'E_USER_CANCELLED') {
+        pendingResolve?.('cancelled')
+      } else {
+        pendingResolve?.('error')
+      }
+      pendingResolve = null
+    })
   } catch (e) {
     console.warn('[IAP] initializeIAP failed:', e)
   }
 }
 
 export async function purchasePremium(): Promise<'purchased' | 'cancelled' | 'error'> {
-  if (!iapConnected) return 'error:not-connected' as any
+  if (!iapConnected) return 'error'
 
   return new Promise((resolve) => {
     const timer = setTimeout(() => {
-      updateSub.remove()
-      errorSub.remove()
-      resolve('error:timeout' as any)
-    }, 12000)
+      pendingResolve = null
+      resolve('error')
+    }, 30000)
 
-    const updateSub = purchaseUpdatedListener(async (purchase) => {
+    pendingResolve = (result) => {
       clearTimeout(timer)
-      updateSub.remove()
-      errorSub.remove()
-      await handlePurchase(purchase)
-      resolve('purchased')
-    })
-
-    const errorSub = purchaseErrorListener((error: any) => {
-      clearTimeout(timer)
-      updateSub.remove()
-      errorSub.remove()
-      if (error?.code === 'E_USER_CANCELLED') resolve('cancelled')
-      else resolve(`error:${error?.code ?? 'unknown'}` as any)
-    })
+      resolve(result)
+    }
 
     requestPurchase({ request: { apple: { sku: PREMIUM_SKU } }, type: 'in-app' })
       .catch((e: any) => {
         clearTimeout(timer)
-        updateSub.remove()
-        errorSub.remove()
+        pendingResolve = null
         if (e?.code === 'E_USER_CANCELLED') resolve('cancelled')
-        else resolve(`error:${e?.code ?? 'unknown'}:${e?.message ?? ''}` as any)
+        else resolve('error')
       })
   })
 }
@@ -79,6 +84,11 @@ export async function restorePurchases(): Promise<boolean> {
 
 export async function cleanupIAP(): Promise<void> {
   iapConnected = false
+  purchaseUpdateSub?.remove()
+  purchaseErrorSub?.remove()
+  purchaseUpdateSub = null
+  purchaseErrorSub = null
+  pendingResolve = null
   try {
     await endConnection()
   } catch {
