@@ -25,20 +25,7 @@ export default function RootLayout() {
   const markCarouselSeen = useOnboardingStore((s) => s.markCarouselSeen)
 
   useEffect(() => {
-    // ATT + AdMob init must complete in sequence, but must not block app startup
-    // Splash hides immediately; ATT dialog appears on top of the app UI
     SplashScreen.hideAsync()
-
-    const setupAds = async () => {
-      // ATT must be requested before AdMob initializes (Apple Guideline 2.1)
-      // "only once ever" is enforced by the ATT_REQUESTED MMKV flag inside requestATTIfNeeded
-      await requestATTIfNeeded()
-      await initializeAdMob()
-      loadInterstitialAd()
-      preloadRewardedAd()
-    }
-
-    setupAds()
     initializeIAP()
     return () => { cleanupIAP() }
   }, [])
@@ -56,6 +43,15 @@ export default function RootLayout() {
             if (!hasSeenCarousel) {
               setShowCarousel(true)
             }
+            // Request ATT after Lottie finishes so the app is fully active (iOS requirement).
+            // ATT must complete before AdMob initializes.
+            const initAds = async () => {
+              await requestATTIfNeeded()
+              await initializeAdMob()
+              loadInterstitialAd()
+              preloadRewardedAd()
+            }
+            initAds()
           }}
         />
         <Text style={styles.splashTitle}>{t('splash.welcome')}</Text>
