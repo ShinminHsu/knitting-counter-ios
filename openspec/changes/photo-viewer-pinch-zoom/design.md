@@ -52,9 +52,13 @@ Implementation note: React Native 0.81's `scrollResponderZoomTo` passes `animate
 
 `ZoomablePhoto` runs an effect on `isActive`: when it becomes `false` while `zoomedRef` is true, it calls `scrollResponderZoomTo` with the full-screen rect and `animated: false`, then clears `zoomedRef`. `handleScroll` in `PhotoViewer` sets `isZoomed` to `false` whenever the page index changes. With paging disabled while zoomed this is a safety net for zoom levels that end just above 1×.
 
-### Close resets via unmount
+### Reset zoom on close and mount
 
-No explicit reset on close: the parent unmounts `PhotoViewer` when `viewingPhoto` becomes `null`, so reopening mounts fresh scroll views at 1×.
+Unmounting alone does not reset zoom. Fabric recycles `RCTScrollViewComponentView` instances; its `prepareForRecycle` resets `contentOffset` but not `zoomScale`, and the `zoomScale` prop is only applied when old and new props differ (both default to 1 on a recycled view). A zoomed native scroll view therefore returns from the pool still zoomed — observed during device verification as "close while zoomed, reopen → still zoomed", and it could also leak a zoomed transform into another `ScrollView` elsewhere in the app.
+
+- `ZoomablePhoto` exposes `resetZoom()` through a React 19 `ref` prop + `useImperativeHandle`; `PhotoViewer` attaches `activePhotoRef` to the page where `index === currentIndex`.
+- `handleClose` (used by the ✕ button and `Modal` `onRequestClose`) calls `activePhotoRef.current?.resetZoom()` before `onClose()`. The native zoom command is dispatched in the event handler, ahead of the unmount commit, so the view returns to the recycle pool at 1×. Inactive pages are already at 1× via "Reset zoom when page changes".
+- As a safety net for any other unmount path (e.g. the project screen unmounting while the viewer is open), `ZoomablePhoto` also calls `resetZoom()` once on mount.
 
 ## Risks / Trade-offs
 

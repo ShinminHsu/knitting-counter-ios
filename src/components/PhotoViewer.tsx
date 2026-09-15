@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { type Ref, useEffect, useImperativeHandle, useRef, useState } from 'react'
 import {
   Dimensions,
   FlatList,
@@ -42,14 +42,19 @@ type ZoomRect = typeof FULL_RECT
 
 // ─── ZoomablePhoto ────────────────────────────────────────────────────────────
 
+interface ZoomablePhotoHandle {
+  resetZoom: () => void
+}
+
 interface ZoomablePhotoProps {
   uri: string
   isActive: boolean
   onZoomChange: (zoomed: boolean) => void
+  ref?: Ref<ZoomablePhotoHandle>
 }
 
 /** 單張照片：iOS 原生 ScrollView 縮放（雙指 1–4 倍、雙擊 1 ↔ 2.5 倍） */
-function ZoomablePhoto({ uri, isActive, onZoomChange }: ZoomablePhotoProps) {
+function ZoomablePhoto({ uri, isActive, onZoomChange, ref }: ZoomablePhotoProps) {
   const scrollRef = useRef<ScrollView>(null)
   const zoomedRef = useRef(false)
   const lastTapRef = useRef(0)
@@ -58,6 +63,19 @@ function ZoomablePhoto({ uri, isActive, onZoomChange }: ZoomablePhotoProps) {
   const zoomTo = (rect: ZoomRect, animated: boolean) => {
     scrollRef.current?.scrollResponderZoomTo({ ...rect, animated }, animated)
   }
+
+  const resetZoom = () => {
+    zoomTo(FULL_RECT, false)
+    zoomedRef.current = false
+  }
+
+  useImperativeHandle(ref, () => ({ resetZoom }))
+
+  // Fabric 會回收原生 ScrollView 且不重設 zoomScale，掛載時先確保是 1 倍
+  useEffect(() => {
+    resetZoom()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const zoomed = (e.nativeEvent.zoomScale ?? 1) > ZOOMED_THRESHOLD
@@ -89,8 +107,7 @@ function ZoomablePhoto({ uri, isActive, onZoomChange }: ZoomablePhotoProps) {
   // 換到其他張時，把這張恢復成 1 倍
   useEffect(() => {
     if (!isActive && zoomedRef.current) {
-      zoomTo(FULL_RECT, false)
-      zoomedRef.current = false
+      resetZoom()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isActive])
@@ -123,6 +140,13 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
   // 目前這張放大中時停用左右換張，拖曳只會平移照片
   const [isZoomed, setIsZoomed] = useState(false)
   const flatListRef = useRef<FlatList<ProjectPhoto>>(null)
+  const activePhotoRef = useRef<ZoomablePhotoHandle>(null)
+
+  // 關閉前先把目前這張恢復 1 倍：Fabric 回收原生 ScrollView 時不會重設 zoomScale
+  const handleClose = () => {
+    activePhotoRef.current?.resetZoom()
+    onClose()
+  }
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / screenWidth)
@@ -140,7 +164,7 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
       animationType="fade"
       presentationStyle="fullScreen"
       statusBarTranslucent={true}
-      onRequestClose={onClose}
+      onRequestClose={handleClose}
     >
       <StatusBar hidden />
       <View style={styles.container}>
@@ -163,6 +187,7 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
           extraData={currentIndex}
           renderItem={({ item, index }) => (
             <ZoomablePhoto
+              ref={index === currentIndex ? activePhotoRef : undefined}
               uri={resolvePhotoUri(item.uri)}
               isActive={index === currentIndex}
               onZoomChange={(zoomed) => {
@@ -175,7 +200,7 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
         {/* Close button */}
         <TouchableOpacity
           style={styles.closeButton}
-          onPress={onClose}
+          onPress={handleClose}
           activeOpacity={0.8}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
