@@ -49,8 +49,14 @@ npx expo start
 
 - 手機和 Mac 連同一個 Wi-Fi，打開手機上的 Stitchie 開發版，在列表中選這台的伺服器（或掃終端機的 QR code）。
 - 改 JS / TypeScript / 圖片 / 翻譯檔後存檔，手機會自動重新整理。搖晃手機可開啟開發選單。
-- 手機連不到 Mac（例如公共 Wi-Fi 封鎖區網連線）時，改用 `npx expo start --tunnel`。
 - 切換 branch 後直接重新整理即可，**前提是該 branch 的原生套件和手機上的開發版一致**（見下一節）。
+- 在還沒有 `expo-dev-client` 的 branch 上啟動時，加上 `--dev-client`（例如 `npx expo start --dev-client --tunnel`），終端機才會顯示開發版用的 QR code。
+
+### 連不到 Metro 時
+
+1. App 顯示「failed to connect」或「Expected MIME-Type … but got 'text/html'」：到 iPhone「設定 → 隱私權與安全性 → 區域網路」，確認 Stitchie 已開啟。
+2. 權限已開仍連不到（或 Wi-Fi 封鎖區網連線）：改用 `npx expo start --tunnel`，第一次會詢問安裝 `@expo/ngrok`，之後用手機相機掃終端機的 QR code 開啟。每次啟動 tunnel 網址都會變，要重新掃。
+3. 確認 Metro 有在跑：手機 Safari 打開 `http://<Mac 的區網 IP>:8081/status`，會下載或顯示 `packager-status:running`。
 
 ## 4. 什麼時候要重新 build
 

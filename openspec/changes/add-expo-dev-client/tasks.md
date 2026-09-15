@@ -13,4 +13,4 @@
 ## 3. Verification
 
 - [x] 3.1 Commit on `feat/add-expo-dev-client` and ask the user before pushing to GitHub
-- [ ] 3.2 [手動驗證] Following `docs/dev-client.md`: `eas device:create` for the iPhone (and iPad), `eas build --profile development --platform ios`, install via QR/URL, enable Developer Mode; on this Mac `nvm use && npx expo start`; confirm (a) the app loads from Metro, (b) editing a visible string reloads on device, (c) the banner shows a Google test ad, (d) Settings shows DEV Tools, (e) launch and ATT prompt do not crash
+- [x] 3.2 [手動驗證] Following `docs/dev-client.md`: `eas device:create` for the iPhone (and iPad), `eas build --profile development --platform ios`, install via QR/URL, enable Developer Mode; on this Mac `nvm use && npx expo start`; confirm (a) the app loads from Metro, (b) editing a visible string reloads on device, (c) the banner shows a Google test ad, (d) Settings shows DEV Tools, (e) launch and ATT prompt do not crash
