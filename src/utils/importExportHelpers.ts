@@ -37,6 +37,28 @@ export function serializeExportData(data: ProjectExportData): string {
 // ─── Import Validation ─────────────────────────────────────────────────────────
 
 /**
+ * 驗證 project 物件的必要欄位（匯入與 iCloud 還原共用）
+ * 回傳錯誤訊息陣列，空陣列代表通過；順序即檢查順序
+ */
+export function validateProjectShape(project: unknown): string[] {
+  if (typeof project !== 'object' || project === null || Array.isArray(project)) {
+    return ['缺少必要欄位：project']
+  }
+
+  const p = project as Record<string, unknown>
+  const errors: string[] = []
+
+  if (typeof p.id !== 'string' || p.id === '') errors.push('缺少必要欄位：project.id')
+  if (typeof p.name !== 'string' || p.name === '') errors.push('缺少必要欄位：project.name')
+  if (!Array.isArray(p.charts)) errors.push('缺少必要欄位：project.charts')
+  if (p.craftType !== 'crochet' && p.craftType !== 'knitting') {
+    errors.push('無效的 craftType 值：必須是 "crochet" 或 "knitting"')
+  }
+
+  return errors
+}
+
+/**
  * 驗證匯入的 JSON 資料是否符合格式（Req 8.4）
  * 回傳 { valid: true } 或 { valid: false, errors: string[] }
  */
@@ -61,18 +83,7 @@ export function validateImportData(
     errors.push(`exportType 不合法：${String(obj.exportType)}`)
   }
 
-  const project = obj.project
-  if (typeof project !== 'object' || project === null) {
-    errors.push('缺少欄位：project')
-  } else {
-    const p = project as Record<string, unknown>
-    if (typeof p.id !== 'string') errors.push('project.id 缺少或格式錯誤')
-    if (typeof p.name !== 'string') errors.push('project.name 缺少或格式錯誤')
-    if (p.craftType !== 'crochet' && p.craftType !== 'knitting') {
-      errors.push(`project.craftType 不合法：${String(p.craftType)}`)
-    }
-    if (!Array.isArray(p.charts)) errors.push('project.charts 缺少或不是陣列')
-  }
+  errors.push(...validateProjectShape(obj.project))
 
   if (errors.length > 0) {
     return { valid: false, errors }

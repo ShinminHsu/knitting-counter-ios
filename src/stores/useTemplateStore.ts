@@ -116,6 +116,9 @@ export const useTemplateStore = create<TemplateState>()(
     {
       name: STORAGE_KEYS.TEMPLATES,
       storage: createJSONStorage(() => mmkvStorage),
+      version: 1,
+      // v1 為版本基準，資料格式與 v0 相同
+      migrate: (persisted) => persisted as TemplateState,
     }
   )
 )

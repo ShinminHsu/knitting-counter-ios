@@ -3,6 +3,7 @@ import * as Sharing from 'expo-sharing'
 import * as DocumentPicker from 'expo-document-picker'
 import { Project, ProjectExportData, ExportType } from '../types'
 import { generateId, nowISO } from '../utils/helpers'
+import { validateProjectShape } from '../utils/importExportHelpers'
 
 // ─── exportProject ────────────────────────────────────────────────────────────
 
@@ -125,26 +126,9 @@ export function validateImportData(data: unknown): data is ProjectExportData {
 
   const obj = data as Record<string, unknown>
 
-  if (typeof obj['project'] !== 'object' || obj['project'] === null || Array.isArray(obj['project'])) {
-    throw new Error('缺少必要欄位：project')
-  }
-
-  const project = obj['project'] as Record<string, unknown>
-
-  if (typeof project['id'] !== 'string' || project['id'] === '') {
-    throw new Error('缺少必要欄位：project.id')
-  }
-
-  if (typeof project['name'] !== 'string' || project['name'] === '') {
-    throw new Error('缺少必要欄位：project.name')
-  }
-
-  if (!Array.isArray(project['charts'])) {
-    throw new Error('缺少必要欄位：project.charts')
-  }
-
-  if (project['craftType'] !== 'crochet' && project['craftType'] !== 'knitting') {
-    throw new Error('無效的 craftType 值：必須是 "crochet" 或 "knitting"')
+  const [firstError] = validateProjectShape(obj['project'])
+  if (firstError) {
+    throw new Error(firstError)
   }
 
   return true
