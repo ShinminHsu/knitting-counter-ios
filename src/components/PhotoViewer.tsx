@@ -1,11 +1,14 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   Dimensions,
   FlatList,
+  GestureResponderEvent,
   Image,
   Modal,
   NativeScrollEvent,
   NativeSyntheticEvent,
+  Pressable,
+  ScrollView,
   StatusBar,
   StyleSheet,
   Text,
@@ -28,13 +31,105 @@ interface PhotoViewerProps {
 
 const { width: screenWidth, height: screenHeight } = Dimensions.get('screen')
 
+const MAX_ZOOM_SCALE = 4
+const DOUBLE_TAP_ZOOM_SCALE = 2.5
+const DOUBLE_TAP_DELAY_MS = 300
+/** zoomScale 超過此值才視為已放大，避免停在 1 倍時的浮點誤差 */
+const ZOOMED_THRESHOLD = 1.01
+const FULL_RECT = { x: 0, y: 0, width: screenWidth, height: screenHeight }
+
+type ZoomRect = typeof FULL_RECT
+
+// ─── ZoomablePhoto ────────────────────────────────────────────────────────────
+
+interface ZoomablePhotoProps {
+  uri: string
+  isActive: boolean
+  onZoomChange: (zoomed: boolean) => void
+}
+
+/** 單張照片：iOS 原生 ScrollView 縮放（雙指 1–4 倍、雙擊 1 ↔ 2.5 倍） */
+function ZoomablePhoto({ uri, isActive, onZoomChange }: ZoomablePhotoProps) {
+  const scrollRef = useRef<ScrollView>(null)
+  const zoomedRef = useRef(false)
+  const lastTapRef = useRef(0)
+
+  // RN 0.81 的 zoomToRect 只讀第二個參數決定是否動畫，rect 內的 animated 僅用來避免 deprecation warning
+  const zoomTo = (rect: ZoomRect, animated: boolean) => {
+    scrollRef.current?.scrollResponderZoomTo({ ...rect, animated }, animated)
+  }
+
+  const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const zoomed = (e.nativeEvent.zoomScale ?? 1) > ZOOMED_THRESHOLD
+    if (zoomed !== zoomedRef.current) {
+      zoomedRef.current = zoomed
+      onZoomChange(zoomed)
+    }
+  }
+
+  const handlePress = (e: GestureResponderEvent) => {
+    const now = Date.now()
+    if (now - lastTapRef.current > DOUBLE_TAP_DELAY_MS) {
+      lastTapRef.current = now
+      return
+    }
+    lastTapRef.current = 0
+
+    if (zoomedRef.current) {
+      zoomTo(FULL_RECT, true)
+      return
+    }
+    // locationX/Y 為未縮放的內容座標，UIScrollView 會自動把 rect 限制在內容範圍內
+    const { locationX, locationY } = e.nativeEvent
+    const width = screenWidth / DOUBLE_TAP_ZOOM_SCALE
+    const height = screenHeight / DOUBLE_TAP_ZOOM_SCALE
+    zoomTo({ x: locationX - width / 2, y: locationY - height / 2, width, height }, true)
+  }
+
+  // 換到其他張時，把這張恢復成 1 倍
+  useEffect(() => {
+    if (!isActive && zoomedRef.current) {
+      zoomTo(FULL_RECT, false)
+      zoomedRef.current = false
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isActive])
+
+  return (
+    <ScrollView
+      ref={scrollRef}
+      style={styles.zoomContainer}
+      contentContainerStyle={styles.page}
+      minimumZoomScale={1}
+      maximumZoomScale={MAX_ZOOM_SCALE}
+      centerContent
+      bouncesZoom
+      showsHorizontalScrollIndicator={false}
+      showsVerticalScrollIndicator={false}
+      scrollEventThrottle={16}
+      onScroll={handleScroll}
+    >
+      <Pressable onPress={handlePress}>
+        <Image source={{ uri }} style={styles.image} resizeMode="contain" />
+      </Pressable>
+    </ScrollView>
+  )
+}
+
+// ─── PhotoViewer ──────────────────────────────────────────────────────────────
+
 export default function PhotoViewer({ photos, initialIndex, visible, onClose }: PhotoViewerProps) {
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
+  // 目前這張放大中時停用左右換張，拖曳只會平移照片
+  const [isZoomed, setIsZoomed] = useState(false)
   const flatListRef = useRef<FlatList<ProjectPhoto>>(null)
 
   const handleScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.x / screenWidth)
-    setCurrentIndex(index)
+    if (index !== currentIndex) {
+      setCurrentIndex(index)
+      setIsZoomed(false)
+    }
   }
 
   const currentPhoto = photos[currentIndex]
@@ -64,14 +159,16 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
             index,
           })}
           onMomentumScrollEnd={handleScroll}
-          renderItem={({ item }) => (
-            <View style={styles.page}>
-              <Image
-                source={{ uri: resolvePhotoUri(item.uri) }}
-                style={styles.image}
-                resizeMode="contain"
-              />
-            </View>
+          scrollEnabled={!isZoomed}
+          extraData={currentIndex}
+          renderItem={({ item, index }) => (
+            <ZoomablePhoto
+              uri={resolvePhotoUri(item.uri)}
+              isActive={index === currentIndex}
+              onZoomChange={(zoomed) => {
+                if (index === currentIndex) setIsZoomed(zoomed)
+              }}
+            />
           )}
         />
 
@@ -122,6 +219,10 @@ const styles = StyleSheet.create({
     height: screenHeight,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  zoomContainer: {
+    width: screenWidth,
+    height: screenHeight,
   },
   image: {
     width: screenWidth,
