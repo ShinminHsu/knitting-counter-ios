@@ -1,14 +1,32 @@
 import { useEffect, useState } from 'react'
-import { ActivityIndicator, Alert, Modal, SafeAreaView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
+import { ActivityIndicator, Alert, Modal, SafeAreaView, ScrollView, StyleSheet, Switch, Text, TextInput, TouchableOpacity, View } from 'react-native'
 import { Feather } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import i18n from '../src/i18n'
 import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage'
 import ScreenHeader from '../src/components/ScreenHeader'
-import { requestATTIfNeeded, logScreenView, purchasePremium, restorePurchases, redeemVoucher, preloadRewardedAd } from '../src/services'
+import {
+  requestATTIfNeeded,
+  logScreenView,
+  purchasePremium,
+  restorePurchases,
+  redeemVoucher,
+  preloadRewardedAd,
+  deleteBackup,
+  flushBackup,
+  getBackupState,
+  isICloudAvailable,
+  restoreFromBackup,
+  runICloudSelfTest,
+  subscribeBackupState,
+  subscribeICloudAvailability,
+} from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { useEntitlementStore } from '../src/stores'
+import { useSettingsStore } from '../src/stores/useSettingsStore'
+import { showConfirmDialog } from '../src/components/ConfirmDialog'
+import { formatBackupDate, RestoringOverlay, showRestoreOutcomeAlert } from '../src/components/BackupRestoreFeedback'
 
 const LANGUAGES = [
   { code: 'en', labelKey: 'settings.languageEn' as const },
@@ -28,10 +46,40 @@ export default function SettingsScreen() {
   const isPremium = useEntitlementStore((s) => s.isPremium)
   const premiumSource = useEntitlementStore((s) => s.premiumSource)
 
+  const backupEnabled = useSettingsStore((s) => s.iCloudBackupEnabled)
+  const setBackupEnabled = useSettingsStore((s) => s.setICloudBackupEnabled)
+  const [backupState, setBackupState] = useState(getBackupState)
+  const [cloudAvailable, setCloudAvailable] = useState<boolean | null>(null)
+  const [backupBusy, setBackupBusy] = useState(false)
+  const [backingUp, setBackingUp] = useState(false)
+  const [restoring, setRestoring] = useState(false)
+
   useEffect(() => {
     logScreenView(SCREEN_NAMES.SETTINGS)
     requestATTIfNeeded()
   }, [])
+
+  useEffect(() => {
+    isICloudAvailable().then(setCloudAvailable).catch(() => setCloudAvailable(false))
+    const unsubscribeAvailability = subscribeICloudAvailability(setCloudAvailable)
+    const unsubscribeState = subscribeBackupState(() => setBackupState(getBackupState()))
+    return () => {
+      unsubscribeAvailability()
+      unsubscribeState()
+    }
+  }, [])
+
+  const canUseBackupActions = cloudAvailable === true && !backupBusy
+  const canBackUpNow = canUseBackupActions && backupEnabled
+  const backupStatusIsError = cloudAvailable === false || !!backupState.lastError
+  const backupStatusText =
+    cloudAvailable === false
+      ? t('backup.unavailable')
+      : backupState.lastError
+        ? t('backup.failed')
+        : backupState.lastBackupAt
+          ? t('backup.lastBackup', { date: formatBackupDate(backupState.lastBackupAt) })
+          : t('backup.never')
 
   function handleLanguageSelect(code: string) {
     mmkv.set(STORAGE_KEYS.LANGUAGE, code)
@@ -61,10 +109,55 @@ export default function SettingsScreen() {
     }
   }
 
+  async function handleBackUpNow() {
+    setBackupBusy(true)
+    setBackingUp(true)
+    await flushBackup({ force: true })
+    setBackingUp(false)
+    setBackupBusy(false)
+  }
+
+  function handleRestoreFromICloud() {
+    showConfirmDialog({
+      title: t('backup.restoreConfirmTitle'),
+      message: t('backup.restoreConfirmMessage'),
+      confirmLabel: t('backup.restore'),
+      onConfirm: async () => {
+        setBackupBusy(true)
+        setRestoring(true)
+        const outcome = await restoreFromBackup()
+        setRestoring(false)
+        setBackupBusy(false)
+        showRestoreOutcomeAlert(outcome)
+      },
+    })
+  }
+
+  function handleDeleteBackup() {
+    showConfirmDialog({
+      title: t('backup.deleteConfirmTitle'),
+      message: t('backup.deleteConfirmMessage'),
+      confirmLabel: t('common.delete'),
+      destructive: true,
+      onConfirm: async () => {
+        setBackupBusy(true)
+        try {
+          await deleteBackup()
+          Alert.alert(t('backup.deleteDoneTitle'), t('backup.deleteDoneMessage'))
+        } catch {
+          Alert.alert(t('common.error'), t('backup.deleteFailed'))
+        } finally {
+          setBackupBusy(false)
+        }
+      },
+    })
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
+      <RestoringOverlay visible={restoring} />
       <ScreenHeader title={t('settings.title')} />
-      <View style={styles.container}>
+      <ScrollView style={styles.container} contentContainerStyle={styles.containerContent}>
 
       {/* Premium section */}
       <View style={styles.section}>
@@ -149,6 +242,59 @@ export default function SettingsScreen() {
             </>
           )}
         </View>
+      </View>
+
+      {/* iCloud Backup section */}
+      <View style={styles.section}>
+        <Text style={styles.sectionHeader}>{t('backup.sectionTitle')}</Text>
+        <View style={styles.optionGroup}>
+          <View style={styles.optionRow}>
+            <Text style={styles.optionLabel}>{t('backup.toggleLabel')}</Text>
+            <Switch
+              value={backupEnabled}
+              onValueChange={setBackupEnabled}
+              trackColor={{ true: '#D97398', false: '#e5e7eb' }}
+            />
+          </View>
+          <View style={[styles.optionRow, styles.optionRowBorder]}>
+            <Text style={[styles.backupStatusText, backupStatusIsError && styles.backupStatusError]}>
+              {backupStatusText}
+            </Text>
+          </View>
+          <TouchableOpacity
+            style={[styles.optionRow, styles.optionRowBorder]}
+            onPress={handleBackUpNow}
+            disabled={!canBackUpNow}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.optionLabel, !canBackUpNow && styles.disabledLabel]}>{t('backup.backUpNow')}</Text>
+            {backingUp && <ActivityIndicator color="#D97398" />}
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.optionRow, styles.optionRowBorder]}
+            onPress={handleRestoreFromICloud}
+            disabled={!canUseBackupActions}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.optionLabel, !canUseBackupActions && styles.disabledLabel]}>
+              {t('backup.restoreFromICloud')}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.optionRow, styles.optionRowBorder]}
+            onPress={handleDeleteBackup}
+            disabled={!canUseBackupActions}
+            activeOpacity={0.7}
+            accessibilityRole="button"
+          >
+            <Text style={[styles.optionLabel, styles.destructiveLabel, !canUseBackupActions && styles.disabledLabel]}>
+              {t('backup.deleteBackup')}
+            </Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.sectionFootnote}>{t('backup.footnote')}</Text>
       </View>
 
       {/* Tools section */}
@@ -243,10 +389,17 @@ export default function SettingsScreen() {
             >
               <Text style={[styles.optionLabel, { color: '#6b7280' }]}>Preload Rewarded Ad</Text>
             </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.optionRow, styles.optionRowBorder]}
+              onPress={async () => Alert.alert('iCloud self-test', await runICloudSelfTest())}
+              activeOpacity={0.7}
+            >
+              <Text style={[styles.optionLabel, { color: '#2563eb' }]}>iCloud self-test</Text>
+            </TouchableOpacity>
           </View>
         </View>
       )}
-    </View>
+    </ScrollView>
 
     {/* Language picker modal */}
     <Modal
@@ -302,7 +455,31 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#faf5f0',
+  },
+  containerContent: {
     padding: 16,
+    paddingBottom: 40,
+  },
+  backupStatusText: {
+    fontSize: 14,
+    color: '#6b7280',
+    flex: 1,
+  },
+  backupStatusError: {
+    color: '#ef4444',
+  },
+  destructiveLabel: {
+    color: '#ef4444',
+  },
+  disabledLabel: {
+    opacity: 0.4,
+  },
+  sectionFootnote: {
+    fontSize: 12,
+    color: '#9ca3af',
+    marginTop: 8,
+    paddingHorizontal: 4,
+    lineHeight: 17,
   },
   section: {
     marginBottom: 32,

@@ -77,7 +77,14 @@ Flush is a no-op when the backup toggle is off, iCloud is unavailable, or the re
 
 **Cloud data preservation rule**: a flush only removes cloud files for ids with a local tombstone. A project missing locally but present in the manifest is never deleted from the cloud. This is what makes a fresh install with empty local data safe.
 
-Additionally, while `restorePromptHandled` is false and a cloud manifest with ≥ 1 project exists, flushes are suppressed entirely, so a new project created before answering the prompt cannot overwrite the manifest.
+Every flush reads the cloud manifest and merges into it (it never rebuilds the manifest from local data alone), and it re-writes entries for every locally uploaded project, so a previously failed manifest write heals itself.
+
+Restore decision gate: the decision is **pending** while `restorePromptHandled` is false and the cloud manifest lists at least one non-deleted project id that is not in `BackupState.uploadedProjects`. When no such project exists, the flush sets `restorePromptHandled = true` and proceeds — this is what lets existing users (no cloud backup yet) keep backing up after their first flush. While pending:
+
+- no local projects → the flush is skipped entirely (waiting for the restore prompt);
+- local projects exist (the user created projects before the prompt could appear) → projects are backed up as usual, but `/library.json` is not written, so an empty or partial local library cannot overwrite the cloud copy. Library backup resumes once the decision is made (prompt, Settings restore, or Delete iCloud backup).
+
+Skipping every flush in the second case was rejected: the prompt only appears when there are no local projects, so the decision would never be made and backups would stop permanently.
 
 ### Entitlements in key-value store
 
@@ -130,7 +137,8 @@ All backup files carry `schemaVersion: 1`. `useCustomStitchStore` and `useTempla
 - [User not signed into iCloud or iCloud Drive disabled for Stitchie] → feature degrades to a visible "unavailable" state; no errors on the hot path.
 - [Backup consumes user's iCloud quota] → photos are already ≤ 1 MB; free tier limits photo count. Surface write errors (quota exceeded) as a Settings status message, not an alert on every flush.
 - [Orphaned photo files grow iCloud usage over time] → removed photo cleanup on every flush; users can wipe everything with Delete iCloud backup or from iOS Settings → iCloud → Manage Account Storage.
-- [Empty local state overwrites cloud backup] → cloud data preservation rule plus flush suppression until the restore decision.
+- [Empty local state overwrites cloud backup] → cloud data preservation rule plus the restore decision gate (skip flush with no local projects; skip library writes while pending).
+- [User declines restore, then edits custom stitches or templates] → the next flush writes the local library over the cloud copy; the declined backup's projects remain restorable from Settings, but its library does not. Accepted: declining the restore is an explicit choice.
 - [Whole-project last-writer-wins can drop edits if two devices edit the same project] → acceptable in phase 1 (single-device usage); phase 2 revisits.
 - [Container entitlement misconfiguration only surfaces on device builds] → spike task before implementation; `iCloudContainerEnvironment` confirmed there.
 - [Voucher code in iCloud KV readable on jailbroken devices] → same exposure as the local MMKV value today; codes are re-validated by hash.

@@ -83,7 +83,7 @@ When a previously backed-up photo is no longer in its project's photo list, the 
 
 ### Requirement: Cloud data preservation
 
-A flush MUST NOT delete or unlist any cloud project unless a local tombstone exists for that project id. While a cloud manifest lists at least one non-deleted project and the restore decision has not been made on this install, the system MUST NOT run any flush.
+A flush MUST NOT delete or unlist any cloud project unless a local tombstone exists for that project id, and every flush SHALL merge its changes into the existing cloud manifest. While the cloud manifest lists at least one non-deleted project that this install has not uploaded and the restore decision has not been made, the system MUST NOT run a flush when there are no local projects, and MUST NOT write `/library.json` when local projects exist. When the cloud manifest lists no such project, the restore decision SHALL be treated as made.
 
 #### Scenario: Fresh install does not wipe backup
 
@@ -94,6 +94,16 @@ A flush MUST NOT delete or unlist any cloud project unless a local tombstone exi
 
 - **WHEN** the user taps "Not Now" on the restore prompt and then creates a new project
 - **THEN** the flush adds the new project to the manifest and the 4 existing cloud projects remain listed and stored
+
+#### Scenario: Project created before the restore prompt appears
+
+- **WHEN** the app is reinstalled, the cloud manifest lists 4 projects, and the user creates a project before any restore prompt is shown
+- **THEN** the flush backs up the new project, the 4 cloud projects remain listed and stored, and `/library.json` in iCloud is not modified
+
+#### Scenario: Existing user without a cloud backup
+
+- **WHEN** a user with local projects and no cloud backup updates the app and two flushes run
+- **THEN** both flushes write to iCloud and the restore decision is treated as made
 
 ### Requirement: Restore prompt
 

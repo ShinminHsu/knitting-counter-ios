@@ -18,7 +18,7 @@ import * as Haptics from 'expo-haptics'
 import { ImpactFeedbackStyle, NotificationFeedbackType } from 'expo-haptics'
 import { Ionicons } from '@expo/vector-icons'
 import { useProjectStore, useProgressStore } from '../../../src/stores'
-import { logScreenView, logTrackingStarted, logChartCompleted } from '../../../src/services'
+import { logScreenView, logTrackingStarted, logChartCompleted, flushBackupNow } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import CompletionModal from '../../../src/components/CompletionModal'
 import ScreenHeader from '../../../src/components/ScreenHeader'
@@ -324,6 +324,9 @@ const blockStyles = StyleSheet.create({
 
 export default function ProgressTrackingScreen() {
   useKeepAwake()
+
+  // 離開追蹤頁時立即把進度備份到 iCloud
+  useEffect(() => () => flushBackupNow(), [])
   const { t } = useTranslation()
 
   const { id, chartId } = useLocalSearchParams<{ id: string; chartId?: string }>()
