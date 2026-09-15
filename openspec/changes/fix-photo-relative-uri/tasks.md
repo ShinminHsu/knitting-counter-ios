@@ -16,4 +16,4 @@
 ## 4. Verification
 
 - [x] 4.1 Run `npx tsc --noEmit` and confirm no new type errors in the touched files
-- [ ] 4.2 [手動驗證] Push the branch to GitHub; on the other machine: (a) check out current `dev`, `npx expo run:ios`, add 2 photos to a project and set one as cover; (b) check out `feat/fix-photo-relative-uri`, `npx expo run:ios` over the same install → both photos show on the home card, gallery, and viewer; (c) rebuild once more → photos still show; (d) add a new photo and delete an old one → gallery updates correctly
+- [x] 4.2 [手動驗證] Push the branch to GitHub; on the other machine: (a) check out current `dev`, `npx expo run:ios`, add 2 photos to a project and set one as cover; (b) check out `feat/fix-photo-relative-uri`, `npx expo run:ios` over the same install → both photos show on the home card, gallery, and viewer; (c) rebuild once more → photos still show; (d) add a new photo and delete an old one → gallery updates correctly
