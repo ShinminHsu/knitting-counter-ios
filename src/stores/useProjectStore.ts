@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { Chart, CraftType, Project, ProjectPhoto, Round } from '../types'
-import { createChart, createProject } from '../utils'
+import { createChart, createProject, migrateProjectsToV1 } from '../utils'
 import { generateId } from '../utils/helpers'
 import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
@@ -353,6 +353,10 @@ export const useProjectStore = create<ProjectState>()(
     {
       name: STORAGE_KEYS.PROJECTS,
       storage: createJSONStorage(() => mmkvStorage),
+      version: 1,
+      // v0 → v1：照片 uri 由完整路徑改為相對路徑
+      migrate: (persisted, version) =>
+        (version < 1 ? migrateProjectsToV1(persisted) : persisted) as ProjectState,
     }
   )
 )

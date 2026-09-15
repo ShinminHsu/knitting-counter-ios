@@ -291,7 +291,7 @@ export default function ProjectDetailScreen() {
     logScreenView(SCREEN_NAMES.PROJECT_DETAIL)
   }, [])
 
-  // Cleanup orphaned photo metadata (files deleted after app rebuild)
+  // Cleanup orphaned photo metadata: remove only when the file is missing at the resolved path
   useEffect(() => {
     if (!project || project.photos.length === 0) return
     const cleanup = async () => {

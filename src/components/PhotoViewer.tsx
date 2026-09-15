@@ -13,6 +13,7 @@ import {
   View,
 } from 'react-native'
 import { ProjectPhoto } from '../types'
+import { resolvePhotoUri } from '../services/photoService'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -66,7 +67,7 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
           renderItem={({ item }) => (
             <View style={styles.page}>
               <Image
-                source={{ uri: item.uri }}
+                source={{ uri: resolvePhotoUri(item.uri) }}
                 style={styles.image}
                 resizeMode="contain"
               />
