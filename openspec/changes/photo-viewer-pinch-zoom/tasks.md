@@ -13,5 +13,5 @@
 ## 3. Verification
 
 - [x] 3.1 Run `tsc --noEmit` under Node 20 and confirm no type errors
-- [ ] 3.2 [手動驗證] On this Mac run `npx expo start --dev-client --tunnel`, open the development build, and in a project with at least 2 photos confirm: Pinch zoom range (in to 4× and settles, out below 1× snaps back); Double-tap zoom toggle (zooms in at tap point, second double-tap returns to 1×, single tap does nothing); Pan while zoomed (drag stops at edge, page number unchanged); Swipe paging at 1x (indicator updates; one-photo project zooms with no indicator); Zoom reset on page change; Zoom reset on close — Reset zoom on close and mount (zoom, tap ✕, reopen → 1×; also swipe down to dismiss if available)
-- [ ] 3.3 Commit on `feat/photo-viewer-pinch-zoom` and ask the user before pushing to GitHub
+- [x] 3.2 [手動驗證] On this Mac run `npx expo start --dev-client --tunnel`, open the development build, and in a project with at least 2 photos confirm: Pinch zoom range (in to 4× and settles, out below 1× snaps back); Double-tap zoom toggle (zooms in at tap point, second double-tap returns to 1×, single tap does nothing); Pan while zoomed (drag stops at edge, page number unchanged); Swipe paging at 1x (indicator updates; one-photo project zooms with no indicator); Zoom reset on page change; Zoom reset on close — Reset zoom on close and mount (zoom, tap ✕, reopen → 1×; also swipe down to dismiss if available)
+- [x] 3.3 Commit on `feat/photo-viewer-pinch-zoom` and ask the user before pushing to GitHub
