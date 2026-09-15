@@ -59,13 +59,16 @@ React Native + Expo Router 的 iOS 編織計數器 App。
 - 不包含 "Co-Authored-By: Claude" 等 AI 相關字詞
 
 ## 開發注意事項
-- **這台開發機太舊，無法執行 `npx expo run:ios`**，所有 build 都要 push 到 GitHub 後在另一台電腦進行
-- 修改 native 設定（app.json plugins、新增 native 套件）後需重新 `npx expo prebuild --platform ios --clean` 並 rebuild
+- **這台開發機太舊，無法執行 `npx expo run:ios`**（macOS 13 / Xcode 13.1，Expo SDK 54 需要 Xcode 16）
+- 實體裝置測試使用 **EAS 開發版**：手機裝好 development build 後，這台執行 `nvm use && npx expo start` 載入 JS，完整步驟見 `docs/dev-client.md`
+- Node 版本由 `.nvmrc` 指定（20）；這台預設 `node` 是 v14，執行 npm / npx 前先 `nvm use`
+- 以下情況需要重新 `eas build --profile development --platform ios`：新增或更新原生套件、修改 app.json plugins 或原生設定、升級 Expo SDK、註冊新裝置
+- 在另一台電腦修改 native 設定後，需重新 `npx expo prebuild --platform ios --clean` 並 rebuild
 - `ios/` 目錄由 prebuild 產生，不需 commit
 
 ## 測試流程
-1. 這台電腦開發完成後，push feature branch 到 GitHub
-2. 另一台電腦 pull + `npx expo run:ios` 裝到實體裝置測試
+1. 只改 JS：這台執行 `npx expo start`，用手機上的開發版測試
+2. 有原生變更：push feature branch 到 GitHub，重新 EAS build 開發版（或另一台電腦 pull + `npx expo run:ios`）
 3. 確認沒問題後，merge 到 `dev`
 4. 正式發布走 EAS Build + TestFlight
 
