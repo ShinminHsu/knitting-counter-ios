@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../src/stores'
-import { logScreenView } from '../src/services'
+import { logScreenView, resolvePhotoUri } from '../src/services'
 import { SCREEN_NAMES } from '../src/constants'
 import { Project } from '../src/types'
 import { calculateProgressPercentage } from '../src/utils/progressUtils'
@@ -65,7 +65,7 @@ function ProjectCard({ project, onPress, onLongPress }: ProjectCardProps) {
         {/* Cover photo thumbnail */}
         {coverPhoto ? (
           <Image
-            source={{ uri: coverPhoto.uri }}
+            source={{ uri: resolvePhotoUri(coverPhoto.uri) }}
             style={styles.thumbnail}
             resizeMode="cover"
           />

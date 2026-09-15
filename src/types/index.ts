@@ -245,7 +245,7 @@ export interface Chart {
 
 export interface ProjectPhoto {
   id: string
-  /** Expo FileSystem 本地路徑 */
+  /** 相對於 Documents directory 的路徑（photos/<projectId>/<photoId>.jpg），顯示前用 resolvePhotoUri 轉成完整路徑 */
   uri: string
   type: 'reference' | 'progress'
   isCover: boolean
