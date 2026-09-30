@@ -10,7 +10,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import * as SplashScreen from 'expo-splash-screen';
 import LottieView from 'lottie-react-native';
 import { useTranslation } from 'react-i18next';
-import { initializeAdMob, requestATTIfNeeded, loadInterstitialAd, preloadRewardedAd, initializeIAP, cleanupIAP } from '../src/services'
+import { initializeAdMob, requestATTIfNeeded, loadInterstitialAd, preloadRewardedAd, initializeIAP, cleanupIAP, initICloudBackup, logAppLaunch } from '../src/services'
 import { mmkv, STORAGE_KEYS } from '../src/stores/mmkvStorage';
 import { useOnboardingStore } from '../src/stores';
 import OnboardingCarousel from '../src/components/OnboardingCarousel';
@@ -26,9 +26,13 @@ export default function RootLayout() {
 
   useEffect(() => {
     SplashScreen.hideAsync()
+    logAppLaunch()
     initializeIAP()
     return () => { cleanupIAP() }
   }, [])
+
+  // iCloud 自動備份：監聽資料變更、App 進背景與 iCloud 可用性
+  useEffect(() => initICloudBackup(), [])
 
   if (showLottie) {
     return (

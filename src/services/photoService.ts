@@ -2,6 +2,7 @@ import * as FileSystem from 'expo-file-system/legacy'
 import * as ImagePicker from 'expo-image-picker'
 import * as ImageManipulator from 'expo-image-manipulator'
 import { generateId, nowISO } from '../utils/helpers'
+import { PHOTO_DIR, toRelativePhotoPath } from '../utils/photoPathUtils'
 import { ProjectPhoto } from '../types'
 
 // ─── Constants ────────────────────────────────────────────────────────────────
@@ -22,8 +23,10 @@ export async function savePhoto(
   type: 'reference' | 'progress'
 ): Promise<ProjectPhoto> {
   const id = generateId()
-  const dir = `${FileSystem.documentDirectory}photos/${projectId}/`
-  const savedUri = `${dir}${id}.jpg`
+  // Persist a relative path: the app container path changes across reinstalls/rebuilds
+  const relativeUri = `${PHOTO_DIR}${projectId}/${id}.jpg`
+  const dir = `${FileSystem.documentDirectory}${PHOTO_DIR}${projectId}/`
+  const savedUri = `${FileSystem.documentDirectory}${relativeUri}`
 
   await FileSystem.makeDirectoryAsync(dir, { intermediates: true })
 
@@ -47,7 +50,7 @@ export async function savePhoto(
     if (fileSize <= MAX_FILE_SIZE_BYTES || isLast) {
       return {
         id,
-        uri: savedUri,
+        uri: relativeUri,
         type,
         isCover: false,
         fileSize,
@@ -62,7 +65,7 @@ export async function savePhoto(
 
   return {
     id,
-    uri: savedUri,
+    uri: relativeUri,
     type,
     isCover: false,
     fileSize,
@@ -70,14 +73,26 @@ export async function savePhoto(
   }
 }
 
+// ─── resolvePhotoUri ──────────────────────────────────────────────────────────
+
+/**
+ * Resolve a stored photo uri to an absolute path in the current Documents directory.
+ * Handles both relative uris and legacy absolute uris from an older container path.
+ * Unrecognized formats are returned unchanged.
+ */
+export function resolvePhotoUri(uri: string): string {
+  const relative = toRelativePhotoPath(uri)
+  return relative ? `${FileSystem.documentDirectory}${relative}` : uri
+}
+
 // ─── photoFileExists ──────────────────────────────────────────────────────────
 
 /**
- * Check if a photo file exists on the filesystem.
- * Used to detect orphaned metadata after app rebuilds.
+ * Check if a photo file exists at its resolved path.
+ * Used to detect orphaned metadata.
  */
 export async function photoFileExists(photo: ProjectPhoto): Promise<boolean> {
-  const info = await FileSystem.getInfoAsync(photo.uri)
+  const info = await FileSystem.getInfoAsync(resolvePhotoUri(photo.uri))
   return info.exists
 }
 
@@ -87,7 +102,7 @@ export async function photoFileExists(photo: ProjectPhoto): Promise<boolean> {
  * Delete a photo file from FileSystem.
  */
 export async function deletePhoto(photo: ProjectPhoto): Promise<void> {
-  await FileSystem.deleteAsync(photo.uri, { idempotent: true })
+  await FileSystem.deleteAsync(resolvePhotoUri(photo.uri), { idempotent: true })
 }
 
 // ─── deleteProjectPhotos ──────────────────────────────────────────────────────

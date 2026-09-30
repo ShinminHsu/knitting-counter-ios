@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { Chart, CraftType, Project, ProjectPhoto, Round } from '../types'
-import { createChart, createProject } from '../utils'
+import { createChart, createProject, migrateProjectsToV1 } from '../utils'
 import { generateId } from '../utils/helpers'
 import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
@@ -9,6 +9,9 @@ import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
 interface ProjectState {
   projects: Project[]
+
+  /** 已刪除但尚未同步到 iCloud 備份的專案：projectId → deletedAt（ISO string） */
+  deletedProjects: Record<string, string>
 
   // ── 專案 CRUD ──────────────────────────────────────────────────────────────
   /** 新增專案（Req 1.4） */
@@ -25,6 +28,9 @@ interface ProjectState {
 
   /** 刪除專案（Req 1.6） */
   deleteProject: (id: string) => void
+
+  /** iCloud 備份已處理這些刪除後，清除對應的 tombstone */
+  clearTombstones: (ids: string[]) => void
 
   /** 複製專案（不含照片，重置進度） */
   duplicateProject: (id: string) => void
@@ -82,6 +88,7 @@ export const useProjectStore = create<ProjectState>()(
   persist(
     (set, get) => ({
       projects: [],
+      deletedProjects: {},
 
       // ── 專案 CRUD ────────────────────────────────────────────────────────────
 
@@ -104,7 +111,16 @@ export const useProjectStore = create<ProjectState>()(
       deleteProject: (id) => {
         set((state) => ({
           projects: state.projects.filter((p) => p.id !== id),
+          deletedProjects: { ...state.deletedProjects, [id]: new Date().toISOString() },
         }))
+      },
+
+      clearTombstones: (ids) => {
+        set((state) => {
+          const deletedProjects = { ...state.deletedProjects }
+          ids.forEach((id) => delete deletedProjects[id])
+          return { deletedProjects }
+        })
       },
 
       duplicateProject: (id) => {
@@ -353,6 +369,10 @@ export const useProjectStore = create<ProjectState>()(
     {
       name: STORAGE_KEYS.PROJECTS,
       storage: createJSONStorage(() => mmkvStorage),
+      version: 1,
+      // v0 → v1：照片 uri 由完整路徑改為相對路徑
+      migrate: (persisted, version) =>
+        (version < 1 ? migrateProjectsToV1(persisted) : persisted) as ProjectState,
     }
   )
 )

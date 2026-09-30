@@ -14,7 +14,7 @@ import { MaterialCommunityIcons, Feather } from '@expo/vector-icons'
 import { useLocalSearchParams, useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
 import { useProjectStore } from '../../../src/stores'
-import { logScreenView } from '../../../src/services'
+import { logScreenView, logChartCreated, logPhotoAdded } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { Chart, ProjectPhoto } from '../../../src/types'
 import EditProjectModal from '../../../src/components/EditProjectModal'
@@ -213,6 +213,7 @@ export default function ProjectDetailScreen() {
           if (uri && project) {
             const photo = await savePhoto(uri, project.id, 'progress')
             addPhoto(project.id, photo)
+            logPhotoAdded('camera')
           }
         },
       },
@@ -223,6 +224,7 @@ export default function ProjectDetailScreen() {
           if (uri && project) {
             const photo = await savePhoto(uri, project.id, 'reference')
             addPhoto(project.id, photo)
+            logPhotoAdded('library')
           }
         },
       },
@@ -291,7 +293,7 @@ export default function ProjectDetailScreen() {
     logScreenView(SCREEN_NAMES.PROJECT_DETAIL)
   }, [])
 
-  // Cleanup orphaned photo metadata (files deleted after app rebuild)
+  // Cleanup orphaned photo metadata: remove only when the file is missing at the resolved path
   useEffect(() => {
     if (!project || project.photos.length === 0) return
     const cleanup = async () => {
@@ -453,7 +455,8 @@ export default function ProjectDetailScreen() {
         defaultName={t('addChart.defaultName', { n: project.charts.length + 1 })}
         defaultRoundStart={project.roundStartNumber}
         onConfirm={(name, notes, roundStartNumber) => {
-          addChart(project.id, name, notes || undefined, roundStartNumber)
+          const chart = addChart(project.id, name, notes || undefined, roundStartNumber)
+          if (chart) logChartCreated(project.craftType)
           setShowAddChart(false)
         }}
         onClose={() => setShowAddChart(false)}

@@ -13,8 +13,17 @@ import { Swipeable } from 'react-native-gesture-handler'
 import { Ionicons } from '@expo/vector-icons'
 import { useRouter } from 'expo-router'
 import { useTranslation } from 'react-i18next'
-import { useProjectStore } from '../src/stores'
-import { logScreenView } from '../src/services'
+import { useOnboardingStore, useProjectStore } from '../src/stores'
+import { useSettingsStore } from '../src/stores/useSettingsStore'
+import {
+  getBackupState,
+  getRestorableBackup,
+  logScreenView,
+  markRestorePromptHandled,
+  resolvePhotoUri,
+  restoreFromBackup,
+} from '../src/services'
+import { formatBackupDate, RestoringOverlay, showRestoreOutcomeAlert } from '../src/components/BackupRestoreFeedback'
 import { SCREEN_NAMES } from '../src/constants'
 import { Project } from '../src/types'
 import { calculateProgressPercentage } from '../src/utils/progressUtils'
@@ -65,7 +74,7 @@ function ProjectCard({ project, onPress, onLongPress }: ProjectCardProps) {
         {/* Cover photo thumbnail */}
         {coverPhoto ? (
           <Image
-            source={{ uri: coverPhoto.uri }}
+            source={{ uri: resolvePhotoUri(coverPhoto.uri) }}
             style={styles.thumbnail}
             resizeMode="cover"
           />
@@ -165,6 +174,39 @@ export default function ProjectListScreen() {
     logScreenView(SCREEN_NAMES.PROJECT_LIST)
   }, [])
 
+  // 重新安裝後的 iCloud 還原提示：看完導覽、本機沒有專案、備份開啟、這次安裝還沒決定過
+  const hasSeenCarousel = useOnboardingStore((s) => s.hasSeenCarousel)
+  const backupEnabled = useSettingsStore((s) => s.iCloudBackupEnabled)
+  const [restoring, setRestoring] = useState(false)
+  const restoreCheckStartedRef = useRef(false)
+
+  useEffect(() => {
+    if (restoreCheckStartedRef.current || !hasSeenCarousel || !backupEnabled) return
+    if (getBackupState().restorePromptHandled || useProjectStore.getState().projects.length > 0) return
+    restoreCheckStartedRef.current = true
+
+    getRestorableBackup().then((backup) => {
+      if (!backup) return
+      Alert.alert(
+        t('backup.restorePromptTitle'),
+        t('backup.restorePromptMessage', { count: backup.projectCount, date: formatBackupDate(backup.updatedAt) }),
+        [
+          { text: t('backup.notNow'), style: 'cancel', onPress: markRestorePromptHandled },
+          {
+            text: t('backup.restore'),
+            onPress: async () => {
+              setRestoring(true)
+              const outcome = await restoreFromBackup()
+              setRestoring(false)
+              showRestoreOutcomeAlert(outcome)
+            },
+          },
+        ]
+      )
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hasSeenCarousel, backupEnabled])
+
   const handleDelete = (projectId: string, projectName: string) => {
     showConfirmDialog({
       title: t('projectList.deleteProject', { name: projectName }),
@@ -192,6 +234,7 @@ export default function ProjectListScreen() {
 
   return (
     <SafeAreaView style={styles.container}>
+      <RestoringOverlay visible={restoring} />
       {/* Header */}
       <View style={styles.header}>
         <Text style={styles.headerTitle}>{t('projectList.title')}</Text>

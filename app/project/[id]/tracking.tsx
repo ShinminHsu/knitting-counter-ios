@@ -18,7 +18,7 @@ import * as Haptics from 'expo-haptics'
 import { ImpactFeedbackStyle, NotificationFeedbackType } from 'expo-haptics'
 import { Ionicons } from '@expo/vector-icons'
 import { useProjectStore, useProgressStore } from '../../../src/stores'
-import { logScreenView, logTrackingStarted, logChartCompleted } from '../../../src/services'
+import { logScreenView, logTrackingStarted, logChartCompleted, logTrackingSessionEnd, flushBackupNow } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import CompletionModal from '../../../src/components/CompletionModal'
 import ScreenHeader from '../../../src/components/ScreenHeader'
@@ -324,10 +324,33 @@ const blockStyles = StyleSheet.create({
 
 export default function ProgressTrackingScreen() {
   useKeepAwake()
+
+  // 離開追蹤頁時立即把進度備份到 iCloud
+  useEffect(() => () => flushBackupNow(), [])
   const { t } = useTranslation()
 
   const { id, chartId } = useLocalSearchParams<{ id: string; chartId?: string }>()
   const router = useRouter()
+
+  // 追蹤摘要：用 ref 計數，避免每次點擊造成重繪；離開時送一次
+  const trackingStartRef = useRef(Date.now())
+  const advanceActionsRef = useRef(0)
+  const roundsCompletedRef = useRef(0)
+  const chartCompletedRef = useRef(false)
+
+  useEffect(() => () => {
+    const durationSec = Math.round((Date.now() - trackingStartRef.current) / 1000)
+    // 只是點進來看一眼就離開，不記錄
+    if (advanceActionsRef.current === 0 && durationSec < 2) return
+    logTrackingSessionEnd({
+      durationSec,
+      advanceActions: advanceActionsRef.current,
+      roundsCompleted: roundsCompletedRef.current,
+      chartCompleted: chartCompletedRef.current,
+      craftType: useProjectStore.getState().getProjectById(id ?? '')?.craftType ?? 'crochet',
+    })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   const [showCompletion, setShowCompletion] = useState(false)
   const [showIcons, setShowIcons] = useState<boolean>(
@@ -473,6 +496,7 @@ export default function ProgressTrackingScreen() {
 
   function handleChartComplete() {
     logChartCompleted()
+    chartCompletedRef.current = true
     setShowCompletion(true)
   }
 
@@ -486,7 +510,9 @@ export default function ProgressTrackingScreen() {
   function handleNextStitch() {
     if (!id) return
     const result = useProgressStore.getState().advanceStitch(id, activeChart.id)
+    advanceActionsRef.current += 1
     if (result === 'round' || result === 'chart') {
+      roundsCompletedRef.current += 1
       Haptics.notificationAsync(NotificationFeedbackType.Success)
     } else {
       Haptics.impactAsync(ImpactFeedbackStyle.Light)
@@ -522,6 +548,8 @@ export default function ProgressTrackingScreen() {
   function handleCompleteRound() {
     if (!id) return
     const result = useProgressStore.getState().completeRound(id, activeChart.id)
+    advanceActionsRef.current += 1
+    roundsCompletedRef.current += 1
     Haptics.notificationAsync(NotificationFeedbackType.Success)
     if (result === 'chart') handleChartComplete()
   }
@@ -534,6 +562,7 @@ export default function ProgressTrackingScreen() {
       handleCompleteRound()
     } else {
       useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, jumpPos)
+      advanceActionsRef.current += 1
     }
   }
 
@@ -545,6 +574,7 @@ export default function ProgressTrackingScreen() {
       handleCompleteRound()
     } else {
       useProgressStore.getState().jumpToStitchPosition(id, activeChart.id, jumpPos)
+      advanceActionsRef.current += 1
     }
   }
 

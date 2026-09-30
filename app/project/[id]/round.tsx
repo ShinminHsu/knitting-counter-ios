@@ -23,7 +23,7 @@ import { useTemplateStore } from '../../../src/stores/useTemplateStore'
 import { useChartStore } from '../../../src/stores/useChartStore'
 import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
 import { useSpotlight } from '../../../src/hooks/useSpotlight'
-import { logScreenView } from '../../../src/services'
+import { logScreenView, logRoundEdited, logTemplateCreated } from '../../../src/services'
 import { SCREEN_NAMES } from '../../../src/constants'
 import { CraftType, CustomStitchPattern, PatternItem, PatternItemType, StitchGroup, StitchInfo, StitchType } from '../../../src/types'
 import StitchPicker from '../../../src/components/StitchPicker'
@@ -288,6 +288,29 @@ export default function RoundEditScreen() {
 
   useEffect(() => {
     logScreenView(SCREEN_NAMES.ROUND_EDITOR)
+  }, [])
+
+  // 圈數編輯摘要：離開時送一次（round 在後面的 guard 之後才取得，這裡用 selector 取數量）
+  const patternItemCount = useProjectStore((s) => {
+    const p = s.getProjectById(id ?? '')
+    const c = p?.charts.find((ch) => ch.id === (chartId ?? ''))
+    return c?.rounds.find((r) => r.id === (roundId ?? ''))?.patternItems.length ?? 0
+  })
+  const editStartRef = useRef(Date.now())
+  const itemCountRef = useRef(patternItemCount)
+  const initialItemCountRef = useRef<number | null>(null)
+
+  useEffect(() => {
+    itemCountRef.current = patternItemCount
+    if (initialItemCountRef.current === null) initialItemCountRef.current = patternItemCount
+  }, [patternItemCount])
+
+  useEffect(() => () => {
+    const durationSec = Math.round((Date.now() - editStartRef.current) / 1000)
+    const itemsAdded = Math.max(0, itemCountRef.current - (initialItemCountRef.current ?? itemCountRef.current))
+    // 點進來又馬上離開、什麼都沒加，不記錄
+    if (itemsAdded === 0 && durationSec < 2) return
+    logRoundEdited({ itemsCount: itemCountRef.current, itemsAdded, durationSec })
   }, [])
 
   const project = useProjectStore((s) => s.getProjectById(id ?? ''))
@@ -566,6 +589,7 @@ export default function RoundEditScreen() {
           repeatCount: result.repeatCount,
           craftType: project!.craftType,
         })
+        logTemplateCreated('round_editor', result.stitches.length)
       }
     }
     setEditingGroup(null)

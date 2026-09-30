@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import { useTranslation } from 'react-i18next'
 import { ProjectPhoto } from '../types'
+import { resolvePhotoUri } from '../services/photoService'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -70,7 +71,7 @@ export default function PhotoGallery({
           delayLongPress={400}
           activeOpacity={0.85}
         >
-          <Image source={{ uri: photo.uri }} style={styles.image} resizeMode="cover" />
+          <Image source={{ uri: resolvePhotoUri(photo.uri) }} style={styles.image} resizeMode="cover" />
 
           {/* Cover indicator */}
           {photo.isCover && (

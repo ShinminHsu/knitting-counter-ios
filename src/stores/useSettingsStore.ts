@@ -10,6 +10,11 @@ interface SettingsState {
 
   /** Mark multi-select hint as seen — persists across app restarts */
   markMultiSelectHintSeen: () => void
+
+  /** Whether automatic iCloud backup is on (default on) */
+  iCloudBackupEnabled: boolean
+
+  setICloudBackupEnabled: (enabled: boolean) => void
 }
 
 // ─── Store ────────────────────────────────────────────────────────────────────
@@ -20,6 +25,10 @@ export const useSettingsStore = create<SettingsState>()(
       hasSeenMultiSelectHint: false,
 
       markMultiSelectHintSeen: () => set({ hasSeenMultiSelectHint: true }),
+
+      iCloudBackupEnabled: true,
+
+      setICloudBackupEnabled: (enabled) => set({ iCloudBackupEnabled: enabled }),
     }),
     {
       name: STORAGE_KEYS.SETTINGS,
