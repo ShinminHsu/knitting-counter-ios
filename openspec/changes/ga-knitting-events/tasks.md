@@ -19,5 +19,5 @@
 ## 4. Verification
 
 - [x] 4.1 Run `tsc --noEmit` under Node 20 and confirm no type errors
-- [ ] 4.2 [手動驗證] With the existing development build and `npx expo start --tunnel`: open the app, create a chart, add a photo, create a custom stitch and a template, edit a round, count stitches on the tracking screen, then check GA4 DebugView shows `app_launch`, `chart_created`, `photo_added`, `custom_stitch_created`, `template_created`, `round_edited`, and `tracking_session_end`, each carrying `app_version`, `app_language`, and `is_premium`; confirm the summary events report plausible counts and durations
-- [ ] 4.3 Commit on `feat/ga-knitting-events` and ask the user before pushing to GitHub
+- [x] 4.2 [手動驗證] With the existing development build and `npx expo start --tunnel`: open the app, create a chart, add a photo, create a custom stitch and a template, edit a round, count stitches on the tracking screen, then check GA4 DebugView shows `app_launch`, `chart_created`, `photo_added`, `custom_stitch_created`, `template_created`, `round_edited`, and `tracking_session_end`, each carrying `app_version`, `app_language`, and `is_premium`; confirm the summary events report plausible counts and durations
+- [x] 4.3 Commit on `feat/ga-knitting-events` and ask the user before pushing to GitHub
