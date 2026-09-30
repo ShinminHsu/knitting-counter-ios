@@ -1,6 +1,14 @@
 export const ANALYTICS_EVENTS = {
   SCREEN_VIEW: 'page_view',
+  // 'app_open' 是 GA4 自動收集的名稱，自訂事件改用 app_launch
+  APP_LAUNCH: 'app_launch',
   PROJECT_CREATED: 'project_created',
+  CHART_CREATED: 'chart_created',
+  PHOTO_ADDED: 'photo_added',
+  CUSTOM_STITCH_CREATED: 'custom_stitch_created',
+  TEMPLATE_CREATED: 'template_created',
+  ROUND_EDITED: 'round_edited',
+  TRACKING_SESSION_END: 'tracking_session_end',
   TRACKING_STARTED: 'tracking_started',
   CHART_COMPLETED: 'chart_completed',
   ADD_ROUND: 'add_round',
