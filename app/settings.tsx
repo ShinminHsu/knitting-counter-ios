@@ -18,7 +18,6 @@ import {
   getBackupState,
   isICloudAvailable,
   restoreFromBackup,
-  runICloudSelfTest,
   subscribeBackupState,
   subscribeICloudAvailability,
 } from '../src/services'
@@ -388,13 +387,6 @@ export default function SettingsScreen() {
               activeOpacity={0.7}
             >
               <Text style={[styles.optionLabel, { color: '#6b7280' }]}>Preload Rewarded Ad</Text>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[styles.optionRow, styles.optionRowBorder]}
-              onPress={async () => Alert.alert('iCloud self-test', await runICloudSelfTest())}
-              activeOpacity={0.7}
-            >
-              <Text style={[styles.optionLabel, { color: '#2563eb' }]}>iCloud self-test</Text>
             </TouchableOpacity>
           </View>
         </View>

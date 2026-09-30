@@ -25,7 +25,7 @@
 
 ## 5. Verification
 
-- [ ] 5.1 [手動驗證] Build a new EAS development build from the branch (`eas build --profile development --platform ios`), install it on a device signed into iCloud, run `npx expo start --tunnel`, then confirm:
+- [x] 5.1 [手動驗證] Build a new EAS development build from the branch (`eas build --profile development --platform ios`), install it on a device signed into iCloud, run `npx expo start --tunnel`, then confirm:
   - Create 2 projects with photos + 1 custom stitch, wait 5 s → Settings shows a last backup time
   - Tap "Next Stitch" rapidly → backup time changes only after taps stop (Debounced backup flush)
   - Delete one project, wait for flush → after reinstall it is not offered/restored (Deletion tombstones)
