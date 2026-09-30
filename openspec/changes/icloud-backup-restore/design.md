@@ -152,4 +152,12 @@ All backup files carry `schemaVersion: 1`. `useCustomStitchStore` and `useTempla
 
 ## Open Questions
 
-- Whether `iCloudContainerEnvironment: "Production"` works for development-signed builds or needs per-profile configuration — resolved by the device spike task.
+Resolved by the device spike (task 1.3, EAS development build on a physical device, 2026-09-30):
+
+- `iCloudContainerEnvironment: "Production"` works for the development build — no per-profile configuration needed. EAS synced the iCloud capability and container without manual Apple Developer portal steps.
+- JSON write/read round-trip in the AppData scope works, and so does the photo base64 round-trip (content identical after upload and download).
+- `CloudKVStorage` set/get/remove works with the key-value entitlement.
+- AppData maps to the ubiquity container root: the container lists `projects`, `photos`, `library.json`, `manifest.json` (plus the system `Documents` folder used by the library's Documents scope, which this change does not use).
+- Automatic backup on device produced a last-backup time in Settings within seconds of a data change.
+
+- The Files app shows no Stitchie folder in iCloud Drive, confirming the AppData scope stays hidden.
