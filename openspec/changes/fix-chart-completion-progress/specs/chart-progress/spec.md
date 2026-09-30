@@ -38,6 +38,35 @@ Every chart progress percentage shown in the app SHALL come from the shared prog
 - **WHEN** a chart has no rounds
 - **THEN** its card shows 0% and does not error
 
+### Requirement: Completion is recomputed when the chart changes
+
+When a chart update changes its rounds or its stored position, the system SHALL clamp the position into the current round list and recompute the chart's completed state from that position, and SHALL recompute the project's completed state from its charts. Updates that change neither rounds nor position MUST leave the completed state untouched.
+
+#### Scenario: Round added to a completed chart
+
+- **WHEN** a round is added to a completed chart
+- **THEN** the chart is no longer completed, its card shows less than 100%, and the project is no longer completed
+
+#### Scenario: Round reset on a completed chart
+
+- **WHEN** the user resets the current round of a completed chart
+- **THEN** the chart is no longer completed
+
+#### Scenario: Finishing the newly added round
+
+- **WHEN** the user counts every stitch of the round that was added to a previously completed chart
+- **THEN** the chart is completed again and shows 100%
+
+#### Scenario: Rounds deleted past the stored position
+
+- **WHEN** rounds are deleted so that the stored round index would point past the end
+- **THEN** the position is clamped to the last remaining round and its stitch count
+
+#### Scenario: Renaming a chart
+
+- **WHEN** only a chart's name or notes are updated
+- **THEN** its completed state is unchanged
+
 ### Requirement: Completed chart remains viewable
 
 Opening the tracking screen for a completed chart SHALL render the last round with every stitch shown as counted, without crashing.
