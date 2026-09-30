@@ -30,6 +30,7 @@ import { REWARD_TYPES } from '../../../src/constants/analytics'
 import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
 import { useSpotlight } from '../../../src/hooks/useSpotlight'
 import { formatDate } from '../../../src/utils/helpers'
+import { calculateProgressPercentage } from '../../../src/utils/progressUtils'
 import {
   savePhoto,
   deletePhoto as deletePhotoFile,
@@ -75,10 +76,8 @@ function ChartCard({ chart, projectId, onDelete, onDuplicate }: ChartCardProps) 
   const { t } = useTranslation()
   const router = useRouter()
   const totalRounds = chart.rounds.length
-  const progress =
-    totalRounds > 0
-      ? Math.round((chart.currentRound / totalRounds) * 100)
-      : 0
+  // 與首頁專案卡片共用同一套算法：已完成回傳 100，其餘含圈內針數
+  const progress = calculateProgressPercentage(chart)
 
   return (
     <Swipeable

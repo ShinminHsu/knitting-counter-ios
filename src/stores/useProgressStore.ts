@@ -144,7 +144,10 @@ export const useProgressStore = create<ProgressState>()(() => ({
       return 'round'
     }
 
-    // 所有圈完成 → 標記圖表完成
+    // 所有圈完成 → 進度停在最後一圈的結尾，再標記圖表完成
+    useProjectStore.getState().updateChart(projectId, chartId, {
+      currentStitch: total,
+    })
     useProjectStore.getState().markChartComplete(projectId, chartId)
     return 'chart'
   },
@@ -194,7 +197,13 @@ export const useProgressStore = create<ProgressState>()(() => ({
       return 'round'
     }
 
-    // 最後一圈 → 圖表完成（Req 4.12）
+    // 最後一圈 → 進度停在該圈結尾，再標記圖表完成（Req 4.12）
+    const lastRound = rounds[currentRound]
+    if (lastRound) {
+      useProjectStore.getState().updateChart(projectId, chartId, {
+        currentStitch: totalStitchesInRound(lastRound),
+      })
+    }
     useProjectStore.getState().markChartComplete(projectId, chartId)
     return 'chart'
   },
