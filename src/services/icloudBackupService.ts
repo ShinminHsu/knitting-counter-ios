@@ -273,8 +273,15 @@ async function backUpProject(
 }
 
 async function performFlush(force: boolean): Promise<void> {
-  if (restoreInProgress || !useSettingsStore.getState().iCloudBackupEnabled) return
-  if (!(await isICloudAvailable())) return
+  if (restoreInProgress) return
+  if (!useSettingsStore.getState().iCloudBackupEnabled) {
+    logDev('skipped', 'backup toggle is off')
+    return
+  }
+  if (!(await isICloudAvailable())) {
+    logDev('skipped', 'iCloud unavailable')
+    return
+  }
 
   const state = getBackupState()
   const { projects, deletedProjects } = useProjectStore.getState()
@@ -300,10 +307,12 @@ async function performFlush(force: boolean): Promise<void> {
     if (unknownRemoteIds.length === 0) {
       state.restorePromptHandled = true
     } else if (projects.length === 0) {
+      logDev('skipped', 'waiting for the restore decision')
       return
     } else {
       // 使用者在還原提示前就建立了專案：照常備份專案（manifest 會合併），但保留 iCloud 上的 library
       skipLibrary = true
+      logDev('skipped', 'library.json (restore decision pending)')
     }
   }
 
@@ -663,6 +672,7 @@ async function restoreProject(projectId: string, state: BackupState): Promise<'r
   // 追蹤 iCloud 上所有照片 id：還原時讀不到的照片會在下次 flush 被當成已移除而清掉
   state.uploadedPhotos[projectId] = remotePhotos.map((photo) => photo.id)
   saveBackupState(state)
+  logDev('restored', `${projectPath(projectId)} (${photos.length}/${remotePhotos.length} photos)`)
   return 'restored'
 }
 
@@ -727,6 +737,7 @@ export async function restoreFromBackup(): Promise<RestoreOutcome> {
     state.libraryHash = null
     state.restorePromptHandled = true
     saveBackupState(state)
+    logDev('restore finished', `${restored} restored, ${failed} failed`)
     return { status: 'restored', restored, failed }
   } finally {
     restoreInProgress = false
