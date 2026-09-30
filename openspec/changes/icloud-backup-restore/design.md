@@ -134,7 +134,7 @@ All backup files carry `schemaVersion: 1`. `useCustomStitchStore` and `useTempla
 
 - [Files not yet downloaded on a fresh install] → `triggerSync` + bounded retry during restore; the prompt is also reachable later from Settings. Validate behaviour in the device spike.
 - [iOS background time (~5 s) interrupts photo uploads] → per-item "uploaded" marking; remaining items retry on the next flush.
-- [User not signed into iCloud or iCloud Drive disabled for Stitchie] → feature degrades to a visible "unavailable" state; no errors on the hot path.
+- [User not signed into iCloud or iCloud Drive disabled for Stitchie] → feature degrades to a visible "unavailable" state; no errors on the hot path. `isICloudAvailable()` checks both levels: `CloudStorage.isCloudAvailable()` (iCloud account signed in) and a `readdir('/')` on the container (iCloud Drive can be off for this app alone, which leaves the account signed in but the container unreachable). Without the second check that case surfaces as a backup failure instead of the unavailable message.
 - [Backup consumes user's iCloud quota] → photos are already ≤ 1 MB; free tier limits photo count. Surface write errors (quota exceeded) as a Settings status message, not an alert on every flush.
 - [Orphaned photo files grow iCloud usage over time] → removed photo cleanup on every flush; users can wipe everything with Delete iCloud backup or from iOS Settings → iCloud → Manage Account Storage.
 - [Empty local state overwrites cloud backup] → cloud data preservation rule plus the restore decision gate (skip flush with no local projects; skip library writes while pending).

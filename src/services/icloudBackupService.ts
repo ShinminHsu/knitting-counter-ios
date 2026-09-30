@@ -112,8 +112,16 @@ export function markRestorePromptHandled(): void {
 
 // ─── iCloud availability ──────────────────────────────────────────────────────
 
-export function isICloudAvailable(): Promise<boolean> {
-  return cloud().isCloudAvailable()
+export async function isICloudAvailable(): Promise<boolean> {
+  // 帳號層級：是否登入 iCloud
+  if (!(await cloud().isCloudAvailable())) return false
+  try {
+    // 容器層級：iCloud 雲碟可能只對 Stitchie 關閉，此時帳號還在但讀不到容器
+    await cloud().readdir('/', SCOPE)
+    return true
+  } catch {
+    return false
+  }
 }
 
 export function subscribeICloudAvailability(listener: (available: boolean) => void): () => void {
