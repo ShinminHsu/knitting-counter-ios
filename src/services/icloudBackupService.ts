@@ -297,7 +297,16 @@ async function performFlush(force: boolean): Promise<void> {
 
   let manifest: BackupManifest
   try {
-    manifest = (await loadRemoteManifest()) ?? emptyManifest()
+    const remoteManifest = await loadRemoteManifest()
+    // iCloud 上的備份被外部刪除（系統設定刪除 App 資料、關閉再開啟 iCloud 雲碟）：
+    // 本機紀錄會誤以為檔案還在，清空後重新完整上傳
+    if (!remoteManifest && (Object.keys(state.uploadedProjects).length > 0 || state.libraryHash !== null)) {
+      logDev('reset', 'cloud backup missing, re-uploading everything')
+      state.uploadedProjects = {}
+      state.uploadedPhotos = {}
+      state.libraryHash = null
+    }
+    manifest = remoteManifest ?? emptyManifest()
   } catch (error) {
     saveBackupState({ ...state, lastError: errorMessage(error) })
     return
