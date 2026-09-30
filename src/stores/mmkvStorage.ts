@@ -40,4 +40,5 @@ export const STORAGE_KEYS = {
   ATT_REQUESTED: 'attRequested',
   GA_CLIENT_ID: 'gaClientId',
   ENTITLEMENTS: 'entitlements',
+  BACKUP_STATE: 'backupState',
 } as const

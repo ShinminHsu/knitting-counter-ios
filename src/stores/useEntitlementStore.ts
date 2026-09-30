@@ -5,8 +5,8 @@ import { StitchCategoryLockKey } from '../constants/stitches'
 
 const FREE_MAX_PROJECTS = 3
 const FREE_MAX_PHOTOS = 1
-const AD_PROJECT_SLOTS = 2   // max extra slots via ads
-const AD_PHOTO_SLOTS = 2     // max extra slots via ads
+export const AD_PROJECT_SLOTS = 2   // max extra slots via ads
+export const AD_PHOTO_SLOTS = 2     // max extra slots via ads
 
 // ─── State & Actions Interface ─────────────────────────────────────────────────
 

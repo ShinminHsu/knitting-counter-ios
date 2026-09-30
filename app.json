@@ -57,7 +57,14 @@
         }
       ],
       "expo-localization",
-      "react-native-iap"
+      "react-native-iap",
+      [
+        "react-native-cloud-storage",
+        {
+          "iCloudContainerEnvironment": "Production",
+          "enableKeyValueStorage": true
+        }
+      ]
     ],
     "extra": {
       "router": {},

@@ -361,3 +361,47 @@ export interface ChartSummary {
   /** ISO string */
   updatedAt: string
 }
+
+// ─── iCloud Backup ────────────────────────────────────────────────────────────
+
+/** iCloud AppData scope 內的 /manifest.json */
+export interface BackupManifest {
+  schemaVersion: number
+  /** ISO string */
+  updatedAt: string
+  /** projectId → 備份時的 Project.updatedAt */
+  projects: Record<string, string>
+  /** projectId → deletedAt（ISO string） */
+  deleted: Record<string, string>
+}
+
+/** iCloud AppData scope 內的 /projects/<projectId>.json */
+export interface BackupProjectFile {
+  schemaVersion: number
+  /** ISO string */
+  savedAt: string
+  project: Project
+}
+
+/** iCloud AppData scope 內的 /library.json */
+export interface BackupLibraryFile {
+  schemaVersion: number
+  /** ISO string */
+  savedAt: string
+  customStitches: CustomStitchPattern[]
+  templates: StitchGroupTemplate[]
+}
+
+/** 本機記錄的 iCloud 備份進度（MMKV key: backupState） */
+export interface BackupState {
+  /** projectId → 已上傳的 Project.updatedAt */
+  uploadedProjects: Record<string, string>
+  /** projectId → 已上傳的 photoId */
+  uploadedPhotos: Record<string, string[]>
+  /** 已上傳 library 內容的 SHA-256（自訂針法與模板沒有 updatedAt） */
+  libraryHash: string | null
+  /** ISO string */
+  lastBackupAt: string | null
+  lastError: string | null
+  restorePromptHandled: boolean
+}
