@@ -14,6 +14,7 @@ import {
 import { useTranslation } from 'react-i18next'
 import { CraftType, CustomStitchPattern } from '../types'
 import { useCustomStitchStore } from '../stores/useCustomStitchStore'
+import { logCustomStitchCreated } from '../services/analyticsService'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -101,6 +102,7 @@ export default function CustomStitchModal({
         englishName: englishName.trim() || trimmedName,
         craftType,
       })
+      logCustomStitchCreated(craftType)
       onClose()
       onCreated?.(newStitch)
     }

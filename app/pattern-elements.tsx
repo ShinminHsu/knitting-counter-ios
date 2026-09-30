@@ -15,7 +15,7 @@ import { useTranslation } from 'react-i18next'
 import ScreenHeader from '../src/components/ScreenHeader'
 import SpotlightOverlay from '../src/components/SpotlightOverlay'
 import { useSpotlight } from '../src/hooks/useSpotlight'
-import { logScreenView } from '../src/services'
+import { logScreenView, logTemplateCreated } from '../src/services'
 import { SCREEN_NAMES, REWARD_TYPES } from '../src/constants'
 import { useCustomStitchStore } from '../src/stores/useCustomStitchStore'
 import { useTemplateStore } from '../src/stores/useTemplateStore'
@@ -179,6 +179,7 @@ export default function PatternElementsScreen() {
       repeatCount: result.repeatCount,
       craftType: newTemplateCraftType,
     })
+    logTemplateCreated('library', result.stitches.length)
     setAddTemplateVisible(false)
     setNewTemplateCraftType(undefined)
   }
