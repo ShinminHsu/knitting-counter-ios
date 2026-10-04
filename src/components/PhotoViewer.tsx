@@ -15,6 +15,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native'
+import { useTranslation } from 'react-i18next'
 import { ProjectPhoto } from '../types'
 import { resolvePhotoUri } from '../services/photoService'
 
@@ -136,6 +137,7 @@ function ZoomablePhoto({ uri, isActive, onZoomChange, ref }: ZoomablePhotoProps)
 // ─── PhotoViewer ──────────────────────────────────────────────────────────────
 
 export default function PhotoViewer({ photos, initialIndex, visible, onClose }: PhotoViewerProps) {
+  const { t } = useTranslation()
   const [currentIndex, setCurrentIndex] = useState(initialIndex)
   // 目前這張放大中時停用左右換張，拖曳只會平移照片
   const [isZoomed, setIsZoomed] = useState(false)
@@ -210,12 +212,12 @@ export default function PhotoViewer({ photos, initialIndex, visible, onClose }: 
         {/* Photo type badge */}
         {currentPhoto?.type === 'reference' && (
           <View style={styles.typeBadge}>
-            <Text style={styles.typeBadgeText}>參考圖</Text>
+            <Text style={styles.typeBadgeText}>{t('photoGallery.typeReference')}</Text>
           </View>
         )}
         {currentPhoto?.type === 'progress' && (
           <View style={styles.typeBadge}>
-            <Text style={styles.typeBadgeText}>進度記錄</Text>
+            <Text style={styles.typeBadgeText}>{t('photoGallery.typeProgress')}</Text>
           </View>
         )}
 

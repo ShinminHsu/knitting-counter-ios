@@ -1,38 +1,4 @@
-import {
-  ExportType,
-  ImportMode,
-  ImportResult,
-  Project,
-  ProjectExportData,
-} from '../types'
-
-/** 匯出資料格式版本，與 Web 版保持一致 */
-export const EXPORT_VERSION = '1.0'
-
-// ─── Export ───────────────────────────────────────────────────────────────────
-
-/**
- * 將 Project 序列化為匯出用的 JSON 物件（Req 8.1）
- * 預設不含照片；傳入 includePhotos=true 時包含
- */
-export function buildExportData(
-  project: Project,
-  includePhotos: boolean = false
-): ProjectExportData {
-  const { photos, sessions, ...projectWithoutBinary } = project
-  return {
-    version: EXPORT_VERSION,
-    exportType: ExportType.FULL_PROJECT,
-    exportDate: new Date().toISOString(),
-    project: projectWithoutBinary,
-    ...(includePhotos ? { photos } : {}),
-  }
-}
-
-/** 將匯出物件序列化為 JSON 字串，供 Share Sheet 使用 */
-export function serializeExportData(data: ProjectExportData): string {
-  return JSON.stringify(data, null, 2)
-}
+import i18n from '../i18n'
 
 // ─── Import Validation ─────────────────────────────────────────────────────────
 
@@ -41,95 +7,22 @@ export function serializeExportData(data: ProjectExportData): string {
  * 回傳錯誤訊息陣列，空陣列代表通過；順序即檢查順序
  */
 export function validateProjectShape(project: unknown): string[] {
+  // 訊息在呼叫當下才解析，匯入失敗的 Alert 會顯示當前語言
+  const missing = (field: string) => i18n.t('importExport.errorMissingField', { field })
+
   if (typeof project !== 'object' || project === null || Array.isArray(project)) {
-    return ['缺少必要欄位：project']
+    return [missing('project')]
   }
 
   const p = project as Record<string, unknown>
   const errors: string[] = []
 
-  if (typeof p.id !== 'string' || p.id === '') errors.push('缺少必要欄位：project.id')
-  if (typeof p.name !== 'string' || p.name === '') errors.push('缺少必要欄位：project.name')
-  if (!Array.isArray(p.charts)) errors.push('缺少必要欄位：project.charts')
+  if (typeof p.id !== 'string' || p.id === '') errors.push(missing('project.id'))
+  if (typeof p.name !== 'string' || p.name === '') errors.push(missing('project.name'))
+  if (!Array.isArray(p.charts)) errors.push(missing('project.charts'))
   if (p.craftType !== 'crochet' && p.craftType !== 'knitting') {
-    errors.push('無效的 craftType 值：必須是 "crochet" 或 "knitting"')
+    errors.push(i18n.t('importExport.errorInvalidCraftType'))
   }
 
   return errors
-}
-
-/**
- * 驗證匯入的 JSON 資料是否符合格式（Req 8.4）
- * 回傳 { valid: true } 或 { valid: false, errors: string[] }
- */
-export function validateImportData(
-  raw: unknown
-): { valid: true; data: ProjectExportData } | { valid: false; errors: string[] } {
-  const errors: string[] = []
-
-  if (typeof raw !== 'object' || raw === null) {
-    return { valid: false, errors: ['資料格式錯誤：不是有效的 JSON 物件'] }
-  }
-
-  const obj = raw as Record<string, unknown>
-
-  if (typeof obj.version !== 'string') {
-    errors.push('缺少欄位：version')
-  }
-  if (typeof obj.exportDate !== 'string') {
-    errors.push('缺少欄位：exportDate')
-  }
-  if (!Object.values(ExportType).includes(obj.exportType as ExportType)) {
-    errors.push(`exportType 不合法：${String(obj.exportType)}`)
-  }
-
-  errors.push(...validateProjectShape(obj.project))
-
-  if (errors.length > 0) {
-    return { valid: false, errors }
-  }
-
-  return { valid: true, data: raw as ProjectExportData }
-}
-
-/**
- * 解析 JSON 字串並驗證（Req 8.4）
- * 同時處理 JSON.parse 失敗與格式驗證
- */
-export function parseAndValidateImport(
-  jsonString: string
-): { valid: true; data: ProjectExportData } | { valid: false; errors: string[] } {
-  let parsed: unknown
-  try {
-    parsed = JSON.parse(jsonString)
-  } catch {
-    return { valid: false, errors: ['無法解析 JSON：檔案格式不正確'] }
-  }
-  return validateImportData(parsed)
-}
-
-// ─── Import Result Helpers ─────────────────────────────────────────────────────
-
-/** 建立匯入成功的結果 */
-export function importSuccess(project: Project, warnings: string[] = []): ImportResult {
-  return { success: true, project, errors: [], warnings }
-}
-
-/** 建立匯入失敗的結果 */
-export function importFailure(errors: string[], warnings: string[] = []): ImportResult {
-  return { success: false, errors, warnings }
-}
-
-/**
- * 依 ImportMode 取得對應的操作說明文字（UI 用）
- */
-export function importModeLabel(mode: ImportMode): string {
-  switch (mode) {
-    case ImportMode.CREATE_NEW:
-      return '建立新專案'
-    case ImportMode.OVERWRITE_EXISTING:
-      return '覆寫現有專案'
-    case ImportMode.MERGE_PATTERN:
-      return '合併織圖'
-  }
 }
