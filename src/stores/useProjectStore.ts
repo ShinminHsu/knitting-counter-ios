@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import { Chart, CraftType, Project, ProjectPhoto, Round } from '../types'
-import { createChart, createProject, migrateProjectsToV1 } from '../utils'
+import { calcRoundTotalStitches, createChart, createProject, isChartCompleteByProgress, migrateProjectsToV1 } from '../utils'
 import { generateId } from '../utils/helpers'
 import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
@@ -187,18 +187,40 @@ export const useProjectStore = create<ProjectState>()(
 
       updateChart: (projectId, chartId, updates) => {
         const now = new Date().toISOString()
+        // 圈數或進度有變動時重新推導完成狀態：加圈後不該還停在 100%，刪圈也不該讓位置超出範圍
+        const touchesProgress =
+          updates.rounds !== undefined ||
+          updates.currentRound !== undefined ||
+          updates.currentStitch !== undefined
+
         set((state) => ({
-          projects: state.projects.map((p) =>
-            p.id === projectId
-              ? {
-                  ...p,
-                  charts: p.charts.map((c) =>
-                    c.id === chartId ? { ...c, ...updates, updatedAt: now } : c
-                  ),
-                  updatedAt: now,
-                }
-              : p
-          ),
+          projects: state.projects.map((p) => {
+            if (p.id !== projectId) return p
+
+            const charts = p.charts.map((c) => {
+              if (c.id !== chartId) return c
+              const next = { ...c, ...updates, updatedAt: now }
+              if (!touchesProgress) return next
+
+              const lastIndex = next.rounds.length - 1
+              const currentRound = lastIndex < 0 ? 0 : Math.min(Math.max(next.currentRound, 0), lastIndex)
+              const roundTotal =
+                lastIndex < 0 ? 0 : calcRoundTotalStitches(next.rounds[currentRound].patternItems)
+              const currentStitch = Math.min(Math.max(next.currentStitch, 0), roundTotal)
+              const clamped = { ...next, currentRound, currentStitch }
+
+              return { ...clamped, isCompleted: isChartCompleteByProgress(clamped) }
+            })
+
+            return {
+              ...p,
+              charts,
+              ...(touchesProgress
+                ? { isCompleted: charts.length > 0 && charts.every((c) => c.isCompleted === true) }
+                : {}),
+              updatedAt: now,
+            }
+          }),
         }))
       },
 

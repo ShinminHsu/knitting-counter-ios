@@ -30,6 +30,7 @@ import { REWARD_TYPES } from '../../../src/constants/analytics'
 import SpotlightOverlay from '../../../src/components/SpotlightOverlay'
 import { useSpotlight } from '../../../src/hooks/useSpotlight'
 import { formatDate } from '../../../src/utils/helpers'
+import { calculateProgressPercentage, isChartComplete } from '../../../src/utils/progressUtils'
 import {
   savePhoto,
   deletePhoto as deletePhotoFile,
@@ -75,10 +76,10 @@ function ChartCard({ chart, projectId, onDelete, onDuplicate }: ChartCardProps) 
   const { t } = useTranslation()
   const router = useRouter()
   const totalRounds = chart.rounds.length
-  const progress =
-    totalRounds > 0
-      ? Math.round((chart.currentRound / totalRounds) * 100)
-      : 0
+  // 與首頁專案卡片共用同一套算法：已完成回傳 100，其餘含圈內針數
+  const progress = calculateProgressPercentage(chart)
+  // currentRound 是 0 起算的索引，等同已完成的圈數；完成時要顯示全部圈數而不是最後一圈的索引
+  const completedRounds = isChartComplete(chart) ? totalRounds : chart.currentRound
 
   return (
     <Swipeable
@@ -121,8 +122,8 @@ function ChartCard({ chart, projectId, onDelete, onDuplicate }: ChartCardProps) 
       {/* Progress */}
       <Text style={styles.chartCardProgress}>
         {totalRounds > 0
-          ? t('projectDetail.chartProgress', { current: chart.currentRound, total: totalRounds, progress })
-          : `${chart.currentRound} / ${totalRounds}`}
+          ? t('projectDetail.chartProgress', { current: completedRounds, total: totalRounds, progress })
+          : `${completedRounds} / ${totalRounds}`}
       </Text>
 
       {/* Action buttons */}
