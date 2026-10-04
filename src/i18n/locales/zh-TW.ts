@@ -20,6 +20,7 @@ const zhTW = {
     groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 次',
     deleteRound: '刪除段落',
     duplicate: '複製',
+    duplicatedName: '{{name}} (副本)',
   },
 
   // ─── 針法名稱 ────────────────────────────────────────────────────────────────
@@ -244,6 +245,12 @@ const zhTW = {
     importMergeSuccess: '已將 {{count}} 個織圖合併至此專案。',
     goToProject: '前往新專案',
     stayHere: '留在此頁',
+    shareDialogTitle: '匯出專案',
+    errorReadFile: '無法讀取檔案，請確認檔案是否存在且可讀取',
+    errorInvalidJson: '檔案格式錯誤：無法解析 JSON 內容',
+    errorRootNotObject: '無效的檔案格式：根資料必須是物件',
+    errorMissingField: '缺少必要欄位：{{field}}',
+    errorInvalidCraftType: '無效的 craftType 值：必須是 "crochet" 或 "knitting"',
   },
 
   // ─── 針法庫 ──────────────────────────────────────────────────────────────────
@@ -270,6 +277,7 @@ const zhTW = {
     useCount: '用過 {{count}} 次',
     repeatCount: '重複 {{count}} 次',
     noRepeat: '不重複',
+    customAbbrFallback: '自訂',
   },
 
   // ─── 使用說明 ────────────────────────────────────────────────────────────────
@@ -428,6 +436,8 @@ const zhTW = {
     addButton: '+',
     optionsTitle: '照片選項',
     setCover: '設為封面',
+    typeReference: '參考圖',
+    typeProgress: '進度記錄',
   },
 
   roundCard: {
@@ -654,6 +664,13 @@ const zhTW = {
     deleteDoneTitle: '已刪除 iCloud 備份',
     deleteDoneMessage: '自動備份已關閉，之後可以隨時重新開啟。',
     deleteFailed: '無法刪除 iCloud 備份，請稍後再試。',
+  },
+
+  // ─── 找不到頁面 ──────────────────────────────────────────────────────────────
+  notFound: {
+    title: '找不到頁面',
+    message: '找不到此頁面',
+    goHome: '返回首頁',
   },
 } as const
 

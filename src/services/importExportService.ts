@@ -4,6 +4,7 @@ import * as DocumentPicker from 'expo-document-picker'
 import { Project, ProjectExportData, ExportType } from '../types'
 import { generateId, nowISO } from '../utils/helpers'
 import { validateProjectShape } from '../utils/importExportHelpers'
+import i18n from '../i18n'
 
 // ─── exportProject ────────────────────────────────────────────────────────────
 
@@ -60,7 +61,7 @@ export async function exportProject(
     })
     await Sharing.shareAsync(filePath, {
       mimeType: 'application/json',
-      dialogTitle: '匯出專案',
+      dialogTitle: i18n.t('importExport.shareDialogTitle'),
     })
   } finally {
     await FileSystem.deleteAsync(filePath, { idempotent: true })
@@ -99,14 +100,14 @@ export async function parseImportFile(uri: string): Promise<ProjectExportData> {
       encoding: FileSystem.EncodingType.UTF8,
     })
   } catch {
-    throw new Error('無法讀取檔案，請確認檔案是否存在且可讀取')
+    throw new Error(i18n.t('importExport.errorReadFile'))
   }
 
   let data: unknown
   try {
     data = JSON.parse(content)
   } catch {
-    throw new Error('檔案格式錯誤：無法解析 JSON 內容')
+    throw new Error(i18n.t('importExport.errorInvalidJson'))
   }
 
   validateImportData(data)
@@ -121,7 +122,7 @@ export async function parseImportFile(uri: string): Promise<ProjectExportData> {
  */
 export function validateImportData(data: unknown): data is ProjectExportData {
   if (typeof data !== 'object' || data === null || Array.isArray(data)) {
-    throw new Error('無效的檔案格式：根資料必須是物件')
+    throw new Error(i18n.t('importExport.errorRootNotObject'))
   }
 
   const obj = data as Record<string, unknown>

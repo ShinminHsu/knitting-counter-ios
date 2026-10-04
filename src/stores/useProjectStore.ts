@@ -1,5 +1,6 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
+import i18n from '../i18n'
 import { Chart, CraftType, Project, ProjectPhoto, Round } from '../types'
 import { calcRoundTotalStitches, createChart, createProject, isChartCompleteByProgress, migrateProjectsToV1 } from '../utils'
 import { generateId } from '../utils/helpers'
@@ -147,7 +148,7 @@ export const useProjectStore = create<ProjectState>()(
         const dup: Project = {
           ...project,
           id: generateId(),
-          name: `${project.name} (副本)`,
+          name: i18n.t('common.duplicatedName', { name: project.name }),
           charts: dupCharts,
           currentChartId: dupCharts[0]?.id,
           photos: [],
@@ -259,7 +260,7 @@ export const useProjectStore = create<ProjectState>()(
             const dup: Chart = {
               ...chart,
               id: generateId(),
-              name: `${chart.name} (副本)`,
+              name: i18n.t('common.duplicatedName', { name: chart.name }),
               rounds: dupRounds,
               currentRound: 0,
               currentStitch: 0,

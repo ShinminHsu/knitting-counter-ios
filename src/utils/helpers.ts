@@ -1,3 +1,5 @@
+import i18n from '../i18n'
+
 // ─── ID Generation ─────────────────────────────────────────────────────────────
 
 /** 產生簡易唯一 ID（無需額外 package） */
@@ -12,33 +14,13 @@ export function nowISO(): string {
   return new Date().toISOString()
 }
 
-/** 將 ISO 日期字串格式化為繁體中文顯示格式（e.g., "2024年1月15日"） */
+/** 將 ISO 日期字串格式化為目前語言的長日期（e.g., "2024年1月15日" / "January 15, 2024"） */
 export function formatDate(isoString: string): string {
   const date = new Date(isoString)
-  return new Intl.DateTimeFormat('zh-Hant-TW', {
+  // 在呼叫當下才讀語言，使用者中途切換語言也能正確顯示
+  return new Intl.DateTimeFormat(i18n.language, {
     year: 'numeric',
     month: 'long',
     day: 'numeric',
   }).format(date)
-}
-
-/** 將 ISO 日期字串格式化為相對時間（e.g., "3 天前", "剛剛", "1 個月前"） */
-export function formatRelativeDate(isoString: string): string {
-  const now = Date.now()
-  const past = new Date(isoString).getTime()
-  const diffMs = now - past
-
-  const seconds = Math.floor(diffMs / 1000)
-  const minutes = Math.floor(seconds / 60)
-  const hours = Math.floor(minutes / 60)
-  const days = Math.floor(hours / 24)
-  const months = Math.floor(days / 30)
-  const years = Math.floor(days / 365)
-
-  if (seconds < 60) return '剛剛'
-  if (minutes < 60) return `${minutes} 分鐘前`
-  if (hours < 24) return `${hours} 小時前`
-  if (days < 30) return `${days} 天前`
-  if (months < 12) return `${months} 個月前`
-  return `${years} 年前`
 }
