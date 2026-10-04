@@ -33,6 +33,16 @@ Every chart progress percentage shown in the app SHALL come from the shared prog
 - **WHEN** the user has counted half of the stitches in the first of two equally sized rounds
 - **THEN** the chart card shows about 25%, not 0%
 
+#### Scenario: Round counter on a completed chart
+
+- **WHEN** a chart with 6 rounds is completed
+- **THEN** its card reads 6 of 6 rounds, not 5 of 6
+
+#### Scenario: Round counter in progress
+
+- **WHEN** the user has finished 5 of 6 rounds and is partway through the sixth
+- **THEN** its card reads 5 of 6 rounds
+
 #### Scenario: Chart with no rounds
 
 - **WHEN** a chart has no rounds

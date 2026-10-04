@@ -9,6 +9,8 @@
 
 - [x] 2.3 Completion is derived from stored progress — Completion is recomputed when the chart changes: add `isChartCompleteByProgress(chart)` to `src/utils/progressUtils.ts` (the flag-independent half of `isChartComplete`, which then delegates to it), and in `useProjectStore.updateChart` recompute when `updates.rounds`, `updates.currentRound`, or `updates.currentStitch` is present — clamp `currentRound` into `[0, rounds.length - 1]` and `currentStitch` into `[0, calcRoundTotalStitches(current round)]`, set the chart's `isCompleted` from `isChartCompleteByProgress`, and set the project's `isCompleted` to whether every chart is complete
 
+- [x] 2.4 One progress formula for every card — round counter: in `ChartCard`, pass `isChartComplete(chart) ? totalRounds : chart.currentRound` as the `current` value of `projectDetail.chartProgress` (and in the no-rounds fallback text), because `currentRound` is a 0-based index that stops at the last round when the chart completes
+
 ## 3. Verification
 
 - [x] 3.1 Run `tsc --noEmit` under Node 20 and confirm no type errors
