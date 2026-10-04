@@ -41,6 +41,16 @@ export function calculateProgressPercentage(chart: Chart): number {
  */
 export function isChartComplete(chart: Chart): boolean {
   if (chart.isCompleted) return true
+  return isChartCompleteByProgress(chart)
+}
+
+/**
+ * 只看儲存的進度判斷是否完成，不看 isCompleted 旗標
+ *
+ * 供 useProjectStore.updateChart 在圈數或進度變動時重新推導完成狀態使用；
+ * 若沿用 isChartComplete 會因旗標短路而永遠回傳 true。
+ */
+export function isChartCompleteByProgress(chart: Chart): boolean {
   if (chart.rounds.length === 0) return false
 
   const lastIndex = chart.rounds.length - 1
