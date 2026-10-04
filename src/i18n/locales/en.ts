@@ -20,6 +20,7 @@ const en = {
     groupRepTitleEmpty: '[{{name}}] - Rep. {{n}}',
     deleteRound: 'Delete round',
     duplicate: 'Duplicate',
+    duplicatedName: '{{name}} (Copy)',
   },
 
   // ─── Stitch names ────────────────────────────────────────────────────────────
@@ -244,6 +245,12 @@ const en = {
     importMergeSuccess: '{{count}} charts merged into this project.',
     goToProject: 'Go to Project',
     stayHere: 'Stay Here',
+    shareDialogTitle: 'Export Project',
+    errorReadFile: 'Cannot read the file. Make sure it exists and is readable.',
+    errorInvalidJson: 'Invalid file format: the JSON content could not be parsed.',
+    errorRootNotObject: 'Invalid file format: the root data must be an object.',
+    errorMissingField: 'Missing required field: {{field}}',
+    errorInvalidCraftType: 'Invalid craftType value: must be "crochet" or "knitting".',
   },
 
   // ─── Stitch Library ──────────────────────────────────────────────────────────
@@ -270,6 +277,7 @@ const en = {
     useCount: 'Used {{count}} times',
     repeatCount: 'Repeat {{count}}x',
     noRepeat: 'No repeat',
+    customAbbrFallback: 'Custom',
   },
 
   // ─── User Guide ──────────────────────────────────────────────────────────────
@@ -428,6 +436,8 @@ const en = {
     addButton: '+',
     optionsTitle: 'Photo Options',
     setCover: 'Set as Cover',
+    typeReference: 'Reference',
+    typeProgress: 'Progress',
   },
 
   roundCard: {
@@ -640,6 +650,13 @@ const en = {
     deleteDoneTitle: 'iCloud Backup Deleted',
     deleteDoneMessage: 'Automatic backup is now off. You can turn it back on anytime.',
     deleteFailed: 'Could not delete the iCloud backup. Please try again later.',
+  },
+
+  // ─── Not Found ───────────────────────────────────────────────────────────────
+  notFound: {
+    title: 'Page Not Found',
+    message: 'This page could not be found.',
+    goHome: 'Go to Home',
   },
 } as const
 

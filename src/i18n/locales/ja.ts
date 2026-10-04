@@ -20,6 +20,7 @@ const ja = {
     groupRepTitleEmpty: '【{{name}}】 - 第 {{n}} 回',
     deleteRound: '段を削除',
     duplicate: 'コピー',
+    duplicatedName: '{{name}}のコピー',
   },
 
   // ─── 編み目名 ────────────────────────────────────────────────────────────────
@@ -244,6 +245,12 @@ const ja = {
     importMergeSuccess: '{{count}} 個のチャートをこのプロジェクトに統合しました。',
     goToProject: 'プロジェクトへ',
     stayHere: 'ここに留まる',
+    shareDialogTitle: 'プロジェクトを書き出す',
+    errorReadFile: 'ファイルを読み込めません。ファイルが存在し、読み取り可能か確認してください',
+    errorInvalidJson: 'ファイル形式エラー：JSON を解析できません',
+    errorRootNotObject: '無効なファイル形式：ルートデータはオブジェクトである必要があります',
+    errorMissingField: '必須項目がありません：{{field}}',
+    errorInvalidCraftType: '無効な craftType 値：「crochet」または「knitting」である必要があります',
   },
 
   // ─── 編み目ライブラリ ─────────────────────────────────────────────────────────
@@ -270,6 +277,7 @@ const ja = {
     useCount: '{{count}} 回使用',
     repeatCount: '{{count}} 回繰り返し',
     noRepeat: '繰り返しなし',
+    customAbbrFallback: 'カスタム',
   },
 
   // ─── ユーザーガイド ───────────────────────────────────────────────────────────
@@ -428,6 +436,8 @@ const ja = {
     addButton: '＋',
     optionsTitle: '写真のオプション',
     setCover: 'カバーに設定',
+    typeReference: '参考図',
+    typeProgress: '進捗記録',
   },
 
   roundCard: {
@@ -640,6 +650,13 @@ const ja = {
     deleteDoneTitle: 'iCloudバックアップを削除しました',
     deleteDoneMessage: '自動バックアップはオフになりました。いつでも再度オンにできます。',
     deleteFailed: 'iCloudバックアップを削除できませんでした。しばらくしてから再度お試しください。',
+  },
+
+  // ─── ページが見つかりません ───────────────────────────────────────────────────
+  notFound: {
+    title: 'ページが見つかりません',
+    message: 'このページは見つかりませんでした',
+    goHome: 'ホームに戻る',
   },
 } as const
 

@@ -1,4 +1,5 @@
 import { Alert } from 'react-native'
+import i18n from '../i18n'
 
 // ─── Props ────────────────────────────────────────────────────────────────────
 
@@ -22,17 +23,18 @@ export function showConfirmDialog({
   message,
   onConfirm,
   onCancel,
-  confirmLabel = '確定',
+  confirmLabel,
   destructive = false,
 }: ConfirmDialogOptions): void {
+  // 在呼叫當下才解析，使用者中途切換語言也能正確顯示
   Alert.alert(title, message, [
     {
-      text: '取消',
+      text: i18n.t('common.cancel'),
       style: 'cancel',
       onPress: onCancel,
     },
     {
-      text: confirmLabel,
+      text: confirmLabel ?? i18n.t('common.confirm'),
       style: destructive ? 'destructive' : 'default',
       onPress: onConfirm,
     },

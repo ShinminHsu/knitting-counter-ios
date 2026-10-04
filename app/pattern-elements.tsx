@@ -227,7 +227,7 @@ export default function PatternElementsScreen() {
     const parts = template.stitches.map((s) => {
       const abbr =
         s.type === 'custom'
-          ? (s.customAbbr ?? s.customName ?? '自訂')
+          ? (s.customAbbr ?? s.customName ?? t('patternElements.customAbbrFallback'))
           : (StitchTypeInfo[s.type]?.abbr ?? s.type)
       return s.count > 1 ? `${abbr}×${s.count}` : abbr
     })

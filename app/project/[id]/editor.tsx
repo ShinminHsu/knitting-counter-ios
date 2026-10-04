@@ -163,7 +163,7 @@ function RoundRow({
         <View style={styles.roundInfo}>
           <Text style={styles.roundBadgeText}>{t('editor.roundBadge', { index: index + roundStartNumber })}</Text>
           <Text style={styles.roundSummaryText}>
-            {hasItems ? itemSummaries.join('、') : t('editor.noStitches')}
+            {hasItems ? itemSummaries.join(t('common.stitchListSep')) : t('editor.noStitches')}
           </Text>
           {round.notes ? (
             <Text style={styles.roundNotes} numberOfLines={1}>{round.notes}</Text>
