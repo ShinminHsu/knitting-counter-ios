@@ -69,6 +69,74 @@ export function isChartCompleteByProgress(chart: Chart): boolean {
 }
 
 /**
+ * 位置欄位正規化：舊版匯出的檔案可能缺欄位或存成非整數，一律當成 0 起算
+ */
+function toPosition(value: number): number {
+  return Number.isFinite(value) ? Math.max(Math.floor(value), 0) : 0
+}
+
+export interface DeriveCompletionOptions {
+  /**
+   * 匯入／還原專用：旗標說完成、且位置已經在最後一圈時，把位置補到該圈結尾。
+   *
+   * 舊版有「織完最後一圈但 currentStitch 沒補到總針數」的 bug，那些檔案裡
+   * 真正織完的織圖會差最後幾針；位置若已在最後一圈就視為少記，補完維持完成。
+   * 反之「完成後又加圈」的髒資料位置會落在非最後一圈，不受此規則保護。
+   *
+   * updateChart 不可開啟：否則使用者重設最後一圈時會被舊旗標救回完成狀態。
+   */
+  trustCompletedInLastRound?: boolean
+}
+
+/**
+ * 依儲存的進度重新推導整個專案的完成狀態（唯一一份推導邏輯）
+ *
+ * 每張 chart 的位置會被夾進合法範圍，isCompleted 一律由位置推導而來，
+ * 不直接沿用傳入的旗標；專案的 isCompleted 再由所有 chart 推導。
+ *
+ * 供兩種情境共用：
+ *   1. updateChart —— 圈數或進度變動後重算（嚴格模式）
+ *   2. importProject / overwriteProject —— 整包專案寫入（匯入、合併、iCloud 還原）
+ *      舊版曾把錯的 isCompleted: true 寫進資料並一路帶到匯出檔，
+ *      在入口重算才能把這些髒旗標洗掉。
+ */
+export function withDerivedCompletion(
+  project: Project,
+  options: DeriveCompletionOptions = {}
+): Project {
+  const charts = project.charts.map((chart) => {
+    const lastIndex = chart.rounds.length - 1
+    if (lastIndex < 0) {
+      return { ...chart, currentRound: 0, currentStitch: 0, isCompleted: false }
+    }
+
+    const rawRound = toPosition(chart.currentRound)
+    const currentRound = Math.min(rawRound, lastIndex)
+    const roundTotal = calcRoundTotalStitches(chart.rounds[currentRound].patternItems)
+
+    // 位置超出最後一圈代表進度已經走完，補到結尾而不是停在半途
+    const snapToEnd =
+      rawRound > lastIndex ||
+      (options.trustCompletedInLastRound === true &&
+        chart.isCompleted === true &&
+        currentRound === lastIndex)
+
+    const currentStitch = snapToEnd
+      ? roundTotal
+      : Math.min(toPosition(chart.currentStitch), roundTotal)
+    const clamped = { ...chart, currentRound, currentStitch }
+
+    return { ...clamped, isCompleted: isChartCompleteByProgress(clamped) }
+  })
+
+  return {
+    ...project,
+    charts,
+    isCompleted: charts.length > 0 && charts.every((c) => c.isCompleted === true),
+  }
+}
+
+/**
  * 判斷整個 Project 是否已完成
  *
  * - 已設定 isCompleted 旗標 → true

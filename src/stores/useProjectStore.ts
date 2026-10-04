@@ -2,7 +2,7 @@ import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 import i18n from '../i18n'
 import { Chart, CraftType, Project, ProjectPhoto, Round } from '../types'
-import { calcRoundTotalStitches, createChart, createProject, isChartCompleteByProgress, migrateProjectsToV1 } from '../utils'
+import { createChart, createProject, migrateProjectsToV1, withDerivedCompletion } from '../utils'
 import { generateId } from '../utils/helpers'
 import { mmkvStorage, STORAGE_KEYS } from './mmkvStorage'
 
@@ -198,29 +198,13 @@ export const useProjectStore = create<ProjectState>()(
           projects: state.projects.map((p) => {
             if (p.id !== projectId) return p
 
-            const charts = p.charts.map((c) => {
-              if (c.id !== chartId) return c
-              const next = { ...c, ...updates, updatedAt: now }
-              if (!touchesProgress) return next
+            const charts = p.charts.map((c) =>
+              c.id === chartId ? { ...c, ...updates, updatedAt: now } : c
+            )
+            const next = { ...p, charts, updatedAt: now }
 
-              const lastIndex = next.rounds.length - 1
-              const currentRound = lastIndex < 0 ? 0 : Math.min(Math.max(next.currentRound, 0), lastIndex)
-              const roundTotal =
-                lastIndex < 0 ? 0 : calcRoundTotalStitches(next.rounds[currentRound].patternItems)
-              const currentStitch = Math.min(Math.max(next.currentStitch, 0), roundTotal)
-              const clamped = { ...next, currentRound, currentStitch }
-
-              return { ...clamped, isCompleted: isChartCompleteByProgress(clamped) }
-            })
-
-            return {
-              ...p,
-              charts,
-              ...(touchesProgress
-                ? { isCompleted: charts.length > 0 && charts.every((c) => c.isCompleted === true) }
-                : {}),
-              updatedAt: now,
-            }
+            // 只改名稱或備註時不碰完成狀態
+            return touchesProgress ? withDerivedCompletion(next) : next
           }),
         }))
       },
@@ -371,21 +355,25 @@ export const useProjectStore = create<ProjectState>()(
 
       // ── 匯入 ────────────────────────────────────────────────────────────────
 
+      // 匯入與 iCloud 還原的來源檔案可能帶著舊版寫壞的 isCompleted，
+      // 一律以檔案裡的進度重新推導，不信任旗標
       importProject: (project) => {
-        set((state) => ({ projects: [...state.projects, project] }))
+        const healed = withDerivedCompletion(project, { trustCompletedInLastRound: true })
+        set((state) => ({ projects: [...state.projects, healed] }))
       },
 
       overwriteProject: (project) => {
+        const healed = withDerivedCompletion(project, { trustCompletedInLastRound: true })
         set((state) => {
-          const exists = state.projects.some((p) => p.id === project.id)
+          const exists = state.projects.some((p) => p.id === healed.id)
           if (exists) {
             return {
               projects: state.projects.map((p) =>
-                p.id === project.id ? project : p
+                p.id === healed.id ? healed : p
               ),
             }
           }
-          return { projects: [...state.projects, project] }
+          return { projects: [...state.projects, healed] }
         })
       },
     }),
